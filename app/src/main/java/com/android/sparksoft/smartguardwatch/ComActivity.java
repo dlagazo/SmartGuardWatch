@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
@@ -17,6 +19,7 @@ import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ComActivity extends Activity {
 
@@ -38,6 +41,8 @@ public class ComActivity extends Activity {
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
+
+        speak();
 
 
         arrayContacts = dsContacts.getAllContacts();
@@ -86,6 +91,43 @@ public class ComActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_com, menu);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode,
+                                    Intent data) {
+        if (requestCode == VOICE_RECOGNITION && resultCode == RESULT_OK) {
+            ArrayList<String> results;
+            results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            // TODO Do something with the recognized voice strings
+
+            Toast.makeText(this, results.get(0), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), results.get(0), Toast.LENGTH_LONG).show();
+            for(Contact con:dsContacts.getAllContacts()) {
+                for (String str : results.get(0).split(" ")) {
+                    if (str.toLowerCase().equals(con.getFirstName().toLowerCase()))
+                    {
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
+                        startActivity(intent);
+                        finish();
+                    }
+
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void speak(){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        // Specify free form input
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Please start speaking");
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
+        startActivityForResult(intent, VOICE_RECOGNITION);
     }
 
     @Override

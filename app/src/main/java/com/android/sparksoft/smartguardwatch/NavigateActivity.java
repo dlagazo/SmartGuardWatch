@@ -3,6 +3,9 @@ package com.android.sparksoft.smartguardwatch;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -28,6 +31,7 @@ public class NavigateActivity extends Activity {
     SharedPreferences sharedPrefs;
     private DataSourcePlaces dsPlaces;
     private static final int VOICE_RECOGNITION = 1;
+    private LocationManager mLocationManager;
     int status;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +45,14 @@ public class NavigateActivity extends Activity {
         dsPlaces = new DataSourcePlaces(this);
         dsPlaces.open();
 
-        sp = new SpeechBot(this, "Where do you want to go?");
-        //speak();
+
+        speak();
+
+
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,
+                1, mLocationListener);
 
         arrayPlaces = dsPlaces.getAllPlaces();
 
@@ -87,7 +97,27 @@ public class NavigateActivity extends Activity {
     }
 
 
+    private final LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
 
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
 
 
     @Override

@@ -52,7 +52,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 finish();
             }
         });
-        //promptSpeechInput();
+        promptSpeechInput();
 
 
 
@@ -97,13 +97,19 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
     private void promptSpeechInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        // Specify free form input
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Please start speaking");
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
-        startActivityForResult(intent, 1);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                "Say something");
+
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    "Sorry! Your device does not support speech to text.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -121,9 +127,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     Toast.makeText(getApplicationContext(), result.get(0), Toast.LENGTH_SHORT).show();
                     //txtSpeechInput.setText(result.get(0));
-                    if(result.get(0).equals("yes"))
+                    if(result.get(0).equals("no"))
                         finish();
-                    else if(result.get(0).toLowerCase().equals("no"))
+                    else if(result.get(0).toLowerCase().equals("yes"))
                     {
                         if (!tts.isSpeaking()) {
                             tts.speak("Calling Anna Mueller", TextToSpeech.QUEUE_FLUSH, null);

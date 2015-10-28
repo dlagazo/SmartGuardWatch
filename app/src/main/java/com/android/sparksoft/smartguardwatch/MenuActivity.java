@@ -30,6 +30,12 @@ public class MenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rect_activity_menu);
 
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        //SOS status, 0-inactive, 1-active
+        prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
+
+        //start the fall service
         startService(new Intent(getApplicationContext(), FallService.class));
 
 
@@ -46,7 +52,14 @@ public class MenuActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sp.talk("Do you need an emergency call?", false);
+                Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
+
                 navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);
             }
@@ -58,6 +71,13 @@ public class MenuActivity extends Activity {
             public void onClick(View v) {
                 sp.talk("Who do you want to call?", false);
                 Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
+
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 Intent navIntent = new Intent(getApplicationContext(), ComActivity.class);
                 navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);
@@ -68,6 +88,15 @@ public class MenuActivity extends Activity {
         btnNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sp.talk("Where do you want to go?", false);
+
+                Toast.makeText(getApplicationContext(), "Where do you want to go?", Toast.LENGTH_SHORT).show();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
                 navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);

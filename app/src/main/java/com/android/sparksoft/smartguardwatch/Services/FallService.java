@@ -62,7 +62,7 @@ public class FallService extends Service implements SensorEventListener {
             LINEAR_ACCELEROMETER = false;
         }
 
-        //Toast.makeText(this, "Service Recording", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Service Recording", Toast.LENGTH_SHORT).show();
     }
 
     //TODO: Fix this, to just stop device gathering
