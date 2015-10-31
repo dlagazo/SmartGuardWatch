@@ -32,6 +32,7 @@ public class SoundMeter {
                 max = Math.abs(s);
             }
         }
+
         return max;
     }
 

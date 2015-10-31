@@ -1,7 +1,9 @@
 package com.android.sparksoft.smartguardwatch.Services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -11,6 +13,8 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.R;
 
 import com.android.sparksoft.smartguardwatch.Features.FallDetector;
@@ -44,6 +48,7 @@ public class ChargingService extends Service{
         sm = new SoundMeter();
         sm.start();
 
+
     }
 
     @Override
@@ -56,11 +61,22 @@ public class ChargingService extends Service{
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+
         sp = new SpeechBot(getApplicationContext(), "");
+
+        Toast.makeText(getApplicationContext(), "Charging", Toast.LENGTH_SHORT).show();
+        //sp.talk("Charging service started", false);
 
         //MediaPlayer mp = new MediaPlayer();
         //mp = MediaPlayer.create(ChargingService.this, R.raw.smartguard);
         //mp.start();
+        syncData();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
         myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
@@ -77,24 +93,58 @@ public class ChargingService extends Service{
         return 0;
     }
 
+    private void syncData()
+    {
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        int status = prefs.getInt("sparksoft.smartguard.status", 0);
+
+        if(status == 1)
+        {
+            String auth = prefs.getString("sparksoft.smartguard.auth", "");
+            HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
+            String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
+            hr.Sync(url);
+
+            Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     private void checkNoise()
     {
         Double noise = sm.getAmplitude();
         Log.e("ChargingService", Double.toString(sm.getAmplitude()));
-        if(noise > 10000 && !alarm)
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        int SOSstatus = prefs.getInt("sparksoft.smartguard.SOSstatus", 1);
+        if(noise > 20000 && !alarm && SOSstatus == 1)
         {
-            sp.talk("Do you need an emergency call?", true);
             sm.stop();
+            sp.talk("Do you need an emergency call?", true);
+
+
             Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
             fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            startActivity(fallIntent);
+            alarm = true;
+
+        }
+
+        if(alarm && SOSstatus==0)
+        {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            startActivity(fallIntent);
-            alarm = true;
+            alarm = false;
+            sm.start();
+            prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+
         }
+
 
 
     }
@@ -128,7 +178,11 @@ public class ChargingService extends Service{
         sm.stop();
         myTimer.purge();
         myTimer.cancel();
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Charging service stopped", Toast.LENGTH_LONG).show();
+        //sp.talk("Charging service stopped", false);
+
+        sp.destroy();
+
     }
 
 

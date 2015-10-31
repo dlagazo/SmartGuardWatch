@@ -2,7 +2,9 @@ package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -14,16 +16,21 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SOSActivity extends Activity implements TextToSpeech.OnInitListener {
     private TextToSpeech tts;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private VoiceRecognition vr;
-
+    private Timer myTimer;
+    private SpeechBot sp;
+    private boolean isOk = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -33,7 +40,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
-
+        sp = new SpeechBot(this, "");
 
         setContentView(R.layout.activity_sos);
 
@@ -49,10 +56,26 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         btnSOSOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                myTimer.purge();
+                myTimer.cancel();
+                isOk = true;
                 finish();
             }
         });
-        promptSpeechInput();
+
+        myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                promptSpeechInput();
+
+            }
+
+        }, 0, 10000);
+
 
 
 
@@ -96,20 +119,53 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     }
 
     private void promptSpeechInput() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "Say something");
 
-        try {
-            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    "Sorry! Your device does not support speech to text.",
-                    Toast.LENGTH_SHORT).show();
+        for(int i = 0; i < 3; i++)
+        {
+            if(!isOk)
+            {
+                sp.talk("Do you need an emergency call?", true);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                        "Say something");
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 5000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
+                try {
+                    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+                } catch (ActivityNotFoundException a) {
+                    Toast.makeText(getApplicationContext(),
+                            "Sorry! Your device does not support speech to text.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
+                if(i==2)
+                {
+                    Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
+                    startActivity(callIntent);
+                    myTimer.purge();
+                    myTimer.cancel();
+                    isOk = true;
+                    finish();
+                }
+            }
+
         }
+
     }
 
     /**
@@ -128,12 +184,19 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     Toast.makeText(getApplicationContext(), result.get(0), Toast.LENGTH_SHORT).show();
                     //txtSpeechInput.setText(result.get(0));
                     if(result.get(0).toLowerCase().equals("no") || result.get(0).toLowerCase().equals("ok"))
+                    {
+                        SharedPreferences prefs = getSharedPreferences(
+                                "sparksoft.smartguard", Context.MODE_PRIVATE);
+                        prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                        myTimer.purge();
+                        myTimer.cancel();
+                        isOk = true;
                         finish();
+                    }
+
                     else if(result.get(0).toLowerCase().equals("yes"))
                     {
-                        if (!tts.isSpeaking()) {
-                            tts.speak("Calling Anna Mueller", TextToSpeech.QUEUE_FLUSH, null);
-                        }
+
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -141,6 +204,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         }
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
                         startActivity(intent);
+                        myTimer.purge();
+                        myTimer.cancel();
+                        isOk = true;
                         finish();
                     }
                 }

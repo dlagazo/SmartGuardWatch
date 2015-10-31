@@ -157,11 +157,11 @@ public class FallService extends Service implements SensorEventListener {
                     Log.d(DEBUG_TAG, "Actual Fall!");
                     Toast.makeText(this, "Fall detected", Toast.LENGTH_LONG).show();
                     sp.talk("Do you need an emergency call?", false);
-                    /*
+
                     Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
                     fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(fallIntent);
-                    */
+
                     sensorManager.unregisterListener(this); //TEST
 
                 }

@@ -276,8 +276,9 @@ public class HelperLogin {
                                 //Toast.makeText(context, places.getJSONObject(i).get("PlaceName").toString(), Toast.LENGTH_LONG).show();
                             }
 
-                            Vibrator v = (Vibrator) context.getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-                            v.vibrate(500);
+                            //Vibrator v = (Vibrator) context.getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+                            //v.vibrate(500);
+                            //sp.talk("Data synching complete", false);
                             //SharedPreferences prefs = context.getSharedPreferences(
                             //        "sparksoft.smartguard", Context.MODE_PRIVATE);
                             //prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
@@ -298,8 +299,8 @@ public class HelperLogin {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
-                        Toast.makeText(context, "Error logging in. Please try again.", Toast.LENGTH_SHORT).show();
-                        sp.talk("Error logging in. Please try again.", false);
+                        Toast.makeText(context, "Error data synching. Please try again.", Toast.LENGTH_SHORT).show();
+                        sp.talk("Error data synching. Please try again.", false);
                     }
                 })
         {

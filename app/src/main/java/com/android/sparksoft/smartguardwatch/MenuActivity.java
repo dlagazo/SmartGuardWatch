@@ -116,18 +116,7 @@ public class MenuActivity extends Activity {
         btnMem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent chargingService = new Intent(getApplicationContext(), ChargingService.class);
 
-                if(mem) {
-
-                    startService(chargingService);
-                    mem = false;
-                }
-                else
-                {
-                    stopService(chargingService);
-                    mem = true;
-                }
 
 
 
@@ -164,7 +153,7 @@ public class MenuActivity extends Activity {
                                 HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
                                 String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
                                 hr.Sync(url);
-                                sp.talk("Data synching complete", false);
+
                                 Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
                             }
                         }

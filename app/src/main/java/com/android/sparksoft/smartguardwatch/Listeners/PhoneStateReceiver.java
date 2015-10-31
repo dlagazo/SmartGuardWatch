@@ -22,21 +22,22 @@ public class PhoneStateReceiver extends BroadcastReceiver {
     public static String TAG="PhoneStateReceiver";
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+        if (intent.getAction().equals("android.intent.action.PHONE_STATE"))
+        {
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             //Log.d(TAG, "PhoneStateReceiver**Call State=" + state);
             Toast.makeText(context, "Phone state: " + state, Toast.LENGTH_SHORT).show();
 
 
-            SharedPreferences prefs = context.getSharedPreferences("com.android.sparksoft", Context.MODE_WORLD_READABLE);
-            Toast.makeText(context, "Fall state: " + prefs.getString("fallState","default"), Toast.LENGTH_LONG).show();
-            if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+            SharedPreferences prefs = context.getSharedPreferences("sparksoft.smartguard", Context.MODE_WORLD_READABLE);
 
+            if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
             }
             else if(state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK))
             {
 
-
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
 
                 //Intent navIntent = new Intent(context, SOSMessageActivity.class);
                 //navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -47,6 +48,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
             }
             else if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
 
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
                 //String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                 //Log.d(TAG,"PhoneStateReceiver**Incoming call " + incomingNumber);
 
@@ -54,10 +56,9 @@ public class PhoneStateReceiver extends BroadcastReceiver {
                     //Log.d(TAG,"PhoneStateReceiver **Unable to kill incoming call");
                 //}
 
-            } else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
-                //Log.d(TAG,"PhoneStateReceiver **Offhook");
             }
-        } else if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
+        }
+        else if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
             // Outgoing call
             String outgoingNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
             //Log.d(TAG,"PhoneStateReceiver **Outgoing call " + outgoingNumber);
