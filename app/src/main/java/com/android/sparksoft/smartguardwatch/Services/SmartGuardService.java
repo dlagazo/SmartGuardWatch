@@ -1,7 +1,9 @@
 package com.android.sparksoft.smartguardwatch.Services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -11,16 +13,18 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Features.FallDetector;
 import com.android.sparksoft.smartguardwatch.Features.SoundMeter;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
+import com.android.sparksoft.smartguardwatch.R;
 
 public class SmartGuardService extends Service{
     int count = 0;
 
 
 
-
+    SpeechBot sp;
 
 
     public SmartGuardService() {
+        sp = new SpeechBot(this, null);
     }
 
     @Override
@@ -38,13 +42,16 @@ public class SmartGuardService extends Service{
     int status;
     boolean isCharging;
     FallDetector fl;
-    SpeechBot sp;
+
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
 
 
+        /*
         MediaPlayer mp = new MediaPlayer();
+
+
         try {
             mp.setDataSource("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
         } catch (Exception e) {
@@ -57,7 +64,31 @@ public class SmartGuardService extends Service{
         }
         mp.start();
 
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        */
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        //audioManager.setMode(AudioManager.MODE_IN_CALL);
+        audioManager.setSpeakerphoneOn(true);
+
+        for(int i=0; i < 10; i++)
+        {
+            sp.talk("This is an emergency call from smart guard.", true);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        //MediaPlayer mp = new MediaPlayer();
+        //mp = MediaPlayer.create(SmartGuardService.this, R.raw.smartguard);
+        //mp.start();
+
         return 0;
+
     }
 
     private void readAudioBuffer() {

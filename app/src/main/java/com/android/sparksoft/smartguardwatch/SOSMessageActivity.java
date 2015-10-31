@@ -2,27 +2,31 @@ package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class SOSActivity extends Activity implements TextToSpeech.OnInitListener {
+public class SOSMessageActivity extends Activity implements TextToSpeech.OnInitListener {
     private TextToSpeech tts;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private VoiceRecognition vr;
+    SpeechBot sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,24 +41,21 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
         setContentView(R.layout.activity_sos);
 
-        Button btnSOSCall = (Button)findViewById(R.id.btnSOSCall);
-        btnSOSCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
+        //promptSpeechInput();
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        //audioManager.setMode(AudioManager.MODE_IN_CALL);
+        audioManager.setSpeakerphoneOn(true);
+        sp = new SpeechBot(this, null);
+        for(int i=0; i < 10; i++)
+        {
+            sp.talk("This is an emergency call from smart guard.", true);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        });
-
-        Button btnSOSOk = (Button)findViewById(R.id.btnSOSOk);
-        btnSOSOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        promptSpeechInput();
-
-
+        }
 
     }
 
@@ -141,6 +142,19 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         }
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
                         startActivity(intent);
+                        finish();
+                    }
+                    else
+                    {
+                        for(int i=0; i < 3; i++ )
+                        {
+                            sp.talk("This is an emergency call from Daniel Lagazo.", true);
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         finish();
                     }
                 }

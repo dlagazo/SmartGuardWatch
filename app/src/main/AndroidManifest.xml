@@ -4,6 +4,7 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -12,6 +13,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -38,8 +40,33 @@
             android:exported="true" >
         </service>
 
+        <service
+            android:name=".Services.SmartGuardService"
+            android:enabled="true"
+            android:exported="true" >
+
+        </service>
+
+        <service
+            android:name=".Services.ChargingService"
+            android:enabled="true"
+            android:exported="true" >
+
+        </service>
+
+        <receiver android:name=".Listeners.PhoneStateReceiver" >
+            <intent-filter android:priority="0" >
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".SOSActivity"
+            android:label="@string/title_activity_sos" >
+        </activity>
+        <activity
+            android:name=".SOSMessageActivity"
             android:label="@string/title_activity_sos" >
         </activity>
         <activity

@@ -1,14 +1,17 @@
 package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -35,6 +38,10 @@ public class ComActivity extends Activity {
 
 
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         setContentView(R.layout.rect_activity_nav);
 
 
@@ -42,7 +49,6 @@ public class ComActivity extends Activity {
         dsContacts.open();
 
 
-        speak();
 
 
         arrayContacts = dsContacts.getAllContacts();
@@ -62,9 +68,14 @@ public class ComActivity extends Activity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+
                     Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
                     startActivity(intent);
-                    finish();
+
+                    Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
+                    navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(navIntent);
                 }
             });
         }
@@ -83,6 +94,10 @@ public class ComActivity extends Activity {
                 finish();
             }
         });
+
+
+
+        speak();
     }
 
 

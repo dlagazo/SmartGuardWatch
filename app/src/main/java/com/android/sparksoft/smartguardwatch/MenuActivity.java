@@ -18,12 +18,15 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
+import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 
 public class MenuActivity extends Activity {
 
     private SpeechBot sp;
     private TextView mTextView;
+    private boolean mem = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +39,9 @@ public class MenuActivity extends Activity {
         prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
 
         //start the fall service
-        startService(new Intent(getApplicationContext(), FallService.class));
-
+        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+        //startService(new Intent(getApplicationContext(), FallService.class));
+        startService(fallIntent);
 
         //dsContacts = new DataSourceContacts(this);
         //dsContacts.open();
@@ -53,14 +57,15 @@ public class MenuActivity extends Activity {
             public void onClick(View v) {
                 sp.talk("Do you need an emergency call?", false);
                 Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
+
+                Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
+
+                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
-
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);
             }
         });
@@ -72,14 +77,15 @@ public class MenuActivity extends Activity {
                 sp.talk("Who do you want to call?", false);
                 Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
 
+
+
+                Intent navIntent = new Intent(getApplicationContext(), ComActivity.class);
+                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                Intent navIntent = new Intent(getApplicationContext(), ComActivity.class);
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);
             }
         });
@@ -91,15 +97,44 @@ public class MenuActivity extends Activity {
                 sp.talk("Where do you want to go?", false);
 
                 Toast.makeText(getApplicationContext(), "Where do you want to go?", Toast.LENGTH_SHORT).show();
+
+
+                Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
+                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(navIntent);
+            }
+        });
+
+        Button btnMem = (Button)findViewById(R.id.btnMEM);
+        btnMem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent chargingService = new Intent(getApplicationContext(), ChargingService.class);
+
+                if(mem) {
+
+                    startService(chargingService);
+                    mem = false;
+                }
+                else
+                {
+                    stopService(chargingService);
+                    mem = true;
+                }
+
+
+
+
+
+
+
             }
         });
 

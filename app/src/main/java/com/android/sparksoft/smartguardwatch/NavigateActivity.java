@@ -8,7 +8,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.speech.RecognizerIntent;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,13 +48,8 @@ public class NavigateActivity extends Activity {
         dsPlaces.open();
 
 
-        speak();
 
 
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000,
-                1, mLocationListener);
 
         arrayPlaces = dsPlaces.getAllPlaces();
 
@@ -93,6 +90,10 @@ public class NavigateActivity extends Activity {
                 finish();
             }
         });
+
+
+
+        speak();
 
     }
 

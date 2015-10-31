@@ -72,13 +72,14 @@ public class CallListener extends PhoneStateListener {
                     Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contacts.get(callCount).getMobile()));
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
-
+                    /*
                     Intent voiceintent = new Intent();
                     voiceintent.setAction(Intent.ACTION_VIEW);
                     voiceintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     File file = new File("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
                     voiceintent.setDataAndType(Uri.fromFile(file), "audio/*");
                     context.startActivity(voiceintent);
+                    */
                 }
 
 
