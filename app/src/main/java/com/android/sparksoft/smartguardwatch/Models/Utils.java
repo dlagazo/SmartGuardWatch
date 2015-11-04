@@ -2,7 +2,20 @@ package com.android.sparksoft.smartguardwatch.Models;
 
 import java.util.ArrayList;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.util.Log;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+
+
 public class Utils {
+    private static final String TAG = "Utils";
     public static long getCurrentTimeStampInMillis() {
         return System.currentTimeMillis() / 1000;
     }
@@ -21,6 +34,7 @@ public class Utils {
 
             if (curr > prev && curr > next) {
                 if (a.get(i).getNormalizedAcceleration() > FALL_THRESHOLD) {
+                    Log.d("Utils", "Peak: " + a.get(i).getNormalizedAcceleration() + "/" + FALL_THRESHOLD);
                     ++numberOfPeaksThatExceedThreshold;
                 }
             }
@@ -36,8 +50,35 @@ public class Utils {
         return average / a.size();
     }
 
-    public ArrayList<AccelerometerData> runMedianFilter(ArrayList<AccelerometerData> a) {
+    public static double[] getAverageAccelerationPerAxis(ArrayList<AccelerometerData> a) {
+        double[] output = {0.0, 0.0, 0.0};
+        for (AccelerometerData data : a) {
+            output[0] += data.getX();
+            output[1] += data.getY();
+            output[2] += data.getZ();
+        }
+        output[0] = output[0]/a.size();
+        output[1] = output[1]/a.size();
+        output[2] = output[2]/a.size();
+        return output;
+    }
 
-        return a;
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null) {
+//            Log.d(TAG, activeNetworkInfo.toString());
+            return activeNetworkInfo.isConnected();
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isConnectedToHome(Context context, String homeSSID) {
+        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo();
+//        Log.d(TAG, info.getSSID());
+        return info != null && homeSSID.equals(info.getSSID());
     }
 }

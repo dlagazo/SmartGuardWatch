@@ -59,6 +59,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+
                 myTimer.purge();
                 myTimer.cancel();
                 isOk = true;
@@ -85,7 +86,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     protected void onDestroy()
     {
         super.onDestroy();
-
+        sp.destroy();
     }
 
 
@@ -124,7 +125,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         {
             if(!isOk)
             {
-                sp.talk("Do you need an emergency call?", true);
+                //Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
+                sp.talk("Are you ok?", true);
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
@@ -155,6 +157,12 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 //Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
                 if(i==2)
                 {
+                    sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
                     startActivity(callIntent);
                     myTimer.purge();
@@ -183,7 +191,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     Toast.makeText(getApplicationContext(), result.get(0), Toast.LENGTH_SHORT).show();
                     //txtSpeechInput.setText(result.get(0));
-                    if(result.get(0).toLowerCase().equals("no") || result.get(0).toLowerCase().equals("ok"))
+                    if(result.get(0).toLowerCase().equals("yes") || result.get(0).toLowerCase().equals("ok"))
                     {
                         SharedPreferences prefs = getSharedPreferences(
                                 "sparksoft.smartguard", Context.MODE_PRIVATE);
@@ -194,7 +202,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         finish();
                     }
 
-                    else if(result.get(0).toLowerCase().equals("yes"))
+                    else if(result.get(0).toLowerCase().equals("no"))
                     {
 
                         try {

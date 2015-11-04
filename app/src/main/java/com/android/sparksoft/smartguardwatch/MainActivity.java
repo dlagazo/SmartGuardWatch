@@ -29,9 +29,7 @@ public class MainActivity extends Activity {
 
         sp = new SpeechBot(this, null);
 
-        SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
-        prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+
 
         final EditText etUserName = (EditText)findViewById(R.id.etUsername);
         etUserName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -54,14 +52,7 @@ public class MainActivity extends Activity {
         });
 
 
-        final int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
-        if(status == 1)
-        {
-            Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
-            myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(myIntent);
-        }
 
         final Button btnLogIn = (Button)findViewById(R.id.btnLogin);
         btnLogIn.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +60,17 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 sp.talk("Logging in. Please wait", false);
 
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+                int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
+                if(status == 1)
+                {
+                    Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
+                    myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(myIntent);
+                }
 
                 if(status == 0) {
                     Toast.makeText(getApplicationContext(), "Logging in. Please wait.", Toast.LENGTH_LONG).show();

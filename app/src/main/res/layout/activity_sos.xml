@@ -11,14 +11,14 @@
         android:layout_height="0px"
         android:id="@+id/btnSOSCall"
         android:background="@color/red"
-        android:text="SOS / YES"/>
+        android:text="SOS / NO"/>
     <Button
         android:layout_width="fill_parent"
         android:layout_weight="1"
         android:layout_height="0px"
         android:id="@+id/btnSOSOk"
-        android:background="#0000ff"
-        android:text="OK / NO"
+        android:background="#00ff00"
+        android:text="OK / YES"
         android:textColor="#ffffff"/>
 
 

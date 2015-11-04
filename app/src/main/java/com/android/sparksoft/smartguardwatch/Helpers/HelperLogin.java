@@ -284,7 +284,7 @@ public class HelperLogin {
                             //prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
                             //prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
                             //sp.talk("Hello " + fullname, false);
-                            //Toast.makeText(context, "Hello " + fullname, Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Data synching complete", Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -300,7 +300,7 @@ public class HelperLogin {
                     public void onErrorResponse(VolleyError error)
                     {
                         Toast.makeText(context, "Error data synching. Please try again.", Toast.LENGTH_SHORT).show();
-                        sp.talk("Error data synching. Please try again.", false);
+
                     }
                 })
         {
@@ -324,5 +324,10 @@ public class HelperLogin {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(req);
+    }
+
+    public void sendBatteryLevel()
+    {
+
     }
 }

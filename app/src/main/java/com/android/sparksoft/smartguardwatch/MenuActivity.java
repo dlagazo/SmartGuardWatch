@@ -41,6 +41,7 @@ public class MenuActivity extends Activity {
         //start the fall service
         Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
         //startService(new Intent(getApplicationContext(), FallService.class));
+        stopService(fallIntent);
         startService(fallIntent);
 
         //dsContacts = new DataSourceContacts(this);
@@ -55,8 +56,8 @@ public class MenuActivity extends Activity {
         btnSOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Do you need an emergency call?", false);
-                Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
+                sp.talk("Are you ok?", false);
+                Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
 
                 Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
 

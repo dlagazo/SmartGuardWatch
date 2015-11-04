@@ -64,18 +64,14 @@ public class ChargingService extends Service{
 
         sp = new SpeechBot(getApplicationContext(), "");
 
-        Toast.makeText(getApplicationContext(), "Charging", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Charging protocol started. Please observe silence.", Toast.LENGTH_LONG).show();
         //sp.talk("Charging service started", false);
 
         //MediaPlayer mp = new MediaPlayer();
         //mp = MediaPlayer.create(ChargingService.this, R.raw.smartguard);
         //mp.start();
         syncData();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
 
 
         myTimer = new Timer();
@@ -106,7 +102,7 @@ public class ChargingService extends Service{
             String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
             hr.Sync(url);
 
-            Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -121,8 +117,8 @@ public class ChargingService extends Service{
         if(noise > 20000 && !alarm && SOSstatus == 1)
         {
             sm.stop();
-            sp.talk("Do you need an emergency call?", true);
-
+            sp.talk("Are you ok?", true);
+            //Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
 
             Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
             fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -178,7 +174,7 @@ public class ChargingService extends Service{
         sm.stop();
         myTimer.purge();
         myTimer.cancel();
-        Toast.makeText(this, "Charging service stopped", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Charging protocol stopped", Toast.LENGTH_LONG).show();
         //sp.talk("Charging service stopped", false);
 
         sp.destroy();
