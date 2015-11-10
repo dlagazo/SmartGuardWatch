@@ -135,7 +135,14 @@ public class FallService extends IntentService implements SensorEventListener
     @Override
     public void onSensorChanged(SensorEvent event) {
         //https://gist.github.com/tomoima525/8395322 - Remove gravity factor
-        if (editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY,
+        if(editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY,
+                Constants.SOS_PROTOCOL_ACTIVITY_OFF) == 0 && alarm)
+        {
+            alarm = false;
+            editor.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+            Toast.makeText(this, "Fall protocol restarted", Toast.LENGTH_SHORT).show();
+        }
+        else if (editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY,
                 Constants.SOS_PROTOCOL_ACTIVITY_OFF) == 1 && !alarm) { //TODO: Should turn SOS ON in other method
             float[] rawAcceleration = event.values.clone();
 
@@ -231,6 +238,7 @@ public class FallService extends IntentService implements SensorEventListener
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        accelerometerData.clear();
                         Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
                         fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -238,7 +246,7 @@ public class FallService extends IntentService implements SensorEventListener
 
                         Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
 
-                        sensorManager.unregisterListener(this);
+                        //sensorManager.unregisterListener(this);
                         //TODO: Log potentiallyFallenData
                         //SQLiteDataLogger logger = new SQLiteDataLogger(this);
                         //logger.execute(accelerometerData);
@@ -253,7 +261,7 @@ public class FallService extends IntentService implements SensorEventListener
             } else if (actuallyFallen) {
 
 
-                sensorManager.unregisterListener(this);
+                //sensorManager.unregisterListener(this);
 
                 Log.d(DEBUG_TAG, "Call contacts");
             } else {

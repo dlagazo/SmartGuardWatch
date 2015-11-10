@@ -128,7 +128,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 //Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
                 sp.talk("Are you ok?", true);
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -159,7 +159,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 {
                     sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(8000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

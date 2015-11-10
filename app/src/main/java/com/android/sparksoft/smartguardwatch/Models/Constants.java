@@ -20,8 +20,8 @@ public class Constants {
     public static final String LONGITUDE = "LONGITUDE";
 
     //FALL DETECTOR SETTINGS
-    public static final double FALL_THRESHOLD = 18.0; //FOR BOTH LINEAR and ACCELEROMETER
-    public static final double MOVE_THRESHOLD = 0.95; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
+    public static final double FALL_THRESHOLD = 10.0; //FOR BOTH LINEAR and ACCELEROMETER
+    public static final double MOVE_THRESHOLD = 10.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
     public static final long FALL_DETECT_WINDOW_SECS = 5;
