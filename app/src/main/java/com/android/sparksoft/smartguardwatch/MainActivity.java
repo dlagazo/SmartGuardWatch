@@ -15,12 +15,18 @@ import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Services.FallService;
+
+import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity {
 
     private SpeechBot sp;
     private TextView mTextView;
     private HelperLogin hr;
+    private Timer myTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,7 @@ public class MainActivity extends Activity {
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
+                    finish();
                 }
 
                 if(status == 0) {
@@ -89,12 +96,26 @@ public class MainActivity extends Activity {
 
                     hr = new HelperLogin(getApplicationContext(), basicAuth, sp);
                     hr.SyncHelperJSONObject(url);
+                    myTimer = new Timer();
+                    myTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            checkLoginStatus();
+
+                        }
+
+                    }, 0, 5000);
                 }
                 else
                 {
+                    //Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                    //startService(new Intent(getApplicationContext(), FallService.class));
+                    //stopService(fallIntent);
+                    //startService(fallIntent);
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
+                    finish();
                 }
             }
         });
@@ -107,6 +128,29 @@ public class MainActivity extends Activity {
             }
         });
         */
+    }
+
+    public void checkLoginStatus()
+    {
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+
+        int status = prefs.getInt("sparksoft.smartguard.loginStatus", 0);
+        if(status == 1)
+        {
+
+            Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
+            myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(myIntent);
+            Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+            //startService(new Intent(getApplicationContext(), FallService.class));
+            stopService(fallIntent);
+            startService(fallIntent);
+            myTimer.purge();
+            myTimer.cancel();
+            prefs.edit().putInt("sparksoft.smartguard.loginStatus", 0).apply();
+            finish();
+        }
     }
 
     public void hideKeyboard(View view) {

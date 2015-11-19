@@ -51,4 +51,25 @@ public class Constants {
     public static final String PREFS_NEW_PRIORITY = "PRIORITY_LEVEL";
     public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
+
+
+    //ALARMS
+    public static final int ALARM_FREQUENCY_ONCE = 0;
+    public static final int ALARM_FREQUENCY_DAILY = 1;
+    public static final int ALARM_FREQUENCY_WEEKLY = 2;
+    public static final int ALARM_FREQUENCY_MONTHLY = 3;
+    public static final int ALARM_FREQUENCY_YEARLY = 4;
+    public static final int ALARM_FREQUENCY_HOURLY = 5;
+    public static final int ALARM_FREQUENCY_CUSTOM = -1;
+    public static final String ALARM_WAKE = "WAKE";
+    public static final String ALARM = "ALARM";
+
+    //MEMORIES JSON
+    public static final String MEMORIES = "memories";
+    public static final String MEMORIES_MEMORYID = "MemoryId";
+    public static final String MEMORIES_MEMORYNAME = "MemoryName";
+    public static final String MEMORIES_FKUSERID = "fkUserId";
+    public static final String MEMORIES_MEMORYFREQ = "MemoryFreq";
+    public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
+    public static final String MEMORIES_MEMORYDATES = "MemoryDates";
 }

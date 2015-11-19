@@ -39,10 +39,7 @@ public class MenuActivity extends Activity {
         prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
 
         //start the fall service
-        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-        //startService(new Intent(getApplicationContext(), FallService.class));
-        stopService(fallIntent);
-        startService(fallIntent);
+
 
         //dsContacts = new DataSourceContacts(this);
         //dsContacts.open();
@@ -144,6 +141,13 @@ public class MenuActivity extends Activity {
                             SharedPreferences prefs = getSharedPreferences(
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 0).apply();
+                            Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                            //startService(new Intent(getApplicationContext(), FallService.class));
+                            stopService(fallIntent);
+                            Intent chargingIntent = new Intent(getApplicationContext(), ChargingService.class);
+
+                            stopService(chargingIntent);
+
                             finish();
                             sp.talk("Logging out", false);
                         } else if (which == 1) {

@@ -11,8 +11,10 @@ import com.android.sparksoft.smartguardwatch.Database.DataSourcePlaces;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 
 import com.android.sparksoft.smartguardwatch.MenuActivity;
+import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Models.Place;
+import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -92,10 +94,13 @@ public class HelperLogin {
                                 if (responses.getJSONObject(i).getString("response").equals("Name"))
                                     fullname = responses.getJSONObject(i).getString("value");
                                 else if(responses.getJSONObject(i).getString("response").equals("Result")) {
-                                    Intent myIntent = new Intent(context, MenuActivity.class);
-                                    myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    context.startActivity(myIntent);
+                                    //Intent myIntent = new Intent(context, MenuActivity.class);
+                                    //myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    //context.startActivity(myIntent);
+                                    SharedPreferences prefs = context.getSharedPreferences(
+                                            "sparksoft.smartguard", Context.MODE_PRIVATE);
 
+                                    prefs.edit().putInt("sparksoft.smartguard.loginStatus", 1).apply();
                                     //result = true;
 
                                 }
@@ -125,6 +130,18 @@ public class HelperLogin {
 
                             }
                             memories = response.getJSONArray("memories");
+
+                            ArrayList<Alarm> alarms = Alarm.parseAlarmString("{\n" +
+                                    "\"memories\":" + memories.toString() + "}");
+                            for(Alarm a : alarms) {
+                                //Toast.makeText(context, a.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                            Alarm alarmSample;
+                            alarmSample = alarms.get(0);
+
+                            alarmSample.startAlarm(context);
+
+                            //Toast.makeText(context, memories.toString(), Toast.LENGTH_LONG).show();
                             for(int i=0; i < memories.length(); i++)
                             {
                                 //Toast.makeText(context, memories.getJSONObject(i).get("MemoryName").toString(), Toast.LENGTH_LONG).show();
@@ -156,9 +173,14 @@ public class HelperLogin {
                             SharedPreferences prefs = context.getSharedPreferences(
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
+                            //prefs.edit().putInt("sparksoft.smartguard.loginStatus", 1).apply();
                             prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
-                            sp.talk("Hello " + fullname, false);
-                            Toast.makeText(context, "Hello " + fullname, Toast.LENGTH_LONG).show();
+                            //sp.talk("Hello " + fullname, false);
+                            //Intent fallIntent = new Intent(context, FallService.class);
+                            //startService(new Intent(getApplicationContext(), FallService.class));
+                            //context.stopService(fallIntent);
+                            //context.startService(fallIntent);
+                            //Toast.makeText(context, "Hello " + fullname, Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -250,9 +272,19 @@ public class HelperLogin {
 
                             }
                             memories = response.getJSONArray("memories");
+
+                            ArrayList<Alarm> alarms = Alarm.parseAlarmString(memories.toString());
+                            for(Alarm a : alarms) {
+                                Toast.makeText(context, a.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                            Alarm alarmSample;
+                            alarmSample = alarms.get(0);
+
+                            alarmSample.startAlarm(context);
                             for(int i=0; i < memories.length(); i++)
                             {
-                                //Toast.makeText(context, memories.getJSONObject(i).get("MemoryName").toString(), Toast.LENGTH_LONG).show();
+
+                                Toast.makeText(context, memories.getJSONObject(i).get("MemoryName").toString(), Toast.LENGTH_LONG).show();
                             }
                             places = response.getJSONArray("places");
                             //dsPlaces.deleteAllPlaces();

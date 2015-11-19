@@ -26,6 +26,7 @@ public class CallListener extends PhoneStateListener {
     private ArrayList<Contact> contacts;
     private int callCount;
     private SharedPreferences sharedPrefs;
+    TelephonyManager telephonyManager;
 
     public CallListener(Context _context, SpeechBot _sp, ArrayList<Contact> _contacts)
     {
@@ -36,6 +37,7 @@ public class CallListener extends PhoneStateListener {
         didRing = false;
         contacts = _contacts;
         sharedPrefs = _context.getSharedPreferences("prefs", Context.MODE_WORLD_WRITEABLE);
+        //telephonyManager.listen(this, PhoneStateListener.LISTEN_CALL_STATE);
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contacts.get(0).getMobile()));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

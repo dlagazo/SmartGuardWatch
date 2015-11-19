@@ -16,8 +16,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
+import com.android.sparksoft.smartguardwatch.Listeners.CallListener;
+import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -31,6 +34,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     private Timer myTimer;
     private SpeechBot sp;
     private boolean isOk = false;
+    private ArrayList<Contact> arrayContacts;
+    private DataSourceContacts dsContacts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -41,14 +46,35 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         sp = new SpeechBot(this, "");
+        dsContacts = new DataSourceContacts(this);
+        dsContacts.open();
 
+
+
+
+        arrayContacts = dsContacts.getAllContacts();
         setContentView(R.layout.activity_sos);
 
         Button btnSOSCall = (Button)findViewById(R.id.btnSOSCall);
         btnSOSCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                try {
+                    Thread.sleep(8000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
+                //startActivity(intent);
+                CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+                myTimer.purge();
+                myTimer.cancel();
+                isOk = true;
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                finish();
             }
         });
 
@@ -163,8 +189,12 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
-                    startActivity(callIntent);
+                    SharedPreferences prefs = getSharedPreferences(
+                            "sparksoft.smartguard", Context.MODE_PRIVATE);
+                    prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                    //Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
+                    //startActivity(callIntent);
+                    CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
                     myTimer.purge();
                     myTimer.cancel();
                     isOk = true;
@@ -205,16 +235,21 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     else if(result.get(0).toLowerCase().equals("no"))
                     {
 
+                        sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(8000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
-                        startActivity(intent);
+                        //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
+                        //startActivity(intent);
+                        CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
                         myTimer.purge();
                         myTimer.cancel();
                         isOk = true;
+                        SharedPreferences prefs = getSharedPreferences(
+                                "sparksoft.smartguard", Context.MODE_PRIVATE);
+                        prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
                         finish();
                     }
                 }
