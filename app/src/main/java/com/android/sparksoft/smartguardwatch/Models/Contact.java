@@ -12,13 +12,14 @@ public class Contact {
     private String mobile;
     private String relation;
     private int rank;
+    private String schedule;
 
     public Contact()
     {
 
     }
 
-    public Contact(int _contactId, String _firstName, String _lastName, String _email, String _mobile, String _relation, int _rank)
+    public Contact(int _contactId, String _firstName, String _lastName, String _email, String _mobile, String _relation, int _rank, String _schedule)
     {
         contactId = _contactId;
         firstName = _firstName;
@@ -27,6 +28,7 @@ public class Contact {
         mobile = _mobile;
         relation = _relation;
         rank = _rank;
+        schedule = _schedule;
     }
 
     public int getId()
@@ -55,10 +57,12 @@ public class Contact {
         return relation;
     }
 
+
     public int getRank()
     {
         return rank;
     }
+    public String getSchedule() {return schedule;}
 
     public String getFullName()
     {

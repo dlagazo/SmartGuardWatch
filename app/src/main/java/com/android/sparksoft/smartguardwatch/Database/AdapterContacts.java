@@ -15,9 +15,10 @@ public class AdapterContacts extends SQLiteOpenHelper {
     public static final String CONTACT_MOBILE = "mobile";
     public static final String CONTACT_RELATION = "relation";
     public static final String CONTACT_RANK = "rank";
+    public static final String CONTACT_SCHED = "schedule";
 
-    private static final String DATABASE_NAME = "smartguard.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "smartguard.db.contacts";
+    private static final int DATABASE_VERSION = 4;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "create table "
@@ -27,7 +28,8 @@ public class AdapterContacts extends SQLiteOpenHelper {
             CONTACT_EMAIL + " text," +
             CONTACT_MOBILE + " text not null," +
             CONTACT_RELATION + " text," +
-            CONTACT_RANK + " integer not null" +
+            CONTACT_RANK + " integer not null," +
+            CONTACT_SCHED + " text" +
             ");";
 
     public AdapterContacts(Context context) {

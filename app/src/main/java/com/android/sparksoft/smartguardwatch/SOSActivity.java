@@ -23,6 +23,7 @@ import com.android.sparksoft.smartguardwatch.Listeners.CallListener;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,21 +60,52 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         btnSOSCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
-                try {
-                    Thread.sleep(8000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
-                //startActivity(intent);
-                CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
                 myTimer.purge();
                 myTimer.cancel();
                 isOk = true;
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                try {
+                    Thread.sleep(8000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+
+
+                for (Contact cont:arrayContacts) {
+                    int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                    String sched = cont.getSchedule();
+
+                    if(status == 0)
+                    {
+                        sp.talk("Calling " + cont.getFullName(), true);
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+                        startActivity(intent);
+                        try {
+                            Thread.sleep(30000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else{
+                        break;
+                    }
+
+                }
+                //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+
+                //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+
                 finish();
             }
         });
@@ -183,21 +215,49 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 //Toast.makeText(getApplicationContext(), "Do you need an emergency call?", Toast.LENGTH_SHORT).show();
                 if(i==2)
                 {
+                    myTimer.purge();
+                    myTimer.cancel();
+                    isOk = true;
+                    SharedPreferences prefs = getSharedPreferences(
+                            "sparksoft.smartguard", Context.MODE_PRIVATE);
+                    prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
                     sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
                     try {
                         Thread.sleep(8000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    SharedPreferences prefs = getSharedPreferences(
-                            "sparksoft.smartguard", Context.MODE_PRIVATE);
-                    prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
-                    //Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
-                    //startActivity(callIntent);
-                    CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
-                    myTimer.purge();
-                    myTimer.cancel();
-                    isOk = true;
+
+
+
+                    for (Contact cont:arrayContacts) {
+                        int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                        if(status == 0)
+                        {
+                            sp.talk("Calling " + cont.getFullName(), true);
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+                            startActivity(callIntent);
+                            try {
+                                Thread.sleep(30000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else{
+                            break;
+                        }
+
+                    }
+                    //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+
+                    //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+
                     finish();
                 }
             }
@@ -234,22 +294,49 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
                     else if(result.get(0).toLowerCase().equals("no"))
                     {
-
-                        sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
-                        try {
-                            Thread.sleep(8000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + "123456"));
-                        //startActivity(intent);
-                        CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
                         myTimer.purge();
                         myTimer.cancel();
                         isOk = true;
                         SharedPreferences prefs = getSharedPreferences(
                                 "sparksoft.smartguard", Context.MODE_PRIVATE);
                         prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                        sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                        try {
+                            Thread.sleep(8000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+
+                        for (Contact cont:arrayContacts) {
+                            int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                            if(status == 0)
+                            {
+                                sp.talk("Calling " + cont.getFullName(), true);
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+                                startActivity(intent);
+                                try {
+                                    Thread.sleep(30000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else{
+                                break;
+                            }
+
+                        }
+                        //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+
+                        //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+
                         finish();
                     }
                 }

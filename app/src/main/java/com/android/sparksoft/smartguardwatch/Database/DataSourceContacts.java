@@ -18,10 +18,11 @@ public class DataSourceContacts {
     private String[] allColumns = { adapterContacts.CONTACT_ID,
             adapterContacts.CONTACT_FIRST, adapterContacts.CONTACT_LAST,
             adapterContacts.CONTACT_EMAIL, adapterContacts.CONTACT_MOBILE,
-            adapterContacts.CONTACT_RELATION, adapterContacts.CONTACT_RANK
+            adapterContacts.CONTACT_RELATION, adapterContacts.CONTACT_RANK, adapterContacts.CONTACT_SCHED
     };
 
     public DataSourceContacts(Context context) {
+
         adapterContacts = new AdapterContacts(context);
     }
 
@@ -42,6 +43,7 @@ public class DataSourceContacts {
         values.put(adapterContacts.CONTACT_MOBILE, contact.getMobile());
         values.put(adapterContacts.CONTACT_RELATION, contact.getRelation());
         values.put(adapterContacts.CONTACT_RANK, contact.getRank());
+        values.put(adapterContacts.CONTACT_SCHED, contact.getSchedule());
         long insertId = database.insert(adapterContacts.TABLE_CONTACTS, null,
                 values);
 
@@ -72,7 +74,7 @@ public class DataSourceContacts {
 
     private Contact cursorToContact(Cursor cursor) {
         Contact contact = new Contact(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6));
+                cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
 
         return contact;
     }

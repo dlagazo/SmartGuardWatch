@@ -1,22 +1,24 @@
 package com.android.sparksoft.smartguardwatch.Models;
-
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.ParcelFormatException;
 import android.util.Log;
 
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
 
 public class Utils {
     private static final String TAG = "Utils";
-    public static long getCurrentTimeStampInMillis() {
+    public static long getCurrentTimeStampInSeconds() {
         return System.currentTimeMillis() / 1000;
     }
 
@@ -27,7 +29,8 @@ public class Utils {
     //TODO: Probably better to just insert the data as normalized instead of normalizing here
     public static int getNumberOfPeaksThatExceedThreshold(ArrayList<AccelerometerData> a, double FALL_THRESHOLD) {
         int numberOfPeaksThatExceedThreshold = 0;
-        for (int i = 1; i < a.size() - 1; ++i) {
+        int arraySize = a.size();
+        for (int i = 1; i < arraySize - 1; ++i) {
             double prev = a.get(i - 1).getNormalizedAcceleration();
             double curr = a.get(i).getNormalizedAcceleration();
             double next = a.get(i + 1).getNormalizedAcceleration();
@@ -67,18 +70,41 @@ public class Utils {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        if (activeNetworkInfo != null) {
-//            Log.d(TAG, activeNetworkInfo.toString());
-            return activeNetworkInfo.isConnected();
-        } else {
-            return false;
-        }
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static boolean isConnectedToHome(Context context, String homeSSID) {
         WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();
-//        Log.d(TAG, info.getSSID());
         return info != null && homeSSID.equals(info.getSSID());
+    }
+
+    public static long convertDateAndTimeToSeconds(String dateAndtime) {
+        //sample: Sat Nov 07 2015 15:26:36 GMT+0800
+        long timeInMilliseconds = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss z");
+        try {
+            Date mDate = sdf.parse(dateAndtime);
+            timeInMilliseconds = mDate.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return timeInMilliseconds / 1000;
+    }
+
+    public static String convertMillisToDateAndTimeString(long a) {
+        Date date = new Date(a);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss z");
+        return sdf.format(date);
+    }
+
+    //Abs of days between two millis (time and date)
+    public static int getNumberOfDaysBetweenTwoTimeStamps(long a, long b) {
+        return Math.abs((int)((a - b) / (60 * 60 * 24)));
+    }
+
+    //Abs of days between two millis (time and date)
+    public static boolean isTimeStampInThePast(long a) {
+        return a - getCurrentTimeStampInSeconds() < 0;
     }
 }

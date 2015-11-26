@@ -20,14 +20,15 @@ public class Constants {
     public static final String LONGITUDE = "LONGITUDE";
 
     //FALL DETECTOR SETTINGS
-    public static final double FALL_THRESHOLD = 10.0; //FOR BOTH LINEAR and ACCELEROMETER
-    public static final double MOVE_THRESHOLD = 10.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
+    public static final double FALL_THRESHOLD = 25.0; //FOR BOTH LINEAR and ACCELEROMETER
+    public static final double MOVE_THRESHOLD = 25.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
     public static final long FALL_DETECT_WINDOW_SECS = 5;
     public static final long VERIFY_FALL_DETECT_WINDOW_SECS = 9;
     public static final int SOS_PROTOCOL_ACTIVITY_ON = 1;
     public static final int SOS_PROTOCOL_ACTIVITY_OFF = 0;
+    public static final String FALL_COUNTER = "FALL_COUNTER";
 
     //ACTIVITY PROTOCOL SETTINGS
     public static final double GRAVITY = 9.81;
@@ -35,6 +36,12 @@ public class Constants {
     public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 59; //59
     public static final double ACTIVE_THRESHOLD = 1.0;
     public static final double VERY_ACTIVE_THRESHOLD = 3.0;
+    public static final int ACT_PROTOCOL_GATHERING_DATA = 0;
+    public static final int ACT_PROTOCOL_ACTIVE_VERY_ACTIVE = 1;
+    public static final int ACT_PROTOCOL_ACTIVE_ACTIVE = 2;
+    public static final int ACT_PROTOCOL_INACTIVE_HORIZONTAL = 3;
+    public static final int ACT_PROTOCOL_INACTIVE_VERTICAL = 4;
+    public static final int AFTER_WAKE_TIMER = 60 * 30 * 1000;
 
     //GEOFENCE
     public static final float FENCE_RADIUS_IN_METERS = 100f;
@@ -50,7 +57,10 @@ public class Constants {
     //SHARED PREFS
     public static final String PREFS_NEW_PRIORITY = "PRIORITY_LEVEL";
     public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
+    public static final String PREFS_NAME = "sparksoft.smartguard";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
+    public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
+    public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
 
 
     //ALARMS

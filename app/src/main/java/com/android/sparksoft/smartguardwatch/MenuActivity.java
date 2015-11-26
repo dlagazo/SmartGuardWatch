@@ -6,7 +6,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Camera;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -18,15 +23,28 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
+import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class MenuActivity extends Activity {
 
     private SpeechBot sp;
     private TextView mTextView;
     private boolean mem = true;
+    private Uri fileUri;
+    ArrayList<Contact> arrayContacts;
+
+    private DataSourceContacts dsContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +52,7 @@ public class MenuActivity extends Activity {
         setContentView(R.layout.rect_activity_menu);
 
         SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
         //SOS status, 0-inactive, 1-active
         prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
 
@@ -44,7 +62,13 @@ public class MenuActivity extends Activity {
         //dsContacts = new DataSourceContacts(this);
         //dsContacts.open();
 
+        dsContacts = new DataSourceContacts(this);
+        dsContacts.open();
 
+
+
+
+        arrayContacts = dsContacts.getAllContacts();
 
         sp = new SpeechBot(this, null);
         //arrayContacts = dsContacts.getAllContacts();
@@ -115,11 +139,28 @@ public class MenuActivity extends Activity {
             @Override
             public void onClick(View v) {
 
+                Calendar cal = Calendar.getInstance();
+                int day = cal.get(Calendar.DAY_OF_WEEK);
+                int hour = cal.get(Calendar.HOUR_OF_DAY);
+                int min = cal.get(Calendar.MINUTE);
+                //Toast.makeText(getApplicationContext(), "Day of the week: " + day, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), hour + ":" + min, Toast.LENGTH_LONG).show();
 
+                for (Contact cont:arrayContacts){
+                    //Toast.makeText(getApplicationContext(), cont.getSchedule(), Toast.LENGTH_LONG).show();
+                    String[] parsedSched = cont.getSchedule().split(",");
 
+                    for(String sched:parsedSched)
+                    {
+                        Toast.makeText(getApplicationContext(), sched, Toast.LENGTH_SHORT).show();
+                        String[] daySched = sched.split(" ");
 
-
-
+                        //String[] dayTimes = daySched[1].split("-");
+                        Toast.makeText(getApplicationContext(), "Time: " + daySched[1], Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), "Start: " + dayTimes, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), "End: " + dayTimes[1], Toast.LENGTH_LONG).show();
+                    }
+                }
 
 
             }
@@ -129,7 +170,7 @@ public class MenuActivity extends Activity {
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CharSequence options[] = new CharSequence[] {"Logout", "Sync"};
+                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
                 builder.setTitle("Options");
@@ -161,6 +202,11 @@ public class MenuActivity extends Activity {
 
                                 Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
                             }
+                        } else if (which == 2) {
+                            Intent intent = new Intent(getApplicationContext(), FitnessActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            startActivity(intent);
                         }
                     }
                 });
@@ -170,7 +216,42 @@ public class MenuActivity extends Activity {
         });
     }
 
+    public Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
 
+    private static File getOutputMediaFile(int type) {
+
+        // External sdcard location
+        File mediaStorageDir = new File(
+                Environment
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "Android File Upload");
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+        if (type == 1) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "IMG_" + timeStamp + ".jpg");
+        } else if (type == 2) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "VID_" + timeStamp + ".mp4");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
 
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);

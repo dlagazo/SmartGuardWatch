@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
@@ -106,17 +107,28 @@ public class HelperLogin {
                                 }
                             }
                             contacts = response.getJSONArray("contacts");
+                            //Toast.makeText(context, dsContacts.getAllContacts().size(), Toast.LENGTH_LONG).show();
+//                            Log.e("DSCONTACTS", Integer.toString(dsContacts.getAllContacts().size()));
+                            ArrayList<Contact> allContacts = dsContacts.getAllContacts();
+                            for(int i = 0; i < allContacts.size(); i++)
+                            {
 
+                                Log.e("DSCONTACTS", "DELETED ID: " + Integer.toString(allContacts.get(i).getId()));
+                                dsContacts.deleteContact(allContacts.get(i).getId());
+
+
+                            }
                             for(int i=0; i < contacts.length(); i++)
                             {
-                                //Toast.makeText(context, contacts.getJSONObject(i).get("Mobile").toString(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(context, contacts.getJSONObject(i).get("schedule").toString(), Toast.LENGTH_LONG).show();
                                 Contact tempContact = new Contact(contacts.getJSONObject(i).getInt("ContactId"),
                                         contacts.getJSONObject(i).getString("FirstName"),
                                             contacts.getJSONObject(i).getString("LastName"),
                                                 contacts.getJSONObject(i).getString("Email"),
                                                         contacts.getJSONObject(i).getString("Mobile"),
                                                                 contacts.getJSONObject(i).getString("Relationship"),
-                                                                        contacts.getJSONObject(i).getInt("Rank"));
+                                                                        contacts.getJSONObject(i).getInt("Rank"),
+                                                                            contacts.getJSONObject(i).getString("schedule"));
                                 //contactsArray.add(tempContact);
                                 try
                                 {
@@ -148,6 +160,16 @@ public class HelperLogin {
                             }
                             places = response.getJSONArray("places");
                             //dsPlaces.deleteAllPlaces();
+
+                            ArrayList<Place> allPlaces = dsPlaces.getAllPlaces();
+                            for(int i = 0; i < allPlaces.size(); i++)
+                            {
+
+                                //Log.e("DSCONTACTS", "DELETED ID: " + Integer.toString(allContacts.get(i).getId()));
+                                dsPlaces.deletePlace(allPlaces.get(i).getId());
+
+
+                            }
                             for(int i=0; i< places.length(); i++)
                             {
                                 Place tempPlace = new Place(places.getJSONObject(i).getInt("PlaceId"),
@@ -156,14 +178,7 @@ public class HelperLogin {
                                         places.getJSONObject(i).getString("PlaceLong"));
                                 //Toast.makeText(context, tempPlace.getId() + " " +
                                 //    tempPlace.getPlaceName(), Toast.LENGTH_SHORT).show();
-                                try
-                                {
-                                    dsPlaces.deletePlace(places.getJSONObject(i).getInt("PlaceId"));
-                                }
-                                catch (Exception ex)
-                                {
 
-                                }
                                 dsPlaces.createPlace(tempPlace);
                                 //Toast.makeText(context, places.getJSONObject(i).get("PlaceName").toString(), Toast.LENGTH_LONG).show();
                             }
@@ -248,7 +263,15 @@ public class HelperLogin {
                                 }
                             }
                             contacts = response.getJSONArray("contacts");
+                            ArrayList<Contact> allContacts = dsContacts.getAllContacts();
+                            for(int i = 0; i < allContacts.size(); i++)
+                            {
 
+                                Log.e("DSCONTACTS", "DELETED ID: " + Integer.toString(allContacts.get(i).getId()));
+                                dsContacts.deleteContact(allContacts.get(i).getId());
+
+
+                            }
                             for(int i=0; i < contacts.length(); i++)
                             {
                                 //Toast.makeText(context, contacts.getJSONObject(i).get("Mobile").toString(), Toast.LENGTH_LONG).show();
@@ -258,16 +281,10 @@ public class HelperLogin {
                                         contacts.getJSONObject(i).getString("Email"),
                                         contacts.getJSONObject(i).getString("Mobile"),
                                         contacts.getJSONObject(i).getString("Relationship"),
-                                        contacts.getJSONObject(i).getInt("Rank"));
+                                        contacts.getJSONObject(i).getInt("Rank"),
+                                        contacts.getJSONObject(i).getString("schedule"));
                                 //contactsArray.add(tempContact);
-                                try
-                                {
-                                    dsContacts.deleteContact(contacts.getJSONObject(i).getInt("ContactId"));
-                                }
-                                catch (Exception ex)
-                                {
 
-                                }
                                 dsContacts.createContact(tempContact);
 
                             }

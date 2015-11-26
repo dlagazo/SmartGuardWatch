@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 
 import java.sql.Time;
@@ -68,7 +69,7 @@ public class MainActivity extends Activity {
 
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
-                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+                prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
                 if(status == 1)
