@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.io.File;
@@ -81,7 +82,7 @@ public class CallListener extends PhoneStateListener {
             {
 
 
-                prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
+                prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
 
 
 

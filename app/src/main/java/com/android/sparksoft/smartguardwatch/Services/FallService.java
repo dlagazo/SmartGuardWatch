@@ -235,6 +235,7 @@ public class FallService extends IntentService implements SensorEventListener
                 AccelerometerData raw = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]);
                 Log.d(DEBUG_TAG, "Raw:" + rawAcceleration[0] + "," + rawAcceleration[1] + "," + rawAcceleration[2]);
                 potentiallyFallenRawData.add(raw);
+
             } else { //Not moving past MOVE_THRESHOLD after 10 seconds
                 Log.d(DEBUG_TAG, "End of 10 second potential fall cycle");
                 double[] rawAccelerometerData = Utils.getAverageAccelerationPerAxis(potentiallyFallenRawData);
@@ -263,6 +264,7 @@ public class FallService extends IntentService implements SensorEventListener
                 potentiallyFallenData.clear();
                 potentiallyFallen = true;
                 Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
+                Toast.makeText(getApplicationContext(), "Potential fall detected. Checking for significant movement for the next 10 seconds.", Toast.LENGTH_LONG).show();
             }
             accelerometerData.clear();
         }

@@ -18,7 +18,8 @@ public class DataSourceContacts {
     private String[] allColumns = { adapterContacts.CONTACT_ID,
             adapterContacts.CONTACT_FIRST, adapterContacts.CONTACT_LAST,
             adapterContacts.CONTACT_EMAIL, adapterContacts.CONTACT_MOBILE,
-            adapterContacts.CONTACT_RELATION, adapterContacts.CONTACT_RANK, adapterContacts.CONTACT_SCHED
+            adapterContacts.CONTACT_RELATION, adapterContacts.CONTACT_RANK, adapterContacts.CONTACT_SCHED,
+            adapterContacts.CONTACT_TYPE, adapterContacts.CONTACT_OUTSIDE
     };
 
     public DataSourceContacts(Context context) {
@@ -44,6 +45,8 @@ public class DataSourceContacts {
         values.put(adapterContacts.CONTACT_RELATION, contact.getRelation());
         values.put(adapterContacts.CONTACT_RANK, contact.getRank());
         values.put(adapterContacts.CONTACT_SCHED, contact.getSchedule());
+        values.put(adapterContacts.CONTACT_TYPE, contact.getType());
+        values.put(adapterContacts.CONTACT_OUTSIDE, contact.getCallOutside());
         long insertId = database.insert(adapterContacts.TABLE_CONTACTS, null,
                 values);
 
@@ -53,6 +56,16 @@ public class DataSourceContacts {
 
         database.delete(adapterContacts.TABLE_CONTACTS, adapterContacts.CONTACT_ID
                 + " = " + id, null);
+    }
+
+    public void deleteAllContacts()
+    {
+        ArrayList<Contact> contacts = getAllContacts();
+        for (Contact contact:contacts)
+        {
+            database.delete(adapterContacts.TABLE_CONTACTS, adapterContacts.CONTACT_ID
+                    + " = " + contact.getId(), null);
+        }
     }
 
     public ArrayList<Contact> getAllContacts() {
@@ -74,7 +87,8 @@ public class DataSourceContacts {
 
     private Contact cursorToContact(Cursor cursor) {
         Contact contact = new Contact(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7));
+                cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getInt(6), cursor.getString(7),
+                cursor.getInt(8), cursor.getInt(9));
 
         return contact;
     }

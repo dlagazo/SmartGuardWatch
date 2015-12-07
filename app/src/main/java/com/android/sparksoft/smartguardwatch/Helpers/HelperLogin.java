@@ -2,7 +2,9 @@ package com.android.sparksoft.smartguardwatch.Helpers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.BatteryManager;
 import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,6 +21,7 @@ import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -31,6 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +77,81 @@ public class HelperLogin {
         return contactsArray;
     }
 
+    public float getBatteryLevel() {
+        Intent batteryIntent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
+        // Error checking that probably isn't needed but I added just in case.
+        if(level == -1 || scale == -1) {
+            return 50.0f;
+        }
+
+        return ((float)level / (float)scale) * 100.0f;
+    }
+
+    public void sendChargeData(String url)
+    {
+        Calendar cal = Calendar.getInstance();
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
+
+        String timeStamp = Integer.toString(cal.get(Calendar.YEAR)) + "-" +
+                Integer.toString(cal.get(Calendar.MONTH)+1) + "-" +
+                Integer.toString(cal.get(Calendar.DAY_OF_MONTH)) + "T" +
+                Integer.toString(hour) + ":" + Integer.toString(min) + ":" +
+                Integer.toString(sec);
+        Log.d("LOG_HELPER", timeStamp);
+
+        Log.d("LOG_HELPER", Float.toString(getBatteryLevel()));
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("ChargePct", getBatteryLevel());
+            params.put("ChargeTimeStamp", timeStamp);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //params.put("token", "AbCdEfGh123456");
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, params,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        Log.d("LOG_HELPER", response.toString());
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Log.d("LOG_HELPER", Integer.toString(error.networkResponse.statusCode));
+                    }
+                })
+                {
+
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError
+                {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Authorization", basicAuth);
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    return headers;
+                }
+
+        };
+
+        req.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(req);
+
+    }
 
 
 
@@ -109,35 +188,22 @@ public class HelperLogin {
                             contacts = response.getJSONArray("contacts");
                             //Toast.makeText(context, dsContacts.getAllContacts().size(), Toast.LENGTH_LONG).show();
 //                            Log.e("DSCONTACTS", Integer.toString(dsContacts.getAllContacts().size()));
-                            ArrayList<Contact> allContacts = dsContacts.getAllContacts();
-                            for(int i = 0; i < allContacts.size(); i++)
-                            {
-
-                                Log.e("DSCONTACTS", "DELETED ID: " + Integer.toString(allContacts.get(i).getId()));
-                                dsContacts.deleteContact(allContacts.get(i).getId());
-
-
-                            }
+                            dsContacts.deleteAllContacts();
                             for(int i=0; i < contacts.length(); i++)
                             {
-                                Toast.makeText(context, contacts.getJSONObject(i).get("schedule").toString(), Toast.LENGTH_LONG).show();
+                                //Toast.makeText(context, contacts.getJSONObject(i).get("schedule").toString(), Toast.LENGTH_LONG).show();
                                 Contact tempContact = new Contact(contacts.getJSONObject(i).getInt("ContactId"),
                                         contacts.getJSONObject(i).getString("FirstName"),
-                                            contacts.getJSONObject(i).getString("LastName"),
-                                                contacts.getJSONObject(i).getString("Email"),
-                                                        contacts.getJSONObject(i).getString("Mobile"),
-                                                                contacts.getJSONObject(i).getString("Relationship"),
-                                                                        contacts.getJSONObject(i).getInt("Rank"),
-                                                                            contacts.getJSONObject(i).getString("schedule"));
+                                        contacts.getJSONObject(i).getString("LastName"),
+                                        contacts.getJSONObject(i).getString("Email"),
+                                        contacts.getJSONObject(i).getString("Mobile"),
+                                        contacts.getJSONObject(i).getString("Relationship"),
+                                        contacts.getJSONObject(i).getInt("Rank"),
+                                        contacts.getJSONObject(i).getString("schedule"),
+                                        contacts.getJSONObject(i).getInt("type"),
+                                        contacts.getJSONObject(i).getInt("canContactOutside"));
                                 //contactsArray.add(tempContact);
-                                try
-                                {
-                                    dsContacts.deleteContact(contacts.getJSONObject(i).getInt("ContactId"));
-                                }
-                                catch (Exception ex)
-                                {
-
-                                }
+                                Log.d("LOG_CONTACT", tempContact.getContactDetails());
                                 dsContacts.createContact(tempContact);
 
                             }
@@ -146,12 +212,15 @@ public class HelperLogin {
                             ArrayList<Alarm> alarms = Alarm.parseAlarmString("{\n" +
                                     "\"memories\":" + memories.toString() + "}");
                             for(Alarm a : alarms) {
-                                //Toast.makeText(context, a.toString(), Toast.LENGTH_SHORT).show();
-                            }
-                            Alarm alarmSample;
-                            alarmSample = alarms.get(0);
 
-                            alarmSample.startAlarm(context);
+                                //Toast.makeText(context, a.getMemoryName(), Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, a.getSched(), Toast.LENGTH_SHORT).show();
+                            }
+                            Alarm.cancelAllAlarms(context, alarms);
+
+                            Alarm.startAllAlarms(context, alarms);
+
+
 
                             //Toast.makeText(context, memories.toString(), Toast.LENGTH_LONG).show();
                             for(int i=0; i < memories.length(); i++)
@@ -263,15 +332,8 @@ public class HelperLogin {
                                 }
                             }
                             contacts = response.getJSONArray("contacts");
-                            ArrayList<Contact> allContacts = dsContacts.getAllContacts();
-                            for(int i = 0; i < allContacts.size(); i++)
-                            {
+                            dsContacts.deleteAllContacts();
 
-                                Log.e("DSCONTACTS", "DELETED ID: " + Integer.toString(allContacts.get(i).getId()));
-                                dsContacts.deleteContact(allContacts.get(i).getId());
-
-
-                            }
                             for(int i=0; i < contacts.length(); i++)
                             {
                                 //Toast.makeText(context, contacts.getJSONObject(i).get("Mobile").toString(), Toast.LENGTH_LONG).show();
@@ -282,7 +344,9 @@ public class HelperLogin {
                                         contacts.getJSONObject(i).getString("Mobile"),
                                         contacts.getJSONObject(i).getString("Relationship"),
                                         contacts.getJSONObject(i).getInt("Rank"),
-                                        contacts.getJSONObject(i).getString("schedule"));
+                                        contacts.getJSONObject(i).getString("schedule"),
+                                        contacts.getJSONObject(i).getInt("type"),
+                                        contacts.getJSONObject(i).getInt("canContactOutside"));
                                 //contactsArray.add(tempContact);
 
                                 dsContacts.createContact(tempContact);
@@ -294,10 +358,9 @@ public class HelperLogin {
                             for(Alarm a : alarms) {
                                 Toast.makeText(context, a.toString(), Toast.LENGTH_SHORT).show();
                             }
-                            Alarm alarmSample;
-                            alarmSample = alarms.get(0);
 
-                            alarmSample.startAlarm(context);
+
+
                             for(int i=0; i < memories.length(); i++)
                             {
 

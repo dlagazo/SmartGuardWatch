@@ -137,30 +137,11 @@ public class MenuActivity extends Activity {
         Button btnMem = (Button)findViewById(R.id.btnMEM);
         btnMem.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
 
-                Calendar cal = Calendar.getInstance();
-                int day = cal.get(Calendar.DAY_OF_WEEK);
-                int hour = cal.get(Calendar.HOUR_OF_DAY);
-                int min = cal.get(Calendar.MINUTE);
-                //Toast.makeText(getApplicationContext(), "Day of the week: " + day, Toast.LENGTH_LONG).show();
-                //Toast.makeText(getApplicationContext(), hour + ":" + min, Toast.LENGTH_LONG).show();
 
-                for (Contact cont:arrayContacts){
-                    //Toast.makeText(getApplicationContext(), cont.getSchedule(), Toast.LENGTH_LONG).show();
-                    String[] parsedSched = cont.getSchedule().split(",");
 
-                    for(String sched:parsedSched)
-                    {
-                        Toast.makeText(getApplicationContext(), sched, Toast.LENGTH_SHORT).show();
-                        String[] daySched = sched.split(" ");
-
-                        //String[] dayTimes = daySched[1].split("-");
-                        Toast.makeText(getApplicationContext(), "Time: " + daySched[1], Toast.LENGTH_LONG).show();
-                        //Toast.makeText(getApplicationContext(), "Start: " + dayTimes, Toast.LENGTH_LONG).show();
-                        //Toast.makeText(getApplicationContext(), "End: " + dayTimes[1], Toast.LENGTH_LONG).show();
-                    }
-                }
 
 
             }
@@ -182,6 +163,7 @@ public class MenuActivity extends Activity {
                             SharedPreferences prefs = getSharedPreferences(
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 0).apply();
+                            prefs.edit().putInt(Constants.PREFS_LOGGED_IN, 0).apply();
                             Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
                             //startService(new Intent(getApplicationContext(), FallService.class));
                             stopService(fallIntent);

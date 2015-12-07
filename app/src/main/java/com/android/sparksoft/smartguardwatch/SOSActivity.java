@@ -20,6 +20,7 @@ import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
 import com.android.sparksoft.smartguardwatch.Listeners.CallListener;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.util.ArrayList;
@@ -76,35 +77,42 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
 
 
-                for (Contact cont:arrayContacts) {
-                    int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
-                    String sched = cont.getSchedule();
-
-                    if(status == 0)
+                for (Contact cont:arrayContacts)
+                {
+                    if(cont.getType() == 0 && cont.canCall())
                     {
-                        sp.talk("Calling " + cont.getFullName(), true);
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+
+
+                        if(status == 0)
+                        {
+                            sp.talk("Calling " + cont.getFullName(), true);
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+                            startActivity(intent);
+                            try {
+                                Thread.sleep(30000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else
+                        {
+                            break;
                         }
 
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
-                        startActivity(intent);
-                        try {
-                            Thread.sleep(30000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
                     }
-                    else{
-                        break;
-                    }
+                    //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+
+                    //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+
 
                 }
-                //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
-
-                //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
 
                 finish();
             }
@@ -231,8 +239,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
 
                     for (Contact cont:arrayContacts) {
-                        int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
-                        if(status == 0)
+                        int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
+                        if(callStatus == 0)
                         {
                             sp.talk("Calling " + cont.getFullName(), true);
                             try {
@@ -243,14 +251,15 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
                             Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
                             startActivity(callIntent);
+                            prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 1).apply();
+
+                        }
+                        else{
                             try {
-                                Thread.sleep(30000);
+                                Thread.sleep(10000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else{
-                            break;
                         }
 
                     }

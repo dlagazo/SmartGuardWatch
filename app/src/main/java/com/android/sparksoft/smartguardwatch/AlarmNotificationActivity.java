@@ -36,7 +36,7 @@ public class AlarmNotificationActivity extends Activity {
     private PendingIntent pendingIntent;
     private Button stopAlarm;
     private static AlarmNotificationActivity inst;
-    private TextView alarmMessage, alarmTitle, alarmSchedule;
+    private TextView alarmMessage, alarmTitle;
     private String memoryId = "";
     private Alarm alarm;
     private PowerManager.WakeLock mWakeLock;
@@ -60,15 +60,17 @@ public class AlarmNotificationActivity extends Activity {
         stopAlarm = (Button) findViewById(R.id.stopAlarm);
         alarmTitle = (TextView) findViewById(R.id.alarmTitle);
         alarmMessage = (TextView) findViewById(R.id.alarmMessage);
-        alarmSchedule = (TextView) findViewById(R.id.alarmSchedule);
+
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Bundle data = getIntent().getExtras();
         alarm = data.getParcelable(Constants.ALARM);
 
         alarmTitle.setText(alarm.getMemoryName());
+
+
         alarmMessage.setText(alarm.getMemoryInstructions());
-        alarmSchedule.setText(alarm.getMemorySched());
+
         memoryId = alarm.getMemoryId();
 
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);

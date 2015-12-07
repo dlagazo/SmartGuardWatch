@@ -20,8 +20,8 @@ public class Constants {
     public static final String LONGITUDE = "LONGITUDE";
 
     //FALL DETECTOR SETTINGS
-    public static final double FALL_THRESHOLD = 30.0; //FOR BOTH LINEAR and ACCELEROMETER
-    public static final double MOVE_THRESHOLD = 30.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
+    public static final double FALL_THRESHOLD = 20.0; //FOR BOTH LINEAR and ACCELEROMETER
+    public static final double MOVE_THRESHOLD = 5.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
     public static final long FALL_DETECT_WINDOW_SECS = 5;
@@ -43,13 +43,7 @@ public class Constants {
     public static final int ACT_PROTOCOL_INACTIVE_VERTICAL = 4;
     public static final int AFTER_WAKE_TIMER = 60 * 30 * 1000;
 
-    //GEOFENCE
-    public static final float FENCE_RADIUS_IN_METERS = 100f;
-    public static final int LOCATION_ACCURACY = 20;
-    public static final float NEGLIGIBLE_LOCATION_CHANGE = 10f;
-    public static final long DEFAULT_UPDATE_INTERVAL_IN_SEC = 10000;
-    public static final long DEFAULT_FASTEST_INTERVAL_IN_SEC = 15000;
-    public static final int DEFAULT_DISPLACEMENT_IN_M = 2;
+
 
     //NETWORK
     public static final String HOME_SSID = "\"Talusan Family Network\"";
@@ -61,17 +55,21 @@ public class Constants {
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
     public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
     public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
+    public static final String PREFS_CALL_STATUS = "sparksoft.smartguard.CallStatus";
+    public static final String PREFS_LOGGED_IN = "sparksoft.smartguard.LogStatus";
 
 
     //ALARMS
     public static final int ALARM_FREQUENCY_ONCE = 0;
     public static final int ALARM_FREQUENCY_DAILY = 1;
     public static final int ALARM_FREQUENCY_WEEKLY = 2;
-    public static final int ALARM_FREQUENCY_MONTHLY = 3;
-    public static final int ALARM_FREQUENCY_YEARLY = 4;
-    public static final int ALARM_FREQUENCY_HOURLY = 5;
-    public static final int ALARM_FREQUENCY_CUSTOM = -1;
-    public static final String ALARM_WAKE = "WAKE";
+    //    public static final int ALARM_FREQUENCY_MONTHLY = 3;
+//    public static final int ALARM_FREQUENCY_YEARLY = 4;
+//    public static final int ALARM_FREQUENCY_HOURLY = 5;
+//    public static final int ALARM_FREQUENCY_CUSTOM = -1;
+    public static final String ALARM_WAKE = "Wake";
+    public static final String ALARM_ACTIVITY_DETECT = "Detect_Activity";
+    public static final int ALARM_ACTIVITY_DETECT_ID = 1001;
     public static final String ALARM = "ALARM";
 
     //MEMORIES JSON
@@ -82,4 +80,12 @@ public class Constants {
     public static final String MEMORIES_MEMORYFREQ = "MemoryFreq";
     public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
     public static final String MEMORIES_MEMORYDATES = "MemoryDates";
+
+    //TIME DATE CONSTANTS
+    public static final int DAYS_IN_A_WEEK = 7;
+    public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
+    public static final int MILLIS_IN_A_MINUTE = 60 * 1000;
+
+    //EMERGENCY PROTOCOL
+
 }

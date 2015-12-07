@@ -57,28 +57,33 @@ public class ComActivity extends Activity {
         //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ll.getWidth(), ll.getHeight()/5);
         for (final Contact con:dsContacts.getAllContacts())
         {
-            Button btn = new Button(this);
-            //btn.setHeight(0);
-            btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                    0, 1f));
-            //btn.setWidth(ll.getWidth());
-            btn.setText(con.getFullName());
+            if(con.getType() == 0)
+            {
+                Button btn = new Button(this);
+                //btn.setHeight(0);
+                btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                        0, 1f));
+                //btn.setWidth(ll.getWidth());
+                btn.setText(con.getFullName());
 
-            ll.addView(btn);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                ll.addView(btn);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
 
-                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
-                    startActivity(intent);
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
+                        startActivity(intent);
 
-                    Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
-                    navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(navIntent);
-                }
-            });
+                        Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
+                        navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(navIntent);
+                    }
+                });
+            }
         }
+
+
 
         Button btn = new Button(this);
         //btn.setHeight(0);

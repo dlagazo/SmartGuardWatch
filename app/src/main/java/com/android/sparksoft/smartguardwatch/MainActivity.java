@@ -70,6 +70,8 @@ public class MainActivity extends Activity {
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
+                prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
+                prefs.edit().putInt(Constants.PREFS_LOGGED_IN,1).apply();
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
                 if(status == 1)
@@ -77,6 +79,10 @@ public class MainActivity extends Activity {
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
+                    Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                    //startService(new Intent(getApplicationContext(), FallService.class));
+                    stopService(fallIntent);
+                    startService(fallIntent);
                     finish();
                 }
 
@@ -116,6 +122,10 @@ public class MainActivity extends Activity {
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
+                    Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                    //startService(new Intent(getApplicationContext(), FallService.class));
+                    stopService(fallIntent);
+                    startService(fallIntent);
                     finish();
                 }
             }

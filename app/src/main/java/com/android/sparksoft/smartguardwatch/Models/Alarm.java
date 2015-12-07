@@ -1,12 +1,10 @@
 package com.android.sparksoft.smartguardwatch.Models;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.sparksoft.smartguardwatch.Services.AlarmService;
@@ -15,18 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
 
-
-
-/**
- * Created by talusan on 11/9/2015.
- */
 public class Alarm implements Parcelable {
     private static final String TAG = "AlarmObject";
     public String MemoryId = "";
@@ -34,32 +22,32 @@ public class Alarm implements Parcelable {
     public String fkUserId = "";
     public int MemoryFreq = 0;
     public String MemoryInstructions = "";
-    //    public ArrayList<String> memoryDates;
-    public String datesArray = "";
+    public String MemoryDates[] = null;
 
     public Alarm(String MemoryId,
                  String MemoryName,
                  String fkUserId,
                  int MemoryFreq,
                  String MemoryInstructions,
-                 String datesArray) {
+                 String[] MemoryDates) {
         this.MemoryId = MemoryId;
         this.MemoryName = MemoryName;
         this.fkUserId = fkUserId;
         this.MemoryFreq = MemoryFreq;
         this.MemoryInstructions = MemoryInstructions;
-        this.datesArray = datesArray;
+        this.MemoryDates = MemoryDates;
     }
 
+    //TODO: Parse alarm correctly, see notebook. (all exact one day) no repeating
     public static ArrayList<Alarm> parseAlarmString(String alarmString) throws JSONException {
         ArrayList<Alarm> alarms = new ArrayList<>();
-        String MemoryId = "";
-        String MemoryName = "";
-        String fkUserId = "";
-        int MemoryFreq = 0;
-        String MemoryInstructions = "";
-        ArrayList<String> MemoryDates = new ArrayList<>();
-        String datesArray = "";
+        String MemoryId;
+        String MemoryName;
+        String fkUserId;
+        int MemoryFreq;
+        String MemoryInstructions;
+        String MemoryDates[];
+        String datesArray;
 
         JSONObject memoriesObject = new JSONObject(alarmString);
         JSONArray memoriesArray = memoriesObject.getJSONArray(Constants.MEMORIES);
@@ -72,56 +60,145 @@ public class Alarm implements Parcelable {
             MemoryInstructions = memoryObject.getString(Constants.MEMORIES_MEMORYINSTRUCTIONS);
             datesArray = memoryObject.getString(Constants.MEMORIES_MEMORYDATES);
 
-//            if(!datesArray.equals("null")) {
-//                MemoryDates = new  ArrayList<String>(Arrays.asList(datesArray.split(",")));
-//            }
+            if(!datesArray.equals("null")) {
+                MemoryDates = datesArray.split(",");
+            } else {
+                MemoryDates = null;
+            }
 
             Alarm alarmMessage = new Alarm
                     (MemoryId, MemoryName, fkUserId,
-                            MemoryFreq, MemoryInstructions, datesArray);
+                            MemoryFreq, MemoryInstructions, MemoryDates);
 
             alarms.add(alarmMessage);
         }
         return alarms;
     }
 
-    private boolean isAlarmStringValid(String alarmString) {
-        return true;
-    }
-
-
-    public void startAlarm(Context context) {
+    public void setAlarm(Context context) {
+        Intent alarmIntent = new Intent(context, AlarmService.class);
         PendingIntent pendingIntent;
         AlarmManager manager;
-        Intent alarmIntent = new Intent(context, AlarmService.class);
-        alarmIntent.putExtra(Constants.ALARM, this);
-        Log.d(TAG, "Starting alarm: " + MemoryId);
-        pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        //TODO: if once only, use setexact, if repeating set corresponding interval in setRepeating
-//        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, 5000, pendingIntent);
-        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10000, pendingIntent);
-        Log.d(TAG, "Alarm is started");
+        if(MemoryDates != null) {
+            //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            if(MemoryDates.length > 1)  {
+                MemoryFreq = Constants.ALARM_FREQUENCY_WEEKLY;
+            }
+
+            if(MemoryFreq == Constants.ALARM_FREQUENCY_WEEKLY)  {
+                Log.d(TAG, "Dates[" + MemoryDates.length + "]:" + printMemoryDates());
+                for(String memoryDate : MemoryDates) {
+                    int daysSinceMemoryDate = Utils.getNumberOfDaysBetweenTwoTimeStamps(Utils.convertDateAndTimeToSeconds(memoryDate),
+                            Utils.getCurrentTimeStampInSeconds());
+                    Log.d(TAG, "memoryDate[" + MemoryId + "]: " + memoryDate + "/" + daysSinceMemoryDate);
+                    if ((daysSinceMemoryDate + 1) % Constants.DAYS_IN_A_WEEK == 0) { // + 1 since alarm should be in the future
+                        alarmIntent.putExtra(Constants.ALARM, this);
+                        pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        manager.setExact(AlarmManager.RTC_WAKEUP, (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY, pendingIntent);
+                        Log.d(TAG, "Setting weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(
+                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY));
+                    } else if(daysSinceMemoryDate == 0) { // Alarm is supposed to be set today.
+                        if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(memoryDate))) { //Check if timestamp isn't in the past
+                            alarmIntent.putExtra(Constants.ALARM, this);
+                            pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                            manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDate) * 1000, pendingIntent);
+                            Log.d(TAG, "Setting weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(Utils.convertDateAndTimeToSeconds(memoryDate) * 1000));
+                        } else {
+                            Log.d(TAG, "Weekly alarm: " + MemoryId + " is today but has already expired.");
+                        }
+                    } else {
+                        Log.d(TAG, "Weekly alarm: " + MemoryId + " will not be set yet.");
+                    }
+                }
+            } else { //Once or Daily
+                Log.d(TAG, "memoryDate: " + MemoryDates[0]);
+                if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(MemoryDates[0]))) { //Check if timestamp isn't in the past
+                    alarmIntent.putExtra(Constants.ALARM, this);
+                    pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(MemoryDates[0]) * 1000, pendingIntent);
+                    Log.d(TAG, "Setting alarm " + MemoryId + ": " + MemoryDates[0]);
+                } else {
+                    Log.d(TAG, "Weekly alarm " + MemoryId + ": is in the past and will not be set.");
+                }
+            }
+        } else {
+            Log.d(TAG, "Alarm: " + MemoryId + " has no set dates.");
+        }
     }
-
-
-
 
     public void stopAlarm(Context context) {
+        Intent alarmIntent = new Intent(context, AlarmService.class);
         PendingIntent pendingIntent;
         AlarmManager manager;
-        Intent alarmIntent = new Intent(context, AlarmService.class);
-        alarmIntent.putExtra(Constants.ALARM, this);
-        Log.d(TAG, "Stopping alarm: " + MemoryId);
-        pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        manager.cancel(pendingIntent);
-        pendingIntent.cancel();
-        Log.d(TAG, "Alarm is stopped");
+        if(MemoryDates != null) {
+            //TODO: must check if memoryDate is before current, if weekly update (what to do with once and daily?)
+            if(MemoryDates.length > 1)  {
+                MemoryFreq = Constants.ALARM_FREQUENCY_WEEKLY;
+            }
+
+            if(MemoryFreq == Constants.ALARM_FREQUENCY_WEEKLY)  {
+                for(String memoryDate : MemoryDates) {
+                    int daysSinceMemoryDate = Utils.getNumberOfDaysBetweenTwoTimeStamps(Utils.convertDateAndTimeToSeconds(memoryDate),
+                            Utils.getCurrentTimeStampInSeconds());
+                    if((daysSinceMemoryDate + 1) % Constants.DAYS_IN_A_WEEK == 0) { // + 1 since alarm should be in the future
+                        alarmIntent.putExtra(Constants.ALARM, this);
+                        Log.d(TAG, "Stopping weekly alarm " + MemoryId + ": " + memoryDate);
+                        pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        manager.cancel(pendingIntent);
+                        pendingIntent.cancel();
+                        Log.d(TAG, "Stopping weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(
+                                (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + (daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY));
+                    } else if(daysSinceMemoryDate == 0) { // Alarm was set today.
+                        if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(MemoryDates[0]))) { //Check if timestamp isn't in the past
+                            alarmIntent.putExtra(Constants.ALARM, this);
+                            pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                            manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                            manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDate) * 1000, pendingIntent);
+                            Log.d(TAG, "Stopping weekly alarm " + MemoryId + " on: " + Utils.convertMillisToDateAndTimeString(Utils.convertDateAndTimeToSeconds(memoryDate) * 1000));
+                        } else {
+                            Log.d(TAG, "Weekly alarm: " + MemoryId + " was today and expired, so not set.");
+                        }
+                    } else {
+                        Log.d(TAG, "Weekly alarm: " + MemoryId + " was not yet set.");
+                    }
+                }
+            } else { //Once or Daily
+                if(!Utils.isTimeStampInThePast(Utils.convertDateAndTimeToSeconds(MemoryDates[0]))) { //Check if timestamp isn't in the past
+                    alarmIntent.putExtra(Constants.ALARM, this);
+                    Log.d(TAG, "Stopping alarm: " + MemoryId + ":" + MemoryDates[0]);
+                    pendingIntent = PendingIntent.getService(context, Integer.parseInt(MemoryId), alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    manager.cancel(pendingIntent);
+                    pendingIntent.cancel();
+                } else {
+                    Log.d(TAG, "Weekly alarm: " + MemoryId + " is expired and is not set.");
+                }
+            }
+        } else {
+            Log.d(TAG, "Alarm: " + MemoryId + " was not set.");
+        }
     }
 
-    public void resetAlarm() {
+    public static void cancelAllAlarms(Context context, ArrayList<Alarm> alarmsArray) {
+        for(Alarm alarm : alarmsArray) {
+            Log.d(TAG, "Cancelling: " + alarm.getMemoryId());
+            alarm.stopAlarm(context);
+        }
+    }
 
+    public static void startAllAlarms(Context context, ArrayList<Alarm> alarmsArray) {
+        for(Alarm alarm : alarmsArray) {
+            alarm.setAlarm(context);
+        }
+    }
+
+    public void resetAlarm(Context context, ArrayList<Alarm> alarmsArray) {
+        cancelAllAlarms(context, alarmsArray);
+        startAllAlarms(context, alarmsArray);
     }
 
     public String getMemoryId() {
@@ -132,13 +209,12 @@ public class Alarm implements Parcelable {
         return MemoryName;
     }
 
-    public String getFkUserId() {
-        return fkUserId;
+    public String[] getMemoryDates() {
+        return MemoryDates;
     }
 
-    public String getMemorySched()
-    {
-        return datesArray;
+    public String getFkUserId() {
+        return fkUserId;
     }
 
     public int getMemoryFreq() {
@@ -149,15 +225,29 @@ public class Alarm implements Parcelable {
         return MemoryInstructions;
     }
 
+    public String printMemoryDates() {
+        String memoryDatesString = "";
+        for(String memoryDate : MemoryDates) {
+            memoryDatesString += memoryDate + ", ";
+        }
+        return memoryDatesString;
+    }
+
     @Override
     public String toString() {
-        return "Alarm{" +
-                ", MemoryId='" + MemoryId + '\'' +
+        String memoryDatesString = "";
+        if(MemoryDates != null) {
+            for(String memoryDate : MemoryDates) {
+                memoryDatesString += memoryDate + ", ";
+            }
+        }
+        return "Alarm{"  +
+                " MemoryId='" + MemoryId + '\'' +
                 ", MemoryName='" + MemoryName + '\'' +
                 ", fkUserId='" + fkUserId + '\'' +
                 ", MemoryFreq=" + MemoryFreq +
                 ", MemoryInstructions='" + MemoryInstructions + '\'' +
-                ", memoryDates=" + datesArray +
+                ", MemoryDates=" + memoryDatesString +
                 '}';
     }
 
@@ -184,7 +274,7 @@ public class Alarm implements Parcelable {
         fkUserId = in.readString();
         MemoryFreq = in.readInt();
         MemoryInstructions = in.readString();
-        datesArray = in.readString();
+        MemoryDates = in.createStringArray();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -193,6 +283,6 @@ public class Alarm implements Parcelable {
         dest.writeString(fkUserId);
         dest.writeInt(MemoryFreq);
         dest.writeString(MemoryInstructions);
-        dest.writeString(datesArray);
+        dest.writeStringArray(MemoryDates);
     }
 }

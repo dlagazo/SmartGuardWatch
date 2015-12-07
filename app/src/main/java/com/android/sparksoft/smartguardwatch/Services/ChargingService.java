@@ -174,6 +174,18 @@ public class ChargingService extends Service{
         sm.stop();
         myTimer.purge();
         myTimer.cancel();
+
+        String url = "http://smartguardwatch.azurewebsites.net/api/MobileCharge";
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        String auth = prefs.getString("sparksoft.smartguard.auth", "");
+
+        HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
+
+        hr.sendChargeData(url);
+
+
+
         Toast.makeText(this, "Charging protocol stopped", Toast.LENGTH_LONG).show();
         //sp.talk("Charging service stopped", false);
 
