@@ -9,4 +9,6 @@
     <string name="title_activity_com">ComActivity</string>
     <string name="title_activity_alarm_notification">AlarmNotificationActivity</string>
     <string name="title_activity_fitness">FitnessActivity</string>
+    <string name="title_activity_charge">ChargeActivity</string>
+    <string name="title_activity_memory">MemoryActivity</string>
 </resources>

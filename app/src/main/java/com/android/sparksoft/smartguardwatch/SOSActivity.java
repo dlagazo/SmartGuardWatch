@@ -5,10 +5,15 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +27,12 @@ import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
 import com.android.sparksoft.smartguardwatch.Listeners.CallListener;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
+import com.android.sparksoft.smartguardwatch.Services.FallService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,10 +41,20 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private VoiceRecognition vr;
     private Timer myTimer;
+    private Timer callTimer;
+    private Timer animateSOSTimer;
     private SpeechBot sp;
     private boolean isOk = false;
     private ArrayList<Contact> arrayContacts;
     private DataSourceContacts dsContacts;
+    private boolean isAlarmOver = false;
+    private ArrayList<Contact> peopleToCall;
+    TelephonyManager telephonyManager;
+
+    Thread t;
+
+    private boolean isBlink = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -52,10 +69,49 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         dsContacts.open();
 
 
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 
         arrayContacts = dsContacts.getAllContacts();
         setContentView(R.layout.activity_sos);
+
+        new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                Button btnSOSCall = (Button)findViewById(R.id.btnSOSCall);
+                                if(!isBlink) {
+                                    try {
+                                        btnSOSCall.setBackgroundColor(Color.WHITE);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                    }
+                                    isBlink = true;
+                                }
+                                else {
+
+                                    try {
+                                        btnSOSCall.setBackgroundColor(Color.RED);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                    }
+                                    isBlink = false;
+                                }
+                            }
+                        });
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
 
         Button btnSOSCall = (Button)findViewById(R.id.btnSOSCall);
         btnSOSCall.setOnClickListener(new View.OnClickListener() {
@@ -74,47 +130,29 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     e.printStackTrace();
                 }
 
-
-
-
-                for (Contact cont:arrayContacts)
+                alarm();
+                /*
+                Runnable runnable = new Runnable()
                 {
-                    if(cont.getType() == 0 && cont.canCall())
+                    @Override
+                    public void run()
                     {
-                        int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                        Looper.prepare();
+                        call(prepareContactList());
 
-
-                        if(status == 0)
-                        {
-                            sp.talk("Calling " + cont.getFullName(), true);
-                            try {
-                                Thread.sleep(2000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
-                            startActivity(intent);
-                            try {
-                                Thread.sleep(30000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
 
                     }
-                    //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+                };
 
-                    //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+                 new Thread(runnable).start();
+                 */
 
 
-                }
 
-                finish();
+
+
+
+
             }
         });
 
@@ -148,11 +186,87 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
     }
 
+    private void alarm()
+    {
+        peopleToCall = prepareContactList();
+
+        new Thread() {
+            public void run() {
+
+                    try {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+
+                                setContentView(R.layout.rect_activity_medical);
+                                final Button btnEnd = (Button)findViewById(R.id.btnEnd);
+                                btnEnd.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+
+                                        if(!isAlarmOver)
+                                        {
+
+                                            myTimer.purge();
+                                            myTimer.cancel();
+                                            callTimer.purge();
+                                            callTimer.cancel();
+                                            sp.talk("Emergency alarm is turned off.", false);
+                                            btnEnd.setText("Exit");
+                                            isAlarmOver = true;
+                                        }
+                                        else {
+                                            Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                                            stopService(fallIntent);
+                                            startService(fallIntent);
+                                            finish();
+
+                                        }
+
+                                    }
+                                });
+
+                            }
+                        });
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+            }
+        }.start();
+
+        callTimer = new Timer();
+        callTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                call();
+
+            }
+
+        }, 0, 60000);
+
+    }
+
+    // Simulating something timeconsuming
+
+
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
         sp.destroy();
+        try{
+            myTimer.purge();
+            myTimer.cancel();
+            callTimer.purge();
+            callTimer.cancel();
+            //telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
+        }catch (Exception ex) {
+        }
+
     }
 
 
@@ -185,6 +299,289 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         }
     }
 
+
+
+    private ArrayList<Contact> prepareContactList()
+    {
+        ArrayList<Contact> tempList = new ArrayList<>();
+        String contactNumbers = "";
+
+        for(int i = 0; i < 2; i++)
+        {
+
+            for (Contact cont : arrayContacts)
+            {
+                if ((cont.canCall() && cont.getType() == 0) || (cont.getSchedule().length() == 0 && cont.getType() == 0))
+                {
+                    tempList.add(cont);
+                }
+            }
+        }
+        for (Contact cont : arrayContacts)
+        {
+            if (((cont.canCall() &&cont.getType() == 1) || cont.getSchedule().length() == 0) && !cont.getFullName().contains("Fallback"))
+            {
+                tempList.add(cont);
+            }
+        }
+        for (Contact cont : arrayContacts)
+        {
+            if (cont.getCallOutside() == 1 && !cont.getFullName().contains("Fallback"))
+            {
+                tempList.add(cont);
+            }
+        }
+
+        for (Contact cont : arrayContacts)
+        {
+            if (cont.getFullName().contains("Fallback"))
+            {
+                tempList.add(cont);
+            }
+        }
+
+        for (Contact cont:tempList) {
+            //Log.d("CALL_LIST", cont.getContactDetails() + " type " + cont.getType()  + " schedule: " + cont.getSchedule());
+            Log.d("CALL_LIST", cont.getContactDetails() + " " + cont.getMobile());
+        }
+
+        return tempList;
+
+    }
+
+    private void callList()
+    {
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        String numbers = prefs.getString("sparksoft.smartguard.SOSnumbers", "");
+        if(numbers.length() > 0)
+        {
+            String[] str = numbers.split(",");
+            Log.d("CALL_LIST", numbers);
+            Log.d("CALL_LIST", str[0]);
+            String tempNumbers = "";
+            for(int i = 1; i < str.length; i++)
+            {
+                tempNumbers += str[i] + ",";
+            }
+            prefs.edit().putString("sparksoft.smartguard.SOSnumbers", tempNumbers).apply();
+
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + str[0]));
+            startActivity(intent);
+            Intent prevIntent = new Intent(getApplicationContext() , SOSMessageActivity.class);
+            prevIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+        }
+    }
+
+
+
+    private void call()//(final ArrayList<Contact> list)
+    {
+        try{
+            sp.talk("Calling " + peopleToCall.get(0).getFullName(), true);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + peopleToCall.get(0).getMobile()));
+            startActivity(intent);
+            peopleToCall.remove(0);
+        }
+        catch (Exception ex)
+        {
+            callTimer.purge();
+            callTimer.cancel();
+            isOk = true;
+
+        }
+
+
+
+        /*
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        prefs.edit().putInt("sparksoft.smartguard.prevStatus", -1).apply();
+
+        sp.talk("Calling " + list.get(0).getFullName(), true);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + list.get(0).getMobile()));
+            startActivity(intent);
+
+            list.remove(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        // Create a new PhoneStateListener
+        PhoneStateListener listener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                String stateString = "N/A";
+                int prev = -1;
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        //IDLE - 0
+                        Log.d("CALL_LIST", "Idle");
+                        prev = prefs.getInt("sparksoft.smartguard.prevStatus", -1);
+                        if(prev == 0)
+                        {
+
+
+                        }
+                        else if(prev == 1)
+                        {
+
+
+                            Log.d("CALL_LIST", "UNANSWERED");
+
+                            try {
+                                Thread.sleep(30000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            telephonyManager.listen(this, PhoneStateListener.LISTEN_NONE);
+                            call(list);
+
+
+
+                        }
+                        prefs.edit().putInt("sparksoft.smartguard.prevStatus", 0).apply();
+
+
+                        break;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        Log.d("CALL_LIST", "Ofhook");
+                        prev = prefs.getInt("sparksoft.smartguard.prevStatus", -1);
+                        if(prev == 1)
+                        {
+
+
+
+
+                        }
+
+                        prefs.edit().putInt("sparksoft.smartguard.prevStatus", 1).apply();
+
+                        break;
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        Log.d("CALL_LIST", "Ringing");
+                        break;
+                    default:
+                        Log.d("CALL LIST", "DEFAULT");
+                        break;
+                }
+
+            }
+        };
+
+        // Register the listener with the telephony manager
+        telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        /*
+        for (Contact cont:list)
+        {
+
+            int didAnswer = prefs.getInt("sparksoft.smartguard.sosDidAnswer", 0);
+            if(didAnswer == 1)
+            {
+                prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+                break;
+            }
+            sp.talk("Calling " + cont.getFullName(), true);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+            startActivity(intent);
+
+            try {
+                Thread.sleep(90000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 1).apply();
+        */
+
+    }
+
+    private void caller()
+    {
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+
+        for (Contact cont:arrayContacts)
+        {
+            //int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+            //int didAnswer = prefs.getInt("sparksoft.smartguard.sosDidAnswer", 0);
+
+
+            if(cont.getType() == 0 && cont.canCall())// && status == 0 && didAnswer == 0)
+            {
+
+
+                    prefs.edit().putInt("sparksoft.smartguard.callerId", cont.getId()).apply();
+                    sp.talk("Calling " + cont.getFullName(), true);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
+                    startActivity(intent);
+
+                    //finish();
+                    //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 1).apply();
+                    //status = 1;
+                    /*
+                    while(status == 1)
+                    {
+                        try {
+                            Thread.sleep(20000);
+                            status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }*/
+                    //status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
+                    //didAnswer = prefs.getInt("sparksoft.smartguard.sosDidAnswer", 0);
+
+
+            }
+            /*
+            if (didAnswer == 1)
+            {
+                prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
+                break;
+            }
+            */
+
+            //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+
+            //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
+
+
+        }
+
+    }
+
     private void promptSpeechInput() {
 
         for(int i = 0; i < 3; i++)
@@ -205,9 +602,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
                         "Say something");
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 5000);
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
                 try {
                     startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
                 } catch (ActivityNotFoundException a) {
@@ -235,39 +632,12 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    alarm();
+                    //call(prepareContactList());
 
 
 
-                    for (Contact cont:arrayContacts) {
-                        int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
-                        if(callStatus == 0)
-                        {
-                            sp.talk("Calling " + cont.getFullName(), true);
-                            try {
-                                Thread.sleep(2000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
 
-                            Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
-                            startActivity(callIntent);
-                            prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 1).apply();
-
-                        }
-                        else{
-                            try {
-                                Thread.sleep(10000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                    }
-                    //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
-
-                    //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
-
-                    finish();
                 }
             }
 
@@ -315,38 +685,12 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        alarm();
 
 
+                        //call(prepareContactList());
 
-                        for (Contact cont:arrayContacts) {
-                            int status = prefs.getInt("sparksoft.smartguard.sosCallStatus", 0);
-                            if(status == 0)
-                            {
-                                sp.talk("Calling " + cont.getFullName(), true);
-                                try {
-                                    Thread.sleep(2000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
 
-                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + cont.getMobile()));
-                                startActivity(intent);
-                                try {
-                                    Thread.sleep(30000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else{
-                                break;
-                            }
-
-                        }
-                        //Toast.makeText(getApplicationContext(), "Calling " + arrayContacts.get(0).getFullName(), Toast.LENGTH_SHORT).show();
-
-                        //CallListener caller = new CallListener(getApplicationContext(), sp, arrayContacts);
-
-                        finish();
                     }
                 }
                 break;

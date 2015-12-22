@@ -52,8 +52,19 @@ public class ComActivity extends Activity {
 
 
         arrayContacts = dsContacts.getAllContacts();
+        setPrimary();
 
+
+
+
+
+        speak();
+    }
+
+    private void setPrimary()
+    {
         LinearLayout ll = (LinearLayout)findViewById(R.id.llNav);
+        ll.removeAllViews();
         //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ll.getWidth(), ll.getHeight()/5);
         for (final Contact con:dsContacts.getAllContacts())
         {
@@ -75,15 +86,65 @@ public class ComActivity extends Activity {
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
                         startActivity(intent);
 
-                        Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
-                        navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(navIntent);
+                        //Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
+                        //navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        //startActivity(navIntent);
                     }
                 });
             }
         }
+        Button btnSecondary = new Button(this);
+        btnSecondary.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                0, 1f));
+        btnSecondary.setText("Secondary Contacts");
+        ll.addView(btnSecondary);
+        btnSecondary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LinearLayout ll = (LinearLayout)findViewById(R.id.llNav);
+                ll.removeAllViews();
+                for (final Contact con:dsContacts.getAllContacts())
+                {
+                    if(con.getType() == 1)
+                    {
+                        Button btn = new Button(getApplicationContext());
+                        //btn.setHeight(0);
+                        btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                                0, 1f));
+                        //btn.setWidth(ll.getWidth());
+                        btn.setText(con.getFullName());
+
+                        ll.addView(btn);
+                        btn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
 
 
+                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + con.getMobile()));
+                                startActivity(intent);
+
+                                //Intent navIntent = new Intent(getApplicationContext(), SOSMessageActivity.class);
+                                //navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                //startActivity(navIntent);
+                            }
+                        });
+                    }
+                }
+                Button btn = new Button(getApplicationContext());
+                //btn.setHeight(0);
+                btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                        0, 1f));
+                //btn.setWidth(ll.getWidth());
+                btn.setText("Back");
+                ll.addView(btn);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                });
+            }
+        });
 
         Button btn = new Button(this);
         //btn.setHeight(0);
@@ -100,11 +161,7 @@ public class ComActivity extends Activity {
             }
         });
 
-
-
-        speak();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

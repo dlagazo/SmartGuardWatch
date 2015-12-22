@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.BatteryManager;
 
+import com.android.sparksoft.smartguardwatch.ChargeActivity;
+import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
@@ -40,14 +42,20 @@ public class BatteryStatus extends BroadcastReceiver{
 
             context.startService(chargingService);
             context.stopService(fallIntent);
+            Intent chargeActivity = new Intent(context, ChargeActivity.class);
+            chargeActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(chargeActivity);
+            prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 1).apply();
 
-            prefs.edit().putInt(Constants.PREFS_NAME, 1).apply();
         }
         else if(action.equals(Intent.ACTION_POWER_DISCONNECTED) && logStatus == 1) {
             context.stopService(chargingService);
             context.startService(fallIntent);
+            prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 0).apply();
 
-            prefs.edit().putInt(Constants.PREFS_NAME, 1).apply();
+            String auth = prefs.getString("sparksoft.smartguard.auth", "");
+
+
         }
     }
 }

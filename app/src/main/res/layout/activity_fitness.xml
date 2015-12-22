@@ -7,26 +7,44 @@
     android:orientation="vertical"
     tools:context="com.android.sparksoft.smartguardwatch.FitnessActivity">
 
-    <TextView android:text="Fall count:" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView android:text="0" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/fallCount"/>
-    <TextView android:text="Active %:" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView android:text="0" android:layout_width="wrap_content"
+    <TextView android:text="Fall count: 0" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fallCount"/>
+
+    <TextView android:text="Active 0%" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/activeCount"/>
-    <TextView android:text="Inactive %:" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView android:text="0" android:layout_width="wrap_content"
+    <SeekBar
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/inactiveCount"/>
+        android:id="@+id/sbActive" />
 
-    <Button
-        android:layout_width="wrap_content"
+
+
+    <TextView android:text="Inactive 0%:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/inactiveCount"/>
+    <SeekBar
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reset Data"
-        android:id="@+id/btnResetCounters" />
+        android:id="@+id/sbInactove" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:id="@+id/btnResetCounters" />
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:id="@+id/btnBack" />
+    </LinearLayout>
+
 
 </LinearLayout>

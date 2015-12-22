@@ -15,6 +15,7 @@ import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 
 import com.android.sparksoft.smartguardwatch.MenuActivity;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Models.Place;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
@@ -33,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -92,6 +94,7 @@ public class HelperLogin {
 
     public void sendChargeData(String url)
     {
+        /*
         Calendar cal = Calendar.getInstance();
         int day = cal.get(Calendar.DAY_OF_WEEK);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -103,14 +106,36 @@ public class HelperLogin {
                 Integer.toString(cal.get(Calendar.DAY_OF_MONTH)) + "T" +
                 Integer.toString(hour) + ":" + Integer.toString(min) + ":" +
                 Integer.toString(sec);
-        Log.d("LOG_HELPER", timeStamp);
-
+                */
         Log.d("LOG_HELPER", Float.toString(getBatteryLevel()));
+        //Log.d("LOG_HELPER", timeStamp);
+
+
+
+        SharedPreferences prefs = context.getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        int active = prefs.getInt(Constants.ACTIVE_COUNTER, 0);
+        int inactive = prefs.getInt(Constants.INACTIVE_COUNTER, 0);
+        int fall = prefs.getInt(Constants.FALL_COUNTER, 0);
+        //int fall = prefs.getInt(Constants.FALL_COUNTER, 0);
+
+        double total = active + inactive;
+        double activePct = active/total*100;
+        double inactivePct = inactive/total*100;
+        Log.d("LOG_HELPER", Double.toString(activePct));
+        Log.d("LOG_HELPER", Double.toString(inactivePct));
+        //Double toBeTruncated = new Double("3.5789055");
+
+        //Double truncatedDouble=new BigDecimal(toBeTruncated ).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+
         RequestQueue queue = Volley.newRequestQueue(context);
         JSONObject params = new JSONObject();
         try {
             params.put("ChargePct", getBatteryLevel());
-            params.put("ChargeTimeStamp", timeStamp);
+            //params.put("ChargeTimeStamp", timeStamp);
+            params.put("ActivePct", String.format("%.2f", activePct));
+            params.put("InactivePct", String.format("%.2f",inactivePct));
+            params.put("FallCount", Integer.toString(fall));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -121,6 +146,7 @@ public class HelperLogin {
                     public void onResponse(JSONObject response)
                     {
                         Log.d("LOG_HELPER", response.toString());
+                        Toast.makeText(context, "Watch data sent successfully", Toast.LENGTH_LONG).show();
                     }
                 },
                 new Response.ErrorListener()
@@ -128,7 +154,7 @@ public class HelperLogin {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
-                        Log.d("LOG_HELPER", Integer.toString(error.networkResponse.statusCode));
+                        Log.d("LOG_HELPER", error.toString());
                     }
                 })
                 {
@@ -153,6 +179,30 @@ public class HelperLogin {
 
     }
 
+    public void processAlarm(String memories)
+    {
+        SharedPreferences prefs = context.getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
+        ArrayList<Alarm> alarms = null;
+        try {
+            alarms = Alarm.parseAlarmString(alarmString);
+            Alarm.cancelAllAlarms(context, alarms);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            alarms = Alarm.parseAlarmString("{\n" +
+                    "\"memories\":" + memories + "}");
+            Alarm.startAllAlarms(context, alarms);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        prefs.edit().putString(Constants.PREFS_ALARM_STING, "{\n" +
+                "\"memories\":" + memories + "}").apply();
+
+    }
 
 
     public void SyncHelperJSONObject(String url)
@@ -178,9 +228,10 @@ public class HelperLogin {
                                     //myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     //context.startActivity(myIntent);
                                     SharedPreferences prefs = context.getSharedPreferences(
-                                            "sparksoft.smartguard", Context.MODE_PRIVATE);
+                                            Constants.PREFS_NAME, Context.MODE_PRIVATE);
 
-                                    prefs.edit().putInt("sparksoft.smartguard.loginStatus", 1).apply();
+                                    prefs.edit().putInt(Constants.PREFS_LOG_CHECKER, 1).apply();
+                                    prefs.edit().putString(Constants.PREFS_AUTH, basicAuth).apply();
                                     //result = true;
 
                                 }
@@ -209,16 +260,8 @@ public class HelperLogin {
                             }
                             memories = response.getJSONArray("memories");
 
-                            ArrayList<Alarm> alarms = Alarm.parseAlarmString("{\n" +
-                                    "\"memories\":" + memories.toString() + "}");
-                            for(Alarm a : alarms) {
+                            processAlarm(memories.toString());
 
-                                //Toast.makeText(context, a.getMemoryName(), Toast.LENGTH_SHORT).show();
-                                //Toast.makeText(context, a.getSched(), Toast.LENGTH_SHORT).show();
-                            }
-                            Alarm.cancelAllAlarms(context, alarms);
-
-                            Alarm.startAllAlarms(context, alarms);
 
 
 
@@ -254,11 +297,12 @@ public class HelperLogin {
 
                             Vibrator v = (Vibrator) context.getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                             v.vibrate(500);
+
                             SharedPreferences prefs = context.getSharedPreferences(
-                                    "sparksoft.smartguard", Context.MODE_PRIVATE);
+                                    Constants.PREFS_NAME, Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
                             //prefs.edit().putInt("sparksoft.smartguard.loginStatus", 1).apply();
-                            prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
+                            //prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
                             //sp.talk("Hello " + fullname, false);
                             //Intent fallIntent = new Intent(context, FallService.class);
                             //startService(new Intent(getApplicationContext(), FallService.class));
@@ -299,7 +343,7 @@ public class HelperLogin {
 
                 };
 
-                req.setRetryPolicy(new DefaultRetryPolicy(60000,
+                req.setRetryPolicy(new DefaultRetryPolicy(20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -325,7 +369,7 @@ public class HelperLogin {
                                 if (responses.getJSONObject(i).getString("response").equals("Name"))
                                     fullname = responses.getJSONObject(i).getString("value");
                                 else if(responses.getJSONObject(i).getString("response").equals("Result")) {
-
+                                    Toast.makeText(context, "Data synching complete", Toast.LENGTH_LONG).show();
 
                                     //result = true;
 
@@ -353,6 +397,7 @@ public class HelperLogin {
 
                             }
                             memories = response.getJSONArray("memories");
+                            processAlarm(memories.toString());
 
                             ArrayList<Alarm> alarms = Alarm.parseAlarmString(memories.toString());
                             for(Alarm a : alarms) {
@@ -396,7 +441,8 @@ public class HelperLogin {
                             //prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
                             //prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
                             //sp.talk("Hello " + fullname, false);
-                            Toast.makeText(context, "Data synching complete", Toast.LENGTH_LONG).show();
+
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -431,7 +477,7 @@ public class HelperLogin {
 
         };
 
-        req.setRetryPolicy(new DefaultRetryPolicy(60000,
+        req.setRetryPolicy(new DefaultRetryPolicy(20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 

@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.sparksoft.smartguardwatch.Models.Constants;
@@ -31,12 +32,21 @@ public class FitnessActivity extends Activity {
         double inactivePct = inactive/total;
 
         TextView tvFall = (TextView)findViewById(R.id.fallCount);
-        tvFall.setText(Integer.toString(fall));
+        tvFall.setText("Fall count: " + Integer.toString(fall));
         DecimalFormat df = new DecimalFormat("00.00");
         TextView tvActive = (TextView)findViewById(R.id.activeCount);
-        tvActive.setText(df.format(activePct * 100));
+        tvActive.setText("Active " + df.format(activePct * 100) + "% of the day");
+        SeekBar sbActive = (SeekBar)findViewById(R.id.sbActive);
+        sbActive.setMax(100);
+        int activeProgress = (int)activePct * 100;
+        sbActive.setProgress(activeProgress);
         TextView tvInactive = (TextView)findViewById(R.id.inactiveCount);
-        tvInactive.setText(df.format(inactivePct*100));
+        tvInactive.setText("Inactive " + df.format(inactivePct * 100) + "% of the day");
+        SeekBar sbInactive = (SeekBar)findViewById(R.id.sbInactove);
+        sbInactive.setMax(100);
+        int inactiveProgress = (int)inactivePct * 100;
+        sbInactive.setProgress(inactiveProgress);
+
         Button btnReset = (Button)findViewById(R.id.btnResetCounters);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +54,15 @@ public class FitnessActivity extends Activity {
                 prefs.edit().putInt(Constants.FALL_COUNTER, 0).apply();
                 prefs.edit().putInt(Constants.ACTIVE_COUNTER, 0).apply();
                 prefs.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();
+                finish();
+            }
+        });
+
+        Button btnBack = (Button)findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
                 finish();
             }
         });

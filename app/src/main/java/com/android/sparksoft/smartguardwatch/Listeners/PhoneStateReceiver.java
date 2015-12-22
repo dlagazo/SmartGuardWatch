@@ -25,6 +25,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         CallListener phoneListener = new CallListener(context);
+
         telephony = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
         telephony.listen(phoneListener, CallListener.LISTEN_CALL_STATE);

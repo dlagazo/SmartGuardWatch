@@ -1,12 +1,15 @@
 package com.android.sparksoft.smartguardwatch.Services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
@@ -77,9 +80,30 @@ public class FallService extends IntentService implements SensorEventListener
         super("FallService");
     }
 
+    public BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Check action just to be on the safe side.
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                Log.d(DEBUG_TAG, "Re-registering");
+                // Unregisters the listener and registers it again.
+
+                sensorManager.unregisterListener(FallService.this);
+                sensorManager.registerListener(FallService.this, sensor,
+                        SensorManager.SENSOR_DELAY_NORMAL);
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "MyWakelockTag");
+        wakeLock.acquire();
         sp = new SpeechBot(this, "");
         Log.d(DEBUG_TAG, "onCreate");
         accelerometerData = new ArrayList<>();
@@ -94,6 +118,10 @@ public class FallService extends IntentService implements SensorEventListener
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
+
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -104,6 +132,7 @@ public class FallService extends IntentService implements SensorEventListener
     //TODO: Fix this, to just stop device gathering
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         Log.d(DEBUG_TAG, "Start gathering v3");
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
 

@@ -20,7 +20,7 @@ public class Constants {
     public static final String LONGITUDE = "LONGITUDE";
 
     //FALL DETECTOR SETTINGS
-    public static final double FALL_THRESHOLD = 20.0; //FOR BOTH LINEAR and ACCELEROMETER
+    public static final double FALL_THRESHOLD = 19.0; //FOR BOTH LINEAR and ACCELEROMETER
     public static final double MOVE_THRESHOLD = 5.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
@@ -53,12 +53,14 @@ public class Constants {
     public static final String PREFS_CURRENT_PRIORITY = "CURRENT_PRIORITY_LEVEL";
     public static final String PREFS_NAME = "sparksoft.smartguard";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
+    public static final String PREFS_AUTH = "sparksoft.smartguard.auth";
     public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
     public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
     public static final String PREFS_CALL_STATUS = "sparksoft.smartguard.CallStatus";
     public static final String PREFS_LOGGED_IN = "sparksoft.smartguard.LogStatus";
-
-
+    public static final String PREFS_LOG_CHECKER = "sparksoft.smartguard.loginStatus";
+    public static final String PREFS_ALARM_STING = "sparksoft.smartguard.alarms";
+    public static final String PREFS_SOS_CALL_STATUS = "sparksoft.smartguard.sosCallStatus";
     //ALARMS
     public static final int ALARM_FREQUENCY_ONCE = 0;
     public static final int ALARM_FREQUENCY_DAILY = 1;
@@ -86,6 +88,8 @@ public class Constants {
     public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
     public static final int MILLIS_IN_A_MINUTE = 60 * 1000;
 
-    //EMERGENCY PROTOCOL
+    //API URLS
+    public static final String URL_LOGIN = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
+    public static final String URL_CHARGEDATA = "http://smartguardwatch.azurewebsites.net/api/MobileCharge";
 
 }

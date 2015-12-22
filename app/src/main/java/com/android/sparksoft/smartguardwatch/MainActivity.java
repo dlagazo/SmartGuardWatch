@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,7 +32,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.rect_activity_login);
 
         sp = new SpeechBot(this, null);
@@ -65,13 +68,15 @@ public class MainActivity extends Activity {
         btnLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Logging in. Please wait", false);
+                sp.talk("Logging in. Please wait", true);
 
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
                 prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
                 prefs.edit().putInt(Constants.PREFS_LOGGED_IN,1).apply();
+                prefs.edit().putInt(Constants.PREFS_SOS_CALL_STATUS, 0).apply();
+                prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
                 if(status == 1)
@@ -86,11 +91,8 @@ public class MainActivity extends Activity {
                     finish();
                 }
 
-                if(status == 0) {
+                else if(status == 0) {
                     Toast.makeText(getApplicationContext(), "Logging in. Please wait.", Toast.LENGTH_LONG).show();
-
-                    String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
-
 
                     final String basicAuth = "Basic " + Base64.encodeToString((etUserName.getText() + ":" +
                             etPassword.getText()).getBytes(), Base64.NO_WRAP);
@@ -102,7 +104,7 @@ public class MainActivity extends Activity {
                     }
 
                     hr = new HelperLogin(getApplicationContext(), basicAuth, sp);
-                    hr.SyncHelperJSONObject(url);
+                    hr.SyncHelperJSONObject(Constants.URL_LOGIN);
                     myTimer = new Timer();
                     myTimer.schedule(new TimerTask() {
                         @Override
@@ -144,9 +146,9 @@ public class MainActivity extends Activity {
     public void checkLoginStatus()
     {
         SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
 
-        int status = prefs.getInt("sparksoft.smartguard.loginStatus", 0);
+        int status = prefs.getInt(Constants.PREFS_LOG_CHECKER, 0);
         if(status == 1)
         {
 
@@ -159,7 +161,7 @@ public class MainActivity extends Activity {
             startService(fallIntent);
             myTimer.purge();
             myTimer.cancel();
-            prefs.edit().putInt("sparksoft.smartguard.loginStatus", 0).apply();
+            prefs.edit().putInt(Constants.PREFS_LOG_CHECKER, 0).apply();
             finish();
         }
     }

@@ -51,13 +51,14 @@
             android:enabled="true"
             android:exported="true" >
         </service>
-
+        <!--
         <receiver android:name=".Listeners.PhoneStateReceiver" >
             <intent-filter android:priority="0" >
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
+        -->
         <receiver android:name=".Listeners.BatteryStatus" >
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
@@ -90,6 +91,14 @@
         <activity
             android:name=".FitnessActivity"
             android:label="@string/title_activity_fitness" >
+        </activity>
+        <activity
+            android:name=".ChargeActivity"
+            android:label="@string/title_activity_charge" >
+        </activity>
+        <activity
+            android:name=".MemoryActivity"
+            android:label="@string/title_activity_memory" >
         </activity>
     </application>
 

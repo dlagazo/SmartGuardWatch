@@ -131,61 +131,118 @@ public class Contact {
         int day = cal.get(Calendar.DAY_OF_WEEK);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int min = cal.get(Calendar.MINUTE);
-        Log.d("LOG_CONTACT", "Day of the week: " + day);
-        Log.d("LOG_CONTACT", hour + ":" + min);
+
 
 
             String[] parsedSched = getSchedule().split(",");
+        //Log.d("CALL_LIST", "day:" + day + "hr:" + hour + " schedule:" + getSchedule());
 
-            if(getSchedule() == "")
+
+            if(getSchedule() != null || getSchedule() != "")
             {
+                for(String sched:parsedSched)
+                {
+                    //Log.d("CALL_LIST", "Parsed:" + sched);
+                    try {
+                        //sched.replaceAll(" ", "");
+                        if(day == 1)
+                        {
+                            if(sched.contains("SUN"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+
+                            }
+                        }
+                        else if(day == 2)
+                        {
+                            if(sched.contains("MON"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+                            }
+                        }
+                        else if(day == 3)
+                        {
+                            if(sched.contains("TUE"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+
+
+                            }
+                        }
+                        else if(day == 4)
+                        {
+                            if(sched.contains("WED"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+
+                            }
+                        }
+                        else if(day == 5)
+                        {
+                            if(sched.contains("THU"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+                            }
+                        }
+                        else if(day == 6)
+                        {
+                            if(sched.contains("FRI"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+
+
+                            }
+                        }
+                        else if(day == 7)
+                        {
+                            if(sched.contains("SAT"))
+                            {
+                                if(isInSchedule(sched, hour))
+                                {
+                                    Log.d("LOG_CONTACT", "Call " + getFullName());
+                                    return true;
+                                }
+
+
+                            }
+                        }
+
+
+                    }
+                    catch (Exception ex) {
+
+                    }
+                }
+
+            }
+            else{
                 return true;
             }
 
-            for(String sched:parsedSched)
-            {
-                try {
-                    //sched.replaceAll(" ", "");
-                    if(day == 1)
-                    {
-                        if(sched.contains("SUN"))
-                        {
-                            if(isInSchedule(sched, hour))
-                            {
-                                Log.d("LOG_CONTACT", "Call " + getFullName());
-                            }
-
-                        }
-                    }
-                    else if(day == 2)
-                    {
-                        if(sched.contains("MON"))
-                        {
-                            if(isInSchedule(sched, hour))
-                            {
-                                Log.d("LOG_CONTACT", "Call " + getFullName());
-                            }
-                        }
-                    }
-                    else if(day == 3)
-                    {
-                        if(sched.contains("TUE"))
-                        {
-                            if(isInSchedule(sched, hour))
-                            {
-                                Log.d("LOG_CONTACT", "Call " + getFullName());
-                            }
-
-
-                        }
-                    }
-
-                }
-                catch (Exception ex) {
-
-                }
-            }
-
-        return true;
+        return false;
     }
 }

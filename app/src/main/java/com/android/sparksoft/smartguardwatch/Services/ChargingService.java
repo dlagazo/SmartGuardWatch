@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.R;
 
 import com.android.sparksoft.smartguardwatch.Features.FallDetector;
@@ -70,7 +71,7 @@ public class ChargingService extends Service{
         //MediaPlayer mp = new MediaPlayer();
         //mp = MediaPlayer.create(ChargingService.this, R.raw.smartguard);
         //mp.start();
-        syncData();
+        //syncData();
 
 
 
@@ -92,17 +93,26 @@ public class ChargingService extends Service{
     private void syncData()
     {
         SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
         int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
         if(status == 1)
         {
-            String auth = prefs.getString("sparksoft.smartguard.auth", "");
-            HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
-            String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
-            hr.Sync(url);
+            String auth = prefs.getString(Constants.PREFS_AUTH, "");
 
-            //Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
+            if (auth.length() > 1)
+            {
+                HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
+                hr.Sync(Constants.URL_LOGIN);
+            }
+
+
+
+
+
+
+
+                //Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -112,8 +122,8 @@ public class ChargingService extends Service{
         Double noise = sm.getAmplitude();
         Log.e("ChargingService", Double.toString(sm.getAmplitude()));
         SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
-        int SOSstatus = prefs.getInt("sparksoft.smartguard.SOSstatus", 1);
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        int SOSstatus = prefs.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1);
         if(noise > 20000 && !alarm && SOSstatus == 1)
         {
             sm.stop();
@@ -175,15 +185,15 @@ public class ChargingService extends Service{
         myTimer.purge();
         myTimer.cancel();
 
-        String url = "http://smartguardwatch.azurewebsites.net/api/MobileCharge";
+
         SharedPreferences prefs = getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
-        String auth = prefs.getString("sparksoft.smartguard.auth", "");
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        String auth = prefs.getString(Constants.PREFS_AUTH, "");
 
         HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
 
-        hr.sendChargeData(url);
-
+        hr.sendChargeData(Constants.URL_CHARGEDATA);
+        hr.Sync(Constants.URL_LOGIN);
 
 
         Toast.makeText(this, "Charging protocol stopped", Toast.LENGTH_LONG).show();

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
@@ -29,14 +30,14 @@ public class CallListener extends PhoneStateListener {
     private ArrayList<Contact> contacts;
     private DataSourceContacts dsContacts;
     private int callCount;
-    private SharedPreferences sharedPrefs;
+    private SharedPreferences prefs;
     TelephonyManager telephonyManager;
 
     public CallListener(Context _context)
     {
         callCount = 0;
         context = _context;
-        //sp = new SpeechBot(context, null);
+        sp = new SpeechBot(context, null);
         didHook = false;
         didRing = false;
         isOver = false;
@@ -47,7 +48,8 @@ public class CallListener extends PhoneStateListener {
 
 
         contacts = dsContacts.getAllContacts();
-        sharedPrefs = _context.getSharedPreferences("prefs", Context.MODE_WORLD_WRITEABLE);
+        prefs =  _context.getSharedPreferences(
+            "sparksoft.smartguard", Context.MODE_WORLD_READABLE);
         //telephonyManager.listen(this, PhoneStateListener.LISTEN_CALL_STATE);
         //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contacts.get(0).getMobile()));
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -57,12 +59,11 @@ public class CallListener extends PhoneStateListener {
 
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
-        SharedPreferences prefs = context.getSharedPreferences(
-                "sparksoft.smartguard", Context.MODE_PRIVATE);
-        if(TelephonyManager.CALL_STATE_RINGING == state) {
-            //Log.i(LOG_TAG, "RINGING, number: " + incomingNumber);
-            Toast.makeText(context, "Call state is ringing.", Toast.LENGTH_LONG).show();
 
+        if(TelephonyManager.CALL_STATE_RINGING == state) {
+            Log.d("CALL_STATUS", "RINGING");
+            //Toast.makeText(context, "Call state is ringing.", Toast.LENGTH_LONG).show();
+            //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 1).apply();
 
             didRing = true;
         }
@@ -71,27 +72,51 @@ public class CallListener extends PhoneStateListener {
             //Toast.makeText(context, "Call state is offhook.", Toast.LENGTH_LONG).show();
 
             didHook = true;
-
+            prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 1).apply();
+            //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
             //sp.talk("Phone is off-hook", true);
-
+            //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
         }
         if(TelephonyManager.CALL_STATE_IDLE == state) {
             //when this state occurs, and your flag is set, restart your app
             //Toast.makeText(context, "Call count:" + callCount + " Contacts:" + contacts.size(), Toast.LENGTH_LONG).show();
-            if(!didRing && didHook)
+            /*
+            if(!didHook && !didRing)
+            {
+                Log.d("CALL_STATUS", "BUSY");
+                Toast.makeText(context, "Busy", Toast.LENGTH_LONG).show();
+                prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
+                prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
+                prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
+
+
+            }*/
+            //int didAnswer = prefs.getInt("sparksoft.smartguard.sosDidAnswer", 0);
+            //int sosStatus = prefs.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1);
+            if(didHook) {
+
+                Log.d("CALL_STATUS", "ANSWERED");
+                Toast.makeText(context, "Answered", Toast.LENGTH_LONG).show();
+                prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 1).apply();
+                //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
+
+            }
+
+            else
             {
 
-
-                prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
-
-
-
-
+                Log.d("CALL_STATUS", "UNANSWERED");
+                Toast.makeText(context, "Unanswered", Toast.LENGTH_LONG).show();
+                /*
+                int last = prefs.getInt("sparksoft.smartguard.lastCalled", 1);
+                String numbers = prefs.getString("sparksoft.smartguard.SOSnumbers", "");
+                String[] getNumbers = numbers.split(",");
+                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + getNumbers[last]));
+                //context.startActivity(intent);
+                prefs.edit().putInt("sparksoft.smartguard.lastCalled", last+ 1).apply();
+                */
             }
-            else if(didRing && didHook) {
-                Toast.makeText(context, "Answered", Toast.LENGTH_LONG).show();
-
-            }
+            //prefs.edit().putInt("sparksoft.smartguard.sosCallStatus", 0).apply();
         }
 
     }

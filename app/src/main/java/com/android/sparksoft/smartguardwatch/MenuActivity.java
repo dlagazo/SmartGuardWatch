@@ -10,6 +10,7 @@ import android.graphics.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.view.SurfaceView;
 import android.view.View;
@@ -23,11 +24,14 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
+import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -49,6 +53,18 @@ public class MenuActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //getWindow().addFlags(
+        //        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+        //        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED );
+
+                //WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        //WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+        //PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        //PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
+         //       "MyWakelockTag");
+        //wakeLock.acquire();
+
+
         setContentView(R.layout.rect_activity_menu);
 
         SharedPreferences prefs = getSharedPreferences(
@@ -77,8 +93,9 @@ public class MenuActivity extends Activity {
         btnSOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Are you ok?", false);
                 Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
+                sp.talk("Are you ok?", false);
+
 
                 Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
 
@@ -96,8 +113,9 @@ public class MenuActivity extends Activity {
         btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Who do you want to call?", false);
                 Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
+                sp.talk("Who do you want to call?", false);
+
 
 
 
@@ -111,14 +129,15 @@ public class MenuActivity extends Activity {
                 startActivity(navIntent);
             }
         });
-
+        /*
         Button btnNav = (Button)findViewById(R.id.btnNAV);
         btnNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Where do you want to go?", Toast.LENGTH_SHORT).show();
                 sp.talk("Where do you want to go?", false);
 
-                Toast.makeText(getApplicationContext(), "Where do you want to go?", Toast.LENGTH_SHORT).show();
+
 
 
                 Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
@@ -133,7 +152,7 @@ public class MenuActivity extends Activity {
                 startActivity(navIntent);
             }
         });
-
+        */
         Button btnMem = (Button)findViewById(R.id.btnMEM);
         btnMem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,7 +160,9 @@ public class MenuActivity extends Activity {
             {
 
 
-
+                Intent memIntent = new Intent(getApplicationContext(), MemoryActivity.class);
+                memIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(memIntent);
 
 
             }
@@ -160,10 +181,15 @@ public class MenuActivity extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         // the user clicked on colors[which]
                         if (which == 0) {
+                            //LOGGING OUT
+                            sp.talk("Logging out", false);
                             SharedPreferences prefs = getSharedPreferences(
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 0).apply();
                             prefs.edit().putInt(Constants.PREFS_LOGGED_IN, 0).apply();
+                            prefs.edit().putInt(Constants.ACTIVE_COUNTER,0).apply();
+                            prefs.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();
+                            prefs.edit().putInt(Constants.FALL_COUNTER, 0).apply();
                             Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
                             //startService(new Intent(getApplicationContext(), FallService.class));
                             stopService(fallIntent);
@@ -171,20 +197,34 @@ public class MenuActivity extends Activity {
 
                             stopService(chargingIntent);
 
+                            String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
+                            ArrayList<Alarm> alarms = null;
+                            try {
+                                alarms = Alarm.parseAlarmString(alarmString);
+                                Alarm.cancelAllAlarms(getApplicationContext(), alarms);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+
+
                             finish();
-                            sp.talk("Logging out", false);
+
                         } else if (which == 1) {
+                            //SYNCHING
                             SharedPreferences prefs = getSharedPreferences(
-                                    "sparksoft.smartguard", Context.MODE_PRIVATE);
+                                    Constants.PREFS_NAME, Context.MODE_PRIVATE);
                             String auth = prefs.getString("sparksoft.smartguard.auth", "");
                             if (auth.length() > 1) {
                                 HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
-                                String url = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
-                                hr.Sync(url);
 
-                                Toast.makeText(getApplicationContext(), "Data syncing complete.", Toast.LENGTH_SHORT).show();
+                                hr.Sync(Constants.URL_LOGIN);
+
+
                             }
                         } else if (which == 2) {
+                            //ACTIVITY CHECK
                             Intent intent = new Intent(getApplicationContext(), FitnessActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
