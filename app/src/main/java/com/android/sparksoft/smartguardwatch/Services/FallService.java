@@ -74,6 +74,10 @@ public class FallService extends IntentService implements SensorEventListener
 
     private SpeechBot sp;
 
+    private double fut, rmt;
+    private long fwd, rwd;
+    private int plt, put;
+
     private SharedPreferences editor;
 
     public FallService() {
@@ -99,9 +103,15 @@ public class FallService extends IntentService implements SensorEventListener
     @Override
     public void onCreate() {
         super.onCreate();
+        editor = getApplicationContext().getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+
+        setParams();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SensorRead");
+        lock.acquire();
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
                 "MyWakelockTag");
         wakeLock.acquire();
         sp = new SpeechBot(this, "");
@@ -113,15 +123,26 @@ public class FallService extends IntentService implements SensorEventListener
         potentiallyFallenRawData = new ArrayList<>();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         //String appname = getApplicationContext().getResources().getString(R.string.app_name);
-        editor = getApplicationContext().getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
 
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
 
 
+
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mReceiver, filter);
+    }
+
+    public void setParams()
+    {
+        fut =  Double.parseDouble(editor.getString(Constants.PREFS_FALL_PARAMETER_FUT, Double.toString(Constants.FALL_THRESHOLD)));
+        rmt =  Double.parseDouble(editor.getString(Constants.PREFS_FALL_PARAMETER_RMT, Double.toString(Constants.MOVE_THRESHOLD)));
+        put =  editor.getInt(Constants.PREFS_FALL_PARAMETER_PUT, Constants.UPPER_LIMIT_PEAK_COUNT);
+        plt =  editor.getInt(Constants.PREFS_FALL_PARAMETER_PLT, Constants.LOWER_LIMIT_PEAK_COUNT);
+
+        fwd =  Long.parseLong(editor.getString(Constants.PREFS_FALL_PARAMETER_FWD, Long.toString(Constants.FALL_DETECT_WINDOW_SECS)));
+        rwd =  Long.parseLong(editor.getString(Constants.PREFS_FALL_PARAMETER_RMD, Long.toString(Constants.VERIFY_FALL_DETECT_WINDOW_SECS)));
     }
 
     @Override
@@ -194,21 +215,29 @@ public class FallService extends IntentService implements SensorEventListener
                 case Constants.ACT_PROTOCOL_ACTIVE_ACTIVE:
                     Log.d(DEBUG_TAG, "Active: Active");
                     editor.edit().putInt(Constants.ACTIVE_COUNTER, (editor.getInt(Constants.ACTIVE_COUNTER, 0) + 1)).apply();
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0).apply();
                     break;
                 case Constants.ACT_PROTOCOL_ACTIVE_VERY_ACTIVE:
                     Log.d(DEBUG_TAG, "Active: Very Active");
                     editor.edit().putInt(Constants.ACTIVE_COUNTER, (editor.getInt(Constants.ACTIVE_COUNTER, 0) + 1)).apply();
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0).apply();
                     break;
                 case Constants.ACT_PROTOCOL_INACTIVE_HORIZONTAL:
                     Log.d(DEBUG_TAG, "Inactive: Horizontal");
                     editor.edit().putInt(Constants.INACTIVE_COUNTER, (editor.getInt(Constants.INACTIVE_COUNTER, 0) + 1)).apply();
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, (editor.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0) + 1)).apply();
                     break;
                 case Constants.ACT_PROTOCOL_INACTIVE_VERTICAL:
                     Log.d(DEBUG_TAG, "Inactive: Vertical");
                     editor.edit().putInt(Constants.INACTIVE_COUNTER, (editor.getInt(Constants.INACTIVE_COUNTER, 0) + 1)).apply();
+                    editor.edit().putInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, (editor.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0) + 1)).apply();
                     break;
                 default:
                     break;
+            }
+            if(editor.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE,0) >= 60)
+            {
+
             }
             //END ACTIVITY SENSOR
 
@@ -253,12 +282,12 @@ public class FallService extends IntentService implements SensorEventListener
 
     private boolean hasUserFallen(float[] rawAcceleration, float[] processedAcceleration) {
         boolean hasUserFallen = false;
-        if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.FALL_DETECT_WINDOW_SECS) && !potentiallyFallen) {
+        if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, fwd) && !potentiallyFallen) {
             AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]);
             accelerometerData.add(a);
         } else if (potentiallyFallen) {
             Log.d(DEBUG_TAG, "Start Potential Fall Cycle : " + Utils.getAverageNormalizedAcceleration(accelerometerData));
-            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, Constants.VERIFY_FALL_DETECT_WINDOW_SECS)) {
+            if (!Utils.isAccelerometerArrayExceedingTimeLimit(accelerometerData, rwd)) {
                 AccelerometerData a = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), x, y, z);
                 accelerometerData.add(a);
                 AccelerometerData raw = new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]);
@@ -269,7 +298,7 @@ public class FallService extends IntentService implements SensorEventListener
                 Log.d(DEBUG_TAG, "End of 10 second potential fall cycle");
                 double[] rawAccelerometerData = Utils.getAverageAccelerationPerAxis(potentiallyFallenRawData);
                 Log.d(DEBUG_TAG, "Raw:" + rawAccelerometerData[0] + "," + rawAccelerometerData[1] + "," + rawAccelerometerData[2]);
-                if (Utils.getAverageNormalizedAcceleration(accelerometerData) > Constants.MOVE_THRESHOLD) {
+                if (Utils.getAverageNormalizedAcceleration(accelerometerData) > rmt) {
                     Log.d(DEBUG_TAG, "Ave: " + Utils.getAverageNormalizedAcceleration(accelerometerData));
                     potentiallyFallen = false;
                     Log.d(DEBUG_TAG, "False alarm 1");
@@ -286,14 +315,17 @@ public class FallService extends IntentService implements SensorEventListener
             }
         } else {
             Log.d(DEBUG_TAG, "End of 5 second detection cycle.");
-            int potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, Constants.FALL_THRESHOLD);
+            int potentialFallCounter = Utils.getNumberOfPeaksThatExceedThreshold(accelerometerData, fut);
             Log.d(DEBUG_TAG, "potential fall count: " + potentialFallCounter);
-            if (potentialFallCounter > Constants.LOWER_LIMIT_PEAK_COUNT && potentialFallCounter < Constants.UPPER_LIMIT_PEAK_COUNT) {
+            if (potentialFallCounter > plt && potentialFallCounter < put) {
                 potentiallyFallenData = accelerometerData;
                 potentiallyFallenData.clear();
                 potentiallyFallen = true;
+
                 Log.d(DEBUG_TAG, "Tagged as potential fall, switching to 10 second cycle");
-                Toast.makeText(getApplicationContext(), "Potential fall detected. Checking for significant movement for the next 10 seconds.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), potentialFallCounter + " total peaks above " +
+                        fut +  "m/s^2 seconds. Checking for significant movement for the next "
+                        + rwd +  " seconds.", Toast.LENGTH_LONG).show();
             }
             accelerometerData.clear();
         }

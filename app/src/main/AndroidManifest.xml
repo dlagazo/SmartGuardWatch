@@ -16,12 +16,19 @@
     <uses-permission android:name="ANDROID.PERMISSION.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -99,6 +106,33 @@
         <activity
             android:name=".MemoryActivity"
             android:label="@string/title_activity_memory" >
+        </activity>
+
+        <service
+            android:name=".Services.LocationSensorService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name=".CameraActivity"
+            android:label="@string/title_activity_camera" >
+        </activity>
+        <activity
+            android:name=".MedicalDataActivity"
+            android:label="@string/title_activity_medical_data" >
+        </activity>
+        <activity
+            android:name=".MemoryOptionsActivity"
+            android:label="@string/title_activity_memory_options" >
+        </activity>
+        <activity
+            android:name=".MemoryPlayActivity"
+            android:label="@string/title_activity_memory_play" >
+        </activity>
+        <activity
+            android:name=".MemoryRemindActivity"
+            android:label="@string/title_activity_memory_remind" >
         </activity>
     </application>
 

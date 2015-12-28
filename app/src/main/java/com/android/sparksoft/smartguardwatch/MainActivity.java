@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,7 +22,10 @@ import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
+import com.android.sparksoft.smartguardwatch.Services.LocationSensorService;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Time;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,7 +46,27 @@ public class MainActivity extends Activity {
 
         sp = new SpeechBot(this, null);
 
+        SharedPreferences prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
+        int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
+        if (status == 1) {
+            Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
+            myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(myIntent);
+            Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+            //startService(new Intent(getApplicationContext(), FallService.class));
+            stopService(fallIntent);
+            startService(fallIntent);
+
+            Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
+
+            stopService(locationIntent);
+            startService(locationIntent);
+
+
+            finish();
+        }
 
         final EditText etUserName = (EditText)findViewById(R.id.etUsername);
         etUserName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -74,13 +101,13 @@ public class MainActivity extends Activity {
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
                 prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
-                prefs.edit().putInt(Constants.PREFS_LOGGED_IN,1).apply();
+                prefs.edit().putInt(Constants.PREFS_LOGGED_IN, 1).apply();
                 prefs.edit().putInt(Constants.PREFS_SOS_CALL_STATUS, 0).apply();
                 prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
+                prefs.edit().putBoolean(Constants.IS_USER_AT_HOME, true).apply();
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
-                if(status == 1)
-                {
+                if (status == 1) {
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
@@ -88,10 +115,10 @@ public class MainActivity extends Activity {
                     //startService(new Intent(getApplicationContext(), FallService.class));
                     stopService(fallIntent);
                     startService(fallIntent);
-                    finish();
-                }
 
-                else if(status == 0) {
+
+                    finish();
+                } else if (status == 0) {
                     Toast.makeText(getApplicationContext(), "Logging in. Please wait.", Toast.LENGTH_LONG).show();
 
                     final String basicAuth = "Basic " + Base64.encodeToString((etUserName.getText() + ":" +
@@ -114,9 +141,7 @@ public class MainActivity extends Activity {
                         }
 
                     }, 0, 5000);
-                }
-                else
-                {
+                } else {
                     //Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
                     //startService(new Intent(getApplicationContext(), FallService.class));
                     //stopService(fallIntent);
@@ -159,6 +184,15 @@ public class MainActivity extends Activity {
             //startService(new Intent(getApplicationContext(), FallService.class));
             stopService(fallIntent);
             startService(fallIntent);
+            Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
+
+            stopService(locationIntent);
+            startService(locationIntent);
+
+
+
+
+
             myTimer.purge();
             myTimer.cancel();
             prefs.edit().putInt(Constants.PREFS_LOG_CHECKER, 0).apply();

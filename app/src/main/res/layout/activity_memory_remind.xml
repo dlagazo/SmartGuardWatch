@@ -1,0 +1,88 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:weightSum="3"
+    android:background="#f00"
+    tools:context="com.android.sparksoft.smartguardwatch.MemoryRemindActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:weightSum="3">
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/memtimeminus"
+            android:id="@+id/btnMemRemindTimeMinus"/>
+        <Space
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="fill_parent" />
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/memtimeplus"
+            android:id="@+id/btnMemRemindTimePlus"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="vertical"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:weightSum="3">
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:text="7:00"
+            android:gravity="center_horizontal"
+            android:textSize="20dp"
+            android:id="@+id/memRemindTime"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:text="Reminder in"
+            android:gravity="center_horizontal"
+            android:textSize="20dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:text="0 hours"
+            android:gravity="center_horizontal"
+            android:textSize="20dp"
+            android:id="@+id/tvMemRemindHours"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:weightSum="3">
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/memtimeyes"
+            android:id="@+id/btnMemTimeYes"/>
+        <Space
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="fill_parent" />
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@drawable/memtimeno"
+            android:id="@+id/btnMemTimeNo"/>
+
+    </LinearLayout>
+
+</LinearLayout>

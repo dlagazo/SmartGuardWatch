@@ -11,4 +11,9 @@
     <string name="title_activity_fitness">FitnessActivity</string>
     <string name="title_activity_charge">ChargeActivity</string>
     <string name="title_activity_memory">MemoryActivity</string>
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="title_activity_medical_data">MedicalDataActivity</string>
+    <string name="title_activity_memory_options">MemoryOptionsActivity</string>
+    <string name="title_activity_memory_play">MemoryPlayActivity</string>
+    <string name="title_activity_memory_remind">MemoryRemindActivity</string>
 </resources>

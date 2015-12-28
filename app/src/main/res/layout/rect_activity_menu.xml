@@ -12,15 +12,30 @@
         android:layout_width="fill_parent"
         android:layout_height="0px"
         android:layout_weight="4"
-        android:weightSum="2"
-        android:orientation="horizontal">
+        android:weightSum="10"
+        android:orientation="horizontal"
+        android:id="@+id/menu_top">
         <Button
             android:layout_width="0px"
-            android:layout_weight="2"
+            android:layout_weight="7"
             android:layout_height="fill_parent"
             android:id="@+id/btnSOS"
-            android:background="@color/red"
+            android:background="#f00"
+            android:textSize="50px"
+            android:textColor="#fff"
+            android:textStyle="bold"
             android:text="SOS"/>
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="3"
+            android:enabled="false"
+
+            android:layout_height="fill_parent"
+            android:background="#f00"
+            android:id="@+id/btnNAV"
+
+            />
+
 
     </LinearLayout>
     <LinearLayout

@@ -2,18 +2,27 @@ package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Camera;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.provider.CallLog;
 import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -34,6 +43,7 @@ import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,6 +57,7 @@ public class MenuActivity extends Activity {
     private boolean mem = true;
     private Uri fileUri;
     ArrayList<Contact> arrayContacts;
+    private boolean navigationAlarm;
 
     private DataSourceContacts dsContacts;
 
@@ -63,7 +74,7 @@ public class MenuActivity extends Activity {
         //PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
          //       "MyWakelockTag");
         //wakeLock.acquire();
-
+        navigationAlarm = false;
 
         setContentView(R.layout.rect_activity_menu);
 
@@ -71,6 +82,66 @@ public class MenuActivity extends Activity {
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
         //SOS status, 0-inactive, 1-active
         prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
+
+
+        new Thread() {
+            public void run() {
+
+
+                    while (true)
+                    {
+                        try{
+                            Thread.sleep(30000);
+                        }
+                        catch(InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        runOnUiThread(new Runnable()
+                        {
+
+                            @Override
+                            public void run() {
+
+                                SharedPreferences prefs = getSharedPreferences(
+                                        Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                                boolean isUserHome = prefs.getBoolean(Constants.IS_USER_AT_HOME, true);
+                                if (!isUserHome) {
+
+                                    Button btnNav = (Button) findViewById(R.id.btnNAV);
+                                    //btnNav.setVisibility(Button.VISIBLE);
+                                    btnNav.setEnabled(true);
+                                    btnNav.setBackgroundResource(R.drawable.nav);
+
+                                    if(!navigationAlarm) {
+                                        sp.talk("Do you need help with navigation?", true);
+                                        Toast.makeText(getApplicationContext(), "Do you need help with navigation", Toast.LENGTH_LONG).show();
+                                        navigationAlarm = true;
+                                        try {
+                                            Thread.sleep(2000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        promptSpeechInput();
+                                    }
+                                }
+                                else
+                                {
+
+                                    Button btnNav = (Button) findViewById(R.id.btnNAV);
+                                    //btnNav.setVisibility(Button.INVISIBLE);
+                                    btnNav.setEnabled(false);
+                                    btnNav.setBackgroundColor(Color.RED);
+                                    navigationAlarm = false;
+                                }
+                            }
+                        });
+
+                }
+
+            }
+        }.start();
+
 
         //start the fall service
 
@@ -129,8 +200,9 @@ public class MenuActivity extends Activity {
                 startActivity(navIntent);
             }
         });
-        /*
+
         Button btnNav = (Button)findViewById(R.id.btnNAV);
+
         btnNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,7 +224,7 @@ public class MenuActivity extends Activity {
                 startActivity(navIntent);
             }
         });
-        */
+
         Button btnMem = (Button)findViewById(R.id.btnMEM);
         btnMem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +237,34 @@ public class MenuActivity extends Activity {
                 startActivity(memIntent);
 
 
+                /*
+                Log.i("CALL_LOG", "Call retrive method worked");
+                StringBuffer sb = new StringBuffer();
+                Uri contacts = CallLog.Calls.CONTENT_URI;
+                Cursor managedCursor = getContentResolver().query(
+                        contacts, null, null, null, null);
+                int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+                int duration1 = managedCursor.getColumnIndex( CallLog.Calls.DURATION);
+                if( managedCursor.moveToLast()   == true ) {
+                    String phNumber = managedCursor.getString( number );
+                    String callDuration = managedCursor.getString( duration1 );
+                    String dir = null;
+                    sb.append( "\nPhone Number:--- "+phNumber +" \nCall duration in sec :--- "+callDuration );
+                    sb.append("\n----------------------------------");
+                    Log.d("CALL_LOG","Call Duration is:-------"+sb);
+                }
+                managedCursor.close();
+
+                Intent camIntent = new Intent(getApplicationContext(), CameraActivity.class);
+                camIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(camIntent);
+
+            */
             }
+
+
+
+
         });
 
         Button btnSet = (Button)findViewById(R.id.btnSet);
@@ -279,4 +378,88 @@ public class MenuActivity extends Activity {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+
+    private final int REQ_CODE_SPEECH_INPUT = 100;
+
+    private void promptSpeechInput() {
+
+
+
+                //Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                        "Say something");
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
+                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
+                try {
+                    startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+                } catch (ActivityNotFoundException a) {
+                    Toast.makeText(getApplicationContext(),
+                            "Sorry! Your device does not support speech to text.",
+                            Toast.LENGTH_SHORT).show();
+                }
+    }
+
+
+
+
+
+
+    /**
+     * Receiving speech input
+     * */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    Toast.makeText(getApplicationContext(), result.get(0), Toast.LENGTH_SHORT).show();
+                    //txtSpeechInput.setText(result.get(0));
+                    if(result.get(0).toLowerCase().equals("yes") || result.get(0).toLowerCase().equals("ok"))
+                    {
+                        Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
+                        navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                        sp.talk("Where do you want to go?", true);
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        startActivity(navIntent);
+
+                    }
+
+                    else if(result.get(0).toLowerCase().equals("no"))
+                    {
+
+
+
+                    }
+                }
+                break;
+            }
+
+        }
+    }
+
+
+
 }

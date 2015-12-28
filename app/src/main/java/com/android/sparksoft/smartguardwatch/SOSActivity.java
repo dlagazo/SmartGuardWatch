@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
@@ -19,18 +21,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
+import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Listeners.CallListener;
+import com.android.sparksoft.smartguardwatch.Models.CameraPreview;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Timer;
@@ -51,7 +63,10 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     private ArrayList<Contact> peopleToCall;
     TelephonyManager telephonyManager;
 
-    Thread t;
+    private Camera mCamera;
+    private CameraPreview mCameraPreview;
+
+
 
     private boolean isBlink = false;
 
@@ -59,21 +74,28 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        setContentView(R.layout.activity_sos);
 
         sp = new SpeechBot(this, "");
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
+        mCamera = getCameraInstance();
+        mCameraPreview = new CameraPreview(this, mCamera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.sos_camera_preview);
+        preview.addView(mCameraPreview);
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 
         arrayContacts = dsContacts.getAllContacts();
-        setContentView(R.layout.activity_sos);
+
+
 
         new Thread() {
             public void run() {
@@ -120,6 +142,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.purge();
                 myTimer.cancel();
                 isOk = true;
+
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
@@ -130,7 +153,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     e.printStackTrace();
                 }
 
-                alarm();
+                mCamera.takePicture(null, null, mPicture);
+
+
                 /*
                 Runnable runnable = new Runnable()
                 {
@@ -167,6 +192,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.purge();
                 myTimer.cancel();
                 isOk = true;
+                mCamera.takePicture(null, null, mPicture);
                 finish();
             }
         });
@@ -186,6 +212,77 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
     }
 
+    Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(final byte[] data, Camera camera) {
+            File pictureFile = getOutputMediaFile();
+            if (pictureFile == null) {
+                return;
+            }
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+
+
+
+                SharedPreferences prefs = getSharedPreferences(
+                        Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                String auth = prefs.getString("sparksoft.smartguard.auth", "");
+                if (auth.length() > 1) {
+                    HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
+
+                    hr.sendFallData(Constants.URL_FALLDATA, data);
+
+
+                }
+
+
+                alarm();
+            } catch (FileNotFoundException e) {
+
+            } catch (IOException e) {
+            }
+        }
+    };
+
+    private Camera getCameraInstance() {
+        Camera camera = null;
+        try {
+            camera = Camera.open();
+        } catch (Exception e) {
+            // cannot get camera or does not exist
+        }
+        return camera;
+    }
+
+
+
+
+
+
+    private static File getOutputMediaFile() {
+        File mediaStorageDir = new File(
+
+                Environment
+                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "smartguard");
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d("MyCameraApp", "failed to create directory");
+                return null;
+            }
+        }
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(new Date());
+        File mediaFile;
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                + "IMG_" + timeStamp + ".jpg");
+
+        return mediaFile;
+    }
+
     private void alarm()
     {
         peopleToCall = prepareContactList();
@@ -200,6 +297,17 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                             public void run() {
 
                                 setContentView(R.layout.rect_activity_medical);
+
+                                final Button btnMedicalData = (Button)findViewById(R.id.btnMedical);
+                                btnMedicalData.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent medIntent = new Intent(getApplicationContext(), MedicalDataActivity.class);
+                                        medIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(medIntent);
+                                    }
+                                });
+
                                 final Button btnEnd = (Button)findViewById(R.id.btnEnd);
                                 btnEnd.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -259,6 +367,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         super.onDestroy();
         sp.destroy();
         try{
+            mCamera.release();
+
             myTimer.purge();
             myTimer.cancel();
             callTimer.purge();
@@ -317,16 +427,10 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 }
             }
         }
+
         for (Contact cont : arrayContacts)
         {
-            if (((cont.canCall() &&cont.getType() == 1) || cont.getSchedule().length() == 0) && !cont.getFullName().contains("Fallback"))
-            {
-                tempList.add(cont);
-            }
-        }
-        for (Contact cont : arrayContacts)
-        {
-            if (cont.getCallOutside() == 1 && !cont.getFullName().contains("Fallback"))
+            if (cont.getType() == 0 && cont.getCallOutside() == 1 && !cont.getFullName().contains("Fallback"))
             {
                 tempList.add(cont);
             }
@@ -632,7 +736,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    alarm();
+
+                    mCamera.takePicture(null, null, mPicture);
                     //call(prepareContactList());
 
 
@@ -685,7 +790,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        alarm();
+                        mCamera.takePicture(null, null, mPicture);
 
 
                         //call(prepareContactList());

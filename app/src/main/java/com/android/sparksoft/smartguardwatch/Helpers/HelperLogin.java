@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.BatteryManager;
 import android.os.Vibrator;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -90,6 +92,71 @@ public class HelperLogin {
         }
 
         return ((float)level / (float)scale) * 100.0f;
+    }
+
+    public void sendFallData(String url, byte[] image)
+    {
+
+
+        //Double toBeTruncated = new Double("3.5789055");
+
+        //Double truncatedDouble=new BigDecimal(toBeTruncated ).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JSONObject params = new JSONObject();
+        SharedPreferences prefs = context.getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        try {
+            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+                    .format(new Date());
+            String encodedImage = Base64.encodeToString(image, Base64.DEFAULT);
+            params.put("FallTimeStamp", timeStamp);
+            params.put("image", encodedImage);
+            params.put("FallLat", prefs.getString(Constants.PREFS_GPS_LAT, null));
+            params.put("FallLong", prefs.getString(Constants.PREFS_GPS_LONG, null));
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //params.put("token", "AbCdEfGh123456");
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, params,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        Log.d("LOG_HELPER", response.toString());
+                        Toast.makeText(context, "Fall data sent successfully", Toast.LENGTH_LONG).show();
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Log.d("LOG_HELPER", error.toString());
+                    }
+                })
+        {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError
+            {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", basicAuth);
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+
+        };
+
+        req.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(req);
     }
 
     public void sendChargeData(String url)
@@ -209,13 +276,15 @@ public class HelperLogin {
     {
         //Toast.makeText(context, "Sending JSON request.", Toast.LENGTH_LONG).show();
         RequestQueue queue = Volley.newRequestQueue(context);
+
         JSONObject params = new JSONObject();
         //params.put("token", "AbCdEfGh123456");
         JsonObjectRequest req = new JsonObjectRequest(url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        JSONArray contacts = null, memories = null, places = null, responses = null;
+                        JSONArray contacts = null, memories = null, places = null, responses = null, vitals = null;
+                        JSONObject fall = null;
                         String fullname = " ";
                         try {
                             responses = response.getJSONArray("responses");
@@ -229,7 +298,6 @@ public class HelperLogin {
                                     //context.startActivity(myIntent);
                                     SharedPreferences prefs = context.getSharedPreferences(
                                             Constants.PREFS_NAME, Context.MODE_PRIVATE);
-
                                     prefs.edit().putInt(Constants.PREFS_LOG_CHECKER, 1).apply();
                                     prefs.edit().putString(Constants.PREFS_AUTH, basicAuth).apply();
                                     //result = true;
@@ -262,7 +330,16 @@ public class HelperLogin {
 
                             processAlarm(memories.toString());
 
+                            vitals = response.getJSONArray("vitals");
+                            String vitalString = "";
+                            for(int i=0; i< vitals.length(); i++) {
+                                    vitalString += vitals.getJSONObject(i).getString("Title") + ": " +
+                                            vitals.getJSONObject(i).getString("Value") + ";";
 
+                            }
+                            SharedPreferences vitalprefs = context.getSharedPreferences(
+                                    Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                            vitalprefs.edit().putString("sparksoft.smartguard.vitals", vitalString).apply();
 
 
                             //Toast.makeText(context, memories.toString(), Toast.LENGTH_LONG).show();
@@ -270,6 +347,37 @@ public class HelperLogin {
                             {
                                 //Toast.makeText(context, memories.getJSONObject(i).get("MemoryName").toString(), Toast.LENGTH_LONG).show();
                             }
+
+                            fall = response.getJSONObject("fallProfile");
+                            {
+                                SharedPreferences prefs = context.getSharedPreferences(
+                                        Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                                Log.d("FALL_PROFILE", "FALL UPPER THRESHOLD: " + Double.toString(fall.getDouble("fallUpperThreshold")));
+
+                                prefs.edit().putString(Constants.PREFS_FALL_PARAMETER_FUT, Double.toString(fall.getDouble("fallUpperThreshold"))).apply();
+
+
+                                Log.d("FALL_PROFILE", "FALL WINDOW DURATION: " + fall.getString("fallWindowDuration"));
+                                prefs.edit().putString(Constants.PREFS_FALL_PARAMETER_FWD, fall.getString("fallWindowDuration")).apply();
+
+                                Log.d("FALL_PROFILE", "PEAK UPPER THRESHOLD: " + Integer.toString(fall.getInt("fallPeakUpperThreshold")));
+                                prefs.edit().putInt(Constants.PREFS_FALL_PARAMETER_PUT, fall.getInt("fallPeakUpperThreshold")).apply();
+
+                                Log.d("FALL_PROFILE", "PEAK LOWER THRESHOLD: " + Integer.toString(fall.getInt("fallPeakLowerThreshold")));
+                                prefs.edit().putInt(Constants.PREFS_FALL_PARAMETER_PLT, fall.getInt("fallPeakLowerThreshold")).apply();
+
+                                Log.d("FALL_PROFILE", "RESIDUAL MOVEMENT THRESHOLD: " + Double.toString(fall.getDouble("residualMovementThreshold")));
+                                prefs.edit().putString(Constants.PREFS_FALL_PARAMETER_RMT, Double.toString(fall.getDouble("residualMovementThreshold"))).apply();
+
+
+                                Log.d("FALL_PROFILE", "RESIDUAL MOVEMENT DURATION: " + fall.getString("residualWindowDuration"));
+                                prefs.edit().putString(Constants.PREFS_FALL_PARAMETER_RMD, fall.getString("residualWindowDuration")).apply();
+
+
+                                Log.d("FALL_PROFILE", "ACTIVE: " + fall.getBoolean("isActive"));
+                                Log.d("FALL_PROFILE", fall.getString("description"));
+                            }
+
                             places = response.getJSONArray("places");
                             //dsPlaces.deleteAllPlaces();
 
@@ -290,7 +398,16 @@ public class HelperLogin {
                                         places.getJSONObject(i).getString("PlaceLong"));
                                 //Toast.makeText(context, tempPlace.getId() + " " +
                                 //    tempPlace.getPlaceName(), Toast.LENGTH_SHORT).show();
+                                if(tempPlace.getPlaceName().contains("Home"))
+                                {
 
+                                    SharedPreferences prefs = context.getSharedPreferences(
+                                            Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                                    prefs.edit().putString(Constants.HOME_LATITUDE, tempPlace.getPlaceLat()).apply();
+                                    prefs.edit().putString(Constants.HOME_LONGITUDE, tempPlace.getPlaceLong()).apply();
+                                    Log.d("Navigation", "Home Lat:" + tempPlace.getPlaceLat());
+                                    Log.d("Navigation", "Home Long:" + tempPlace.getPlaceLong());
+                                }
                                 dsPlaces.createPlace(tempPlace);
                                 //Toast.makeText(context, places.getJSONObject(i).get("PlaceName").toString(), Toast.LENGTH_LONG).show();
                             }
@@ -298,8 +415,10 @@ public class HelperLogin {
                             Vibrator v = (Vibrator) context.getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                             v.vibrate(500);
 
+
                             SharedPreferences prefs = context.getSharedPreferences(
                                     Constants.PREFS_NAME, Context.MODE_PRIVATE);
+
                             prefs.edit().putInt("sparksoft.smartguard.status", 1).apply();
                             //prefs.edit().putInt("sparksoft.smartguard.loginStatus", 1).apply();
                             //prefs.edit().putString("sparksoft.smartguard.auth", basicAuth).apply();
@@ -352,6 +471,11 @@ public class HelperLogin {
 
     public void Sync(String url)
     {
+        SyncHelperJSONObject(url);
+    }
+
+    public void SyncManual(String url)
+    {
         //Toast.makeText(context, "Sending JSON request.", Toast.LENGTH_LONG).show();
         RequestQueue queue = Volley.newRequestQueue(context);
         JSONObject params = new JSONObject();
@@ -361,6 +485,7 @@ public class HelperLogin {
                     @Override
                     public void onResponse(JSONObject response) {
                         JSONArray contacts = null, memories = null, places = null, responses = null;
+                        JSONObject fall = null;
                         String fullname = " ";
                         try {
                             responses = response.getJSONArray("responses");
@@ -411,6 +536,20 @@ public class HelperLogin {
 
                                 Toast.makeText(context, memories.getJSONObject(i).get("MemoryName").toString(), Toast.LENGTH_LONG).show();
                             }
+
+                            fall = response.getJSONObject("fallProfile");
+                            {
+                                Log.d("FALL_PROFILE", "FALL UPPER THRESHOLD: " + Double.toString(fall.getDouble("fallUpperThreshold")));
+                                Log.d("FALL_PROFILE", "FALL LOWER THRESHOLD: " + Double.toString(fall.getDouble("fallLowerThreshold")));
+                                Log.d("FALL_PROFILE", "FALL WINDOW DURATION: " + Double.toString(fall.getDouble("fallWindowDuration")));
+                                Log.d("FALL_PROFILE", "PEAK UPPER THRESHOLD: " + Integer.toString(fall.getInt("fallPeakUpperThreshold")));
+                                Log.d("FALL_PROFILE", "PEAK LOWER THRESHOLD: " + Integer.toString(fall.getInt("fallPeakLowerThreshold")));
+                                Log.d("FALL_PROFILE", "RESIDUAL MOVEMENT THRESHOLD: " + Double.toString(fall.getDouble("residualMovementThreshold")));
+                                Log.d("FALL_PROFILE", "RESIDUAL MOVEMENT DURATION: " + Double.toString(fall.getDouble("residualWindowDuration")));
+                                Log.d("FALL_PROFILE", "ACTIVE: " + fall.getBoolean("isActive"));
+                                Log.d("FALL_PROFILE", fall.getString("description"));
+                            }
+
                             places = response.getJSONArray("places");
                             //dsPlaces.deleteAllPlaces();
                             for(int i=0; i< places.length(); i++)

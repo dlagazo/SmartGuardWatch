@@ -16,8 +16,8 @@ public class Constants {
     public static final String XAXIS = "XAXIS";
     public static final String YAXIS = "YAXIS";
     public static final String ZAXIS = "ZAXIS";
-    public static final String LATITUDE = "LATITUDE";
-    public static final String LONGITUDE = "LONGITUDE";
+    public static final String HOME_LATITUDE = "HOME_LATITUDE";
+    public static final String HOME_LONGITUDE = "HOME_LONGITUDE";
 
     //FALL DETECTOR SETTINGS
     public static final double FALL_THRESHOLD = 19.0; //FOR BOTH LINEAR and ACCELEROMETER
@@ -54,13 +54,36 @@ public class Constants {
     public static final String PREFS_NAME = "sparksoft.smartguard";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
     public static final String PREFS_AUTH = "sparksoft.smartguard.auth";
-    public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
-    public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
+
     public static final String PREFS_CALL_STATUS = "sparksoft.smartguard.CallStatus";
     public static final String PREFS_LOGGED_IN = "sparksoft.smartguard.LogStatus";
     public static final String PREFS_LOG_CHECKER = "sparksoft.smartguard.loginStatus";
     public static final String PREFS_ALARM_STING = "sparksoft.smartguard.alarms";
     public static final String PREFS_SOS_CALL_STATUS = "sparksoft.smartguard.sosCallStatus";
+    public static final String IS_USER_AT_HOME = "IS_USER_AT_HOME";
+    public static final String EMERGENCY_STATUS = "EMERGENCY_STATUS";
+    public static final String USER_CURRENT_LATITUDE = "USER_CURRENT_LATITUDE";
+    public static final String USER_CURRENT_LONGITUDE = "USER_CURRENT_LONGITUDE";
+    public static final String EMERGENCY_TIMER = "EMERGENCY_TIMER";
+    //PREFS - FALL SERVICE PARAMETERS
+    public static final String PREFS_FALL_PARAMETER_FUT = "sparksoft.smartguard.fallservice.fut";
+    public static final String PREFS_FALL_PARAMETER_FLT = "sparksoft.smartguard.fallservice.flt";
+    public static final String PREFS_FALL_PARAMETER_FWD = "sparksoft.smartguard.fallservice.fwd";
+    public static final String PREFS_FALL_PARAMETER_PUT = "sparksoft.smartguard.fallservice.put";
+    public static final String PREFS_FALL_PARAMETER_PLT = "sparksoft.smartguard.fallservice.plt";
+    public static final String PREFS_FALL_PARAMETER_RMT = "sparksoft.smartguard.fallservice.rmt";
+    public static final String PREFS_FALL_PARAMETER_RMD = "sparksoft.smartguard.fallservice.rmd";
+    public static final String PREFS_FALL_PARAMETER_ACTIVE = "sparksoft.smartguard.fallservice.active";
+    public static final String PREFS_FALL_PARAMETER_DESC = "sparksoft.smartguard.fallservice.desc";
+
+    public static final String PREFS_GPS_LAT = "sparksoft.smartguard.gps.lat";
+    public static final String PREFS_GPS_LONG = "sparksoft.smartguard.gps.long";
+    //PREFS - ACTIVITY
+    public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
+    public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
+    public static final String INACTIVE_COUNTER_SUCCESSIVE = "INACTIVE_COUNTER_SUCCESSIVE";
+
+
     //ALARMS
     public static final int ALARM_FREQUENCY_ONCE = 0;
     public static final int ALARM_FREQUENCY_DAILY = 1;
@@ -91,5 +114,16 @@ public class Constants {
     //API URLS
     public static final String URL_LOGIN = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
     public static final String URL_CHARGEDATA = "http://smartguardwatch.azurewebsites.net/api/MobileCharge";
+    public static final String URL_FALLDATA = "http://smartguardwatch.azurewebsites.net/api/MobileFall";
+
+    //GEOFENCE
+    public static final float FENCE_RADIUS_IN_METERS = 100; //in m
+    public static final float LOCATION_ACCURACY = 40f; //meters
+    public static final float NEGLIGIBLE_LOCATION_CHANGE = 10f;
+    public static final long DEFAULT_UPDATE_INTERVAL_IN_SEC = 10000;
+    public static final long DEFAULT_FASTEST_INTERVAL_IN_SEC = 15000;
+    public static final int DEFAULT_DISPLACEMENT_IN_M = 2;
+
+
 
 }

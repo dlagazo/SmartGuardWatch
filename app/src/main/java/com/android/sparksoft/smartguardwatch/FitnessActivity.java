@@ -36,16 +36,11 @@ public class FitnessActivity extends Activity {
         DecimalFormat df = new DecimalFormat("00.00");
         TextView tvActive = (TextView)findViewById(R.id.activeCount);
         tvActive.setText("Active " + df.format(activePct * 100) + "% of the day");
-        SeekBar sbActive = (SeekBar)findViewById(R.id.sbActive);
-        sbActive.setMax(100);
-        int activeProgress = (int)activePct * 100;
-        sbActive.setProgress(activeProgress);
+
         TextView tvInactive = (TextView)findViewById(R.id.inactiveCount);
         tvInactive.setText("Inactive " + df.format(inactivePct * 100) + "% of the day");
-        SeekBar sbInactive = (SeekBar)findViewById(R.id.sbInactove);
-        sbInactive.setMax(100);
-        int inactiveProgress = (int)inactivePct * 100;
-        sbInactive.setProgress(inactiveProgress);
+
+
 
         Button btnReset = (Button)findViewById(R.id.btnResetCounters);
         btnReset.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +61,32 @@ public class FitnessActivity extends Activity {
                 finish();
             }
         });
+
+
+
+        TextView tvFut = (TextView)findViewById(R.id.fut);
+        tvFut.setText("Fall Upper Threshold: " +
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_FUT, Double.toString(Constants.FALL_THRESHOLD)));
+
+        TextView tvPut = (TextView)findViewById(R.id.put);
+        tvPut.setText("Peak Upper Threshold: " +
+                prefs.getInt(Constants.PREFS_FALL_PARAMETER_PUT, Constants.UPPER_LIMIT_PEAK_COUNT));
+
+        TextView tvPlt = (TextView)findViewById(R.id.plt);
+        tvPlt.setText("Peak Lower Threshold: " +
+                prefs.getInt(Constants.PREFS_FALL_PARAMETER_PLT, Constants.LOWER_LIMIT_PEAK_COUNT));
+
+        TextView tvRmt = (TextView)findViewById(R.id.rmt);
+        tvRmt.setText("Residual Movement Threshold: " +
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMT, Double.toString(Constants.MOVE_THRESHOLD)));
+
+        TextView tvFwd = (TextView)findViewById(R.id.fwd);
+        tvFwd.setText("Fall Window Duration: " +
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_FWD, Double.toString(Constants.FALL_DETECT_WINDOW_SECS)));
+
+        TextView tvRwd = (TextView)findViewById(R.id.rwd);
+        tvRwd.setText("Residual Window Duration: " +
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMD, Double.toString(Constants.VERIFY_FALL_DETECT_WINDOW_SECS)));
     }
 
     @Override

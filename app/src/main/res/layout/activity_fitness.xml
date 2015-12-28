@@ -13,19 +13,29 @@
     <TextView android:text="Active 0%" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/activeCount"/>
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/sbActive" />
-
-
 
     <TextView android:text="Inactive 0%:" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:id="@+id/inactiveCount"/>
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/sbInactove" />
+
+    <TextView android:text="Fall Upper Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fut"/>
+
+
+    <TextView android:text="Peak Upper Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/put"/>
+    <TextView android:text="Peak Lower Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/plt"/>
+    <TextView android:text="Residual Movement Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/rmt"/>
+
+    <TextView android:text="Fall Window Duration:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fwd"/>
+    <TextView android:text="Residual Window Duration:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/rwd"/>
+
+
+
+
 
     <LinearLayout
         android:layout_width="fill_parent"
