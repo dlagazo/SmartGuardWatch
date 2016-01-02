@@ -193,6 +193,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.cancel();
                 isOk = true;
                 //mCamera.takePicture(null, null, mPicture);
+                Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                stopService(fallIntent);
+                startService(fallIntent);
                 finish();
             }
         });
@@ -773,6 +776,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         myTimer.purge();
                         myTimer.cancel();
                         isOk = true;
+                        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                        stopService(fallIntent);
+                        startService(fallIntent);
                         finish();
                     }
 

@@ -43,8 +43,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 //import sqlitedb.SQLiteDataLogger;
 
@@ -81,37 +79,43 @@ public class FallService extends IntentService implements SensorEventListener
     private long fwd, rwd;
     private int plt, put;
 
-    private Timer myTimer;
-
     private SharedPreferences editor;
 
     public FallService() {
         super("FallService");
     }
 
-    public BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    public BroadcastReceiver onReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             // Check action just to be on the safe side.
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF) || intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 Log.d(DEBUG_TAG, "Re-registering");
                 // Unregisters the listener and registers it again.
-                restart();
 
-
-
+                sensorManager.unregisterListener(FallService.this);
+                sensorManager.registerListener(FallService.this, sensor,
+                        SensorManager.SENSOR_DELAY_NORMAL);
             }
-
         }
     };
 
-    private void restart()
-    {
-        sensorManager.unregisterListener(FallService.this);
-        sensorManager.registerListener(FallService.this, sensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
-    }
+    public BroadcastReceiver offReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Check action just to be on the safe side.
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                Log.d(DEBUG_TAG, "Re-registering");
+                // Unregisters the listener and registers it again.
+
+                sensorManager.unregisterListener(FallService.this);
+                sensorManager.registerListener(FallService.this, sensor,
+                        SensorManager.SENSOR_DELAY_NORMAL);
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -141,19 +145,14 @@ public class FallService extends IntentService implements SensorEventListener
 
         Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
 
+
         /*
-        myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                restart();
+        IntentFilter offFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(onReceiver, offFilter);
 
-            }
-
-        }, 0, 60000);
+        IntentFilter onFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        registerReceiver(onReceiver, onFilter);
         */
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mReceiver, filter);
     }
 
     public void setParams()
@@ -188,11 +187,6 @@ public class FallService extends IntentService implements SensorEventListener
         Toast.makeText(getApplicationContext(), "Fall protocol stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
         super.onDestroy();
-        try{
-            myTimer.purge();
-            myTimer.cancel();
-        }
-        catch (Exception e){}
 
     }
 
@@ -204,15 +198,9 @@ public class FallService extends IntentService implements SensorEventListener
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY,
-                Constants.SOS_PROTOCOL_ACTIVITY_OFF) == 0 && alarm)
-        {
-            alarm = false;
-            editor.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
-            Toast.makeText(this, "Fall protocol restarted", Toast.LENGTH_SHORT).show();
-        }
-        if (editor.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY,
-                Constants.SOS_PROTOCOL_ACTIVITY_OFF) == 1 && !alarm) { //TODO: Should turn SOS ON in other method
+
+
+        //TODO: Should turn SOS ON in other method
             float[] rawAcceleration = event.values.clone();
 
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -302,7 +290,7 @@ public class FallService extends IntentService implements SensorEventListener
                 editor.edit().putInt(Constants.FALL_COUNTER, (editor.getInt(Constants.FALL_COUNTER, 0) + 1)).apply();
                 Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
                 fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
+                sensorManager.unregisterListener(FallService.this);
                 startActivity(fallIntent);
                 //SQLiteDataLogger logger = new SQLiteDataLogger(this);
                 //logger.execute(accelerometerData);
@@ -310,13 +298,7 @@ public class FallService extends IntentService implements SensorEventListener
             }
 
             //END FALL DETECTOR
-        } else { //Reset flags
-            accelerometerData.clear();
-            activityProtocolRawData.clear();
-            potentiallyFallenRawData.clear();
-            potentiallyFallenData.clear();
-            potentiallyFallen = false;
-        }
+
     }
 
     private boolean hasUserFallen(float[] rawAcceleration, float[] processedAcceleration) {
