@@ -135,6 +135,12 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     }
 
     @Override
+    public void onDestroy()
+    {
+        Toast.makeText(this, "Navigation service stopped", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onConnected(Bundle arg0) {
         System.out.println("onConnected");
         startLocationUpdates();

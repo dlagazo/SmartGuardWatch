@@ -79,7 +79,11 @@ public class ChargingService extends Service{
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                checkNoise();
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+                int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
+                if(callStatus == 0)
+                    checkNoise();
 
             }
 
@@ -120,10 +124,13 @@ public class ChargingService extends Service{
     private void checkNoise()
     {
         Double noise = sm.getAmplitude();
-        Log.e("ChargingService", Double.toString(sm.getAmplitude()));
+        //Log.e("ChargingService", Double.toString(sm.getAmplitude()));
+
         SharedPreferences prefs = getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
         int SOSstatus = prefs.getInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1);
+        int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
+        Log.e("ChargingService", "Sound level:" + sm.getAmplitude() + " Call Status:" + callStatus + " SOS Status:" + SOSstatus);
         if(noise > 20000 && !alarm && SOSstatus == 1)
         {
             sm.stop();

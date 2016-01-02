@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
+import com.android.sparksoft.smartguardwatch.InactivityActivity;
 import com.android.sparksoft.smartguardwatch.MainActivity;
 import com.android.sparksoft.smartguardwatch.Models.AccelerometerData;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
@@ -130,8 +131,8 @@ public class FallService extends IntentService implements SensorEventListener
 
 
 
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mReceiver, filter);
+        //IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        // registerReceiver(mReceiver, filter);
     }
 
     public void setParams()
@@ -155,7 +156,7 @@ public class FallService extends IntentService implements SensorEventListener
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.d(DEBUG_TAG, "Start gathering v3");
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
 
         return START_STICKY;
     }
@@ -221,6 +222,7 @@ public class FallService extends IntentService implements SensorEventListener
                     Log.d(DEBUG_TAG, "Active: Very Active");
                     editor.edit().putInt(Constants.ACTIVE_COUNTER, (editor.getInt(Constants.ACTIVE_COUNTER, 0) + 1)).apply();
                     editor.edit().putInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0).apply();
+                    editor.edit().putInt(Constants.FITMINUTES_COUNTER, (editor.getInt(Constants.FITMINUTES_COUNTER, 0) + 1)).apply();
                     break;
                 case Constants.ACT_PROTOCOL_INACTIVE_HORIZONTAL:
                     Log.d(DEBUG_TAG, "Inactive: Horizontal");
@@ -235,14 +237,25 @@ public class FallService extends IntentService implements SensorEventListener
                 default:
                     break;
             }
-            if(editor.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE,0) >= 60)
+
+            if(editor.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE,0) >= editor.getInt(Constants.PREFS_INACTIVITY_DURATION, 120)
+                    && !editor.getBoolean(Constants.INACTIVITY_ALARM, false))
             {
+                editor.edit().putBoolean(Constants.INACTIVITY_ALARM, true).apply();
+                Intent inactivityIntent = new Intent(getApplicationContext(), InactivityActivity.class);
+                inactivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                startActivity(inactivityIntent);
+
 
             }
             //END ACTIVITY SENSOR
 
             //START FALL DETECTOR
-            if(hasUserFallen(rawAcceleration, processedAcceleration)) {
+            SharedPreferences prefs = getSharedPreferences(
+                    "sparksoft.smartguard", Context.MODE_PRIVATE);
+            int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
+            if(hasUserFallen(rawAcceleration, processedAcceleration) && callStatus == 0) {
                 //TODO: Prompt user if they are ok.
                 Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
                 //sensorManager.unregisterListener(this);
@@ -334,6 +347,8 @@ public class FallService extends IntentService implements SensorEventListener
 
     private int getCurrentUserActivity(float[] rawAcceleration, float[] processedAcceleration) {
         int currentActivity;
+        double activeThresh = Double.parseDouble(editor.getString(Constants.PREFS_ACTIVITY_THRESHOLD, "0.25"));
+        double veryActiveThresh = Double.parseDouble(editor.getString(Constants.PREFS_FITMINUTE_THRESHOLD, "0.42"));
         if (!Utils.isAccelerometerArrayExceedingTimeLimit(activityProtocolRawData, Constants.CHARACTERIZE_ACTIVITY_WINDOW_SECS)) {
             activityProtocolRawData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]));
             activityProtocolData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]));
@@ -342,10 +357,10 @@ public class FallService extends IntentService implements SensorEventListener
             Log.d(DEBUG_TAG, "End of characterizing activity window");
             double[] rawActivityProtocolAccelerationPerAxis = Utils.getAverageAccelerationPerAxis(activityProtocolRawData);
             Log.d(DEBUG_TAG, "Ave for activity: " + Utils.getAverageNormalizedAcceleration(activityProtocolData));
-            if ((Utils.getAverageNormalizedAcceleration(activityProtocolData) > Constants.ACTIVE_THRESHOLD) &&
-                    Utils.getAverageNormalizedAcceleration(activityProtocolData) < Constants.VERY_ACTIVE_THRESHOLD) { //ACTIVE
+            if ((Utils.getAverageNormalizedAcceleration(activityProtocolData) > activeThresh) &&
+                    Utils.getAverageNormalizedAcceleration(activityProtocolData) < veryActiveThresh) { //ACTIVE
                 currentActivity = Constants.ACT_PROTOCOL_ACTIVE_ACTIVE;
-            } else if(Utils.getAverageNormalizedAcceleration(activityProtocolData) > Constants.VERY_ACTIVE_THRESHOLD) { //VERY ACTIVE
+            } else if(Utils.getAverageNormalizedAcceleration(activityProtocolData) > veryActiveThresh) { //VERY ACTIVE
                 currentActivity = Constants.ACT_PROTOCOL_ACTIVE_VERY_ACTIVE;
             } else { //INACTIVE
                 if(checkIfDeviceIsHorizontalToGround(rawActivityProtocolAccelerationPerAxis)) {

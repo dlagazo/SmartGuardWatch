@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -70,6 +71,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Listeners.BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="StartMyServiceAtBootReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -133,6 +143,14 @@
         <activity
             android:name=".MemoryRemindActivity"
             android:label="@string/title_activity_memory_remind" >
+        </activity>
+        <activity
+            android:name=".InactivityActivity"
+            android:label="@string/title_activity_inactivity" >
+        </activity>
+        <activity
+            android:name=".FitminutesActivity"
+            android:label="@string/title_activity_fitminutes" >
         </activity>
     </application>
 

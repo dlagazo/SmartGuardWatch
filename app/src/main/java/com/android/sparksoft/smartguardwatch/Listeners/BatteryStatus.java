@@ -39,20 +39,21 @@ public class BatteryStatus extends BroadcastReceiver{
         int logStatus = prefs.getInt(Constants.PREFS_LOGGED_IN, 0);
 
         if(action.equals(Intent.ACTION_POWER_CONNECTED) && logStatus == 1) {
-
+            prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
             context.startService(chargingService);
             context.stopService(fallIntent);
             Intent chargeActivity = new Intent(context, ChargeActivity.class);
             chargeActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(chargeActivity);
             prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 1).apply();
+            prefs.edit().putBoolean(Constants.PREFS_CHARGE_STATUS, true).apply();
 
         }
         else if(action.equals(Intent.ACTION_POWER_DISCONNECTED) && logStatus == 1) {
             context.stopService(chargingService);
             context.startService(fallIntent);
             prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 0).apply();
-
+            prefs.edit().putBoolean(Constants.PREFS_CHARGE_STATUS, false).apply();
             String auth = prefs.getString("sparksoft.smartguard.auth", "");
 
 

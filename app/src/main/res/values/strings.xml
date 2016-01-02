@@ -16,4 +16,6 @@
     <string name="title_activity_memory_options">MemoryOptionsActivity</string>
     <string name="title_activity_memory_play">MemoryPlayActivity</string>
     <string name="title_activity_memory_remind">MemoryRemindActivity</string>
+    <string name="title_activity_inactivity">InactivityActivity</string>
+    <string name="title_activity_fitminutes">FitminutesActivity</string>
 </resources>

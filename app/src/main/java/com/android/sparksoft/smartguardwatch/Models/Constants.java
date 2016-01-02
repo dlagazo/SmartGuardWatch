@@ -21,7 +21,7 @@ public class Constants {
 
     //FALL DETECTOR SETTINGS
     public static final double FALL_THRESHOLD = 19.0; //FOR BOTH LINEAR and ACCELEROMETER
-    public static final double MOVE_THRESHOLD = 5.0; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
+    public static final double MOVE_THRESHOLD = .4; //0.95 for linear, 0.60~ for accelerometer (more sensitive)
     public static final int UPPER_LIMIT_PEAK_COUNT = 5;
     public static final int LOWER_LIMIT_PEAK_COUNT = 0;
     public static final long FALL_DETECT_WINDOW_SECS = 5;
@@ -34,8 +34,8 @@ public class Constants {
     public static final double GRAVITY = 9.81;
     public static final double EIGHTYPERCENT = 0.80;
     public static final long CHARACTERIZE_ACTIVITY_WINDOW_SECS = 59; //59
-    public static final double ACTIVE_THRESHOLD = 1.0;
-    public static final double VERY_ACTIVE_THRESHOLD = 3.0;
+    public static final double ACTIVE_THRESHOLD = 0.25;
+    public static final double VERY_ACTIVE_THRESHOLD = 0.42;
     public static final int ACT_PROTOCOL_GATHERING_DATA = 0;
     public static final int ACT_PROTOCOL_ACTIVE_VERY_ACTIVE = 1;
     public static final int ACT_PROTOCOL_ACTIVE_ACTIVE = 2;
@@ -54,6 +54,8 @@ public class Constants {
     public static final String PREFS_NAME = "sparksoft.smartguard";
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
     public static final String PREFS_AUTH = "sparksoft.smartguard.auth";
+    public static final String PREFS_CHARGE_STATUS = "sparksoft.smartguard.status.charge";
+
 
     public static final String PREFS_CALL_STATUS = "sparksoft.smartguard.CallStatus";
     public static final String PREFS_LOGGED_IN = "sparksoft.smartguard.LogStatus";
@@ -82,7 +84,12 @@ public class Constants {
     public static final String ACTIVE_COUNTER = "ACTIVE_COUNTER";
     public static final String INACTIVE_COUNTER = "INACTIVE_COUNTER";
     public static final String INACTIVE_COUNTER_SUCCESSIVE = "INACTIVE_COUNTER_SUCCESSIVE";
-
+    public static final String FITMINUTES_COUNTER = "FITMINUTES_COUNTER";
+    public static final String INACTIVITY_ALARM = "INACTIVITY_ALARM";
+    public static final String PREFS_ACTIVITY_THRESHOLD = "sparksoft.smartguard.activity.threshold";
+    public static final String PREFS_INACTIVITY_DURATION = "sparksoft.smartguard.activity.inactivityduration";
+    public static final String PREFS_FITMINUTE_THRESHOLD = "sparksoft.smartguard.fitminute.threshold";
+    public static final String PREFS_FITMINUTE_DURATION = "sparksoft.smartguard.fitminute.duration";
 
     //ALARMS
     public static final int ALARM_FREQUENCY_ONCE = 0;

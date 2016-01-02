@@ -9,7 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -49,6 +52,7 @@ public class MainActivity extends Activity {
         SharedPreferences prefs = getSharedPreferences(
                 "sparksoft.smartguard", Context.MODE_PRIVATE);
         int status = prefs.getInt("sparksoft.smartguard.status", 0);
+        prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
 
         if (status == 1) {
             Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
@@ -105,6 +109,9 @@ public class MainActivity extends Activity {
                 prefs.edit().putInt(Constants.PREFS_SOS_CALL_STATUS, 0).apply();
                 prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
                 prefs.edit().putBoolean(Constants.IS_USER_AT_HOME, true).apply();
+                prefs.edit().putBoolean(Constants.INACTIVITY_ALARM, false).apply();
+
+
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
                 if (status == 1) {
@@ -151,6 +158,7 @@ public class MainActivity extends Activity {
                     startActivity(myIntent);
                     Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
                     //startService(new Intent(getApplicationContext(), FallService.class));
+                    prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
                     stopService(fallIntent);
                     startService(fallIntent);
                     finish();
@@ -197,6 +205,7 @@ public class MainActivity extends Activity {
             myTimer.cancel();
             prefs.edit().putInt(Constants.PREFS_LOG_CHECKER, 0).apply();
             finish();
+
         }
     }
 

@@ -192,7 +192,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.purge();
                 myTimer.cancel();
                 isOk = true;
-                mCamera.takePicture(null, null, mPicture);
+                //mCamera.takePicture(null, null, mPicture);
                 finish();
             }
         });

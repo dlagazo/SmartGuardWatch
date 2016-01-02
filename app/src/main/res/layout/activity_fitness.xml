@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/activeCount"/>
 
-    <TextView android:text="Inactive 0%:" android:layout_width="wrap_content"
+    <TextView android:text="Inactivity alarm 0%:" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:id="@+id/inactiveCount"/>
 
     <TextView android:text="Fall Upper Threshold:" android:layout_width="wrap_content"

@@ -19,6 +19,8 @@ import android.provider.CallLog;
 import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -38,6 +40,7 @@ import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
+import com.android.sparksoft.smartguardwatch.Services.LocationSensorService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 
 import org.json.JSONException;
@@ -77,7 +80,7 @@ public class MenuActivity extends Activity {
         navigationAlarm = false;
 
         setContentView(R.layout.rect_activity_menu);
-
+        startListeningtoCalls();
         SharedPreferences prefs = getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
         //SOS status, 0-inactive, 1-active
@@ -271,7 +274,7 @@ public class MenuActivity extends Activity {
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check"};
+                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "FitMinutes", "Update"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
                 builder.setTitle("Options");
@@ -286,7 +289,7 @@ public class MenuActivity extends Activity {
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 0).apply();
                             prefs.edit().putInt(Constants.PREFS_LOGGED_IN, 0).apply();
-                            prefs.edit().putInt(Constants.ACTIVE_COUNTER,0).apply();
+                            prefs.edit().putInt(Constants.ACTIVE_COUNTER, 0).apply();
                             prefs.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();
                             prefs.edit().putInt(Constants.FALL_COUNTER, 0).apply();
                             Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
@@ -296,6 +299,7 @@ public class MenuActivity extends Activity {
 
                             stopService(chargingIntent);
 
+                            /*
                             String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
                             ArrayList<Alarm> alarms = null;
                             try {
@@ -304,9 +308,7 @@ public class MenuActivity extends Activity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-
-
-
+                            */
 
                             finish();
 
@@ -328,6 +330,15 @@ public class MenuActivity extends Activity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             startActivity(intent);
+                        } else if (which == 3) {
+                            //ACTIVITY CHECK
+                            Intent intent = new Intent(getApplicationContext(), FitminutesActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            startActivity(intent);
+                        } else if (which == 4) {
+                            HelperLogin hr = new HelperLogin(getApplicationContext(), "" , sp);
+                            hr.Update("");
                         }
                     }
                 });
@@ -413,8 +424,79 @@ public class MenuActivity extends Activity {
 
 
 
+    public void startListeningtoCalls()
+    {
+        final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        PhoneStateListener listener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                Toast.makeText(getApplicationContext(), "Phone listener started", Toast.LENGTH_LONG).show();
+                String stateString = "N/A";
 
+                SharedPreferences prefs = getSharedPreferences(
+                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+                Intent chargingService = new Intent(getApplicationContext(), ChargingService.class);
+                Intent fallService = new Intent(getApplicationContext(), FallService.class);
+                Intent navService = new Intent(getApplicationContext(), LocationSensorService.class);
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        //IDLE - 0
+                        Log.d("CALL_LIST", "Idle");
+                        prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
+                        boolean chargeStatus = prefs.getBoolean(Constants.PREFS_CHARGE_STATUS, false);
 
+                        if(chargeStatus)
+                        {
+                            stopService(chargingService);
+                            startService(chargingService);
+                        }
+                        else
+                        {
+                            stopService(fallService);
+                            startService(fallService);
+                            stopService(navService);
+                            startService(navService);
+                        }
+
+                        break;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        Log.d("CALL_LIST", "Ofhook");
+                        stopService(navService);
+                        stopService(fallService);
+                        stopService(chargingService);
+                        prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 1).apply();
+
+                        break;
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        Log.d("CALL_LIST", "Ringing");
+                        prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 2).apply();
+
+                        stopService(navService);
+                        stopService(fallService);
+                        stopService(chargingService);
+                        break;
+                    default:
+                        Log.d("CALL LIST", "DEFAULT");
+                        break;
+                }
+
+            }
+        };
+
+        // Register the listener with the telephony manager
+        telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        Intent fallService = new Intent(getApplicationContext(), FallService.class);
+        stopService(fallService);
+        startService(fallService);
+
+    }
 
     /**
      * Receiving speech input

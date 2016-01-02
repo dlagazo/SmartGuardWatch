@@ -23,22 +23,26 @@ public class FitnessActivity extends Activity {
         setContentView(R.layout.activity_fitness);
         final SharedPreferences prefs = getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
-        int active = prefs.getInt(Constants.ACTIVE_COUNTER, 0);
+        int fitminutes = prefs.getInt(Constants.FITMINUTES_COUNTER, 0);
         int inactive = prefs.getInt(Constants.INACTIVE_COUNTER, 0);
         int fall = prefs.getInt(Constants.FALL_COUNTER, 0);
+        int inactivityAlarm = prefs.getInt(Constants.INACTIVE_COUNTER_SUCCESSIVE, 0);
 
-        double total = active + inactive;
-        double activePct = active/total;
-        double inactivePct = inactive/total;
+        int fitminutesDuration = prefs.getInt(Constants.PREFS_FITMINUTE_DURATION, 150);
+        int inactivityDuration = prefs.getInt(Constants.PREFS_INACTIVITY_DURATION, 120);
+        //double total = active + inactive;
+        double fitminutesPct = (double)fitminutes/fitminutesDuration;
+        //double inactivePct = inactive/total;
+        double inactivityAlarmPct = (double)inactivityAlarm/inactivityDuration;
 
         TextView tvFall = (TextView)findViewById(R.id.fallCount);
         tvFall.setText("Fall count: " + Integer.toString(fall));
         DecimalFormat df = new DecimalFormat("00.00");
         TextView tvActive = (TextView)findViewById(R.id.activeCount);
-        tvActive.setText("Active " + df.format(activePct * 100) + "% of the day");
+        tvActive.setText("Weekly fitminutes " + df.format(fitminutesPct * 100) + "%, " + fitminutes + "/" + fitminutesDuration);
 
         TextView tvInactive = (TextView)findViewById(R.id.inactiveCount);
-        tvInactive.setText("Inactive " + df.format(inactivePct * 100) + "% of the day");
+        tvInactive.setText("Inactivity Alarm " + df.format(inactivityAlarmPct * 100) + "%, " + inactivityAlarm + "/" + inactivityDuration);
 
 
 
@@ -66,7 +70,8 @@ public class FitnessActivity extends Activity {
 
         TextView tvFut = (TextView)findViewById(R.id.fut);
         tvFut.setText("Fall Upper Threshold: " +
-                prefs.getString(Constants.PREFS_FALL_PARAMETER_FUT, Double.toString(Constants.FALL_THRESHOLD)));
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_FUT, Double.toString(Constants.FALL_THRESHOLD))
+                + "m/s^2");
 
         TextView tvPut = (TextView)findViewById(R.id.put);
         tvPut.setText("Peak Upper Threshold: " +
@@ -78,15 +83,18 @@ public class FitnessActivity extends Activity {
 
         TextView tvRmt = (TextView)findViewById(R.id.rmt);
         tvRmt.setText("Residual Movement Threshold: " +
-                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMT, Double.toString(Constants.MOVE_THRESHOLD)));
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMT, Double.toString(Constants.MOVE_THRESHOLD))
+        + "m/s^2");
 
         TextView tvFwd = (TextView)findViewById(R.id.fwd);
         tvFwd.setText("Fall Window Duration: " +
-                prefs.getString(Constants.PREFS_FALL_PARAMETER_FWD, Double.toString(Constants.FALL_DETECT_WINDOW_SECS)));
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_FWD, Double.toString(Constants.FALL_DETECT_WINDOW_SECS))
+        + "seconds");
 
         TextView tvRwd = (TextView)findViewById(R.id.rwd);
         tvRwd.setText("Residual Window Duration: " +
-                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMD, Double.toString(Constants.VERIFY_FALL_DETECT_WINDOW_SECS)));
+                prefs.getString(Constants.PREFS_FALL_PARAMETER_RMD, Double.toString(Constants.VERIFY_FALL_DETECT_WINDOW_SECS))
+        + "seconds");
     }
 
     @Override
