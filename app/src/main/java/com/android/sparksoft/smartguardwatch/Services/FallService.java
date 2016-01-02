@@ -43,6 +43,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 //import sqlitedb.SQLiteDataLogger;
 
@@ -79,6 +81,8 @@ public class FallService extends IntentService implements SensorEventListener
     private long fwd, rwd;
     private int plt, put;
 
+    private Timer myTimer;
+
     private SharedPreferences editor;
 
     public FallService() {
@@ -90,16 +94,24 @@ public class FallService extends IntentService implements SensorEventListener
         @Override
         public void onReceive(Context context, Intent intent) {
             // Check action just to be on the safe side.
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF) || intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.d(DEBUG_TAG, "Re-registering");
                 // Unregisters the listener and registers it again.
+                restart();
 
-                sensorManager.unregisterListener(FallService.this);
-                sensorManager.registerListener(FallService.this, sensor,
-                        SensorManager.SENSOR_DELAY_NORMAL);
+
+
             }
+
         }
     };
+
+    private void restart()
+    {
+        sensorManager.unregisterListener(FallService.this);
+        sensorManager.registerListener(FallService.this, sensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
 
     @Override
     public void onCreate() {
@@ -129,10 +141,19 @@ public class FallService extends IntentService implements SensorEventListener
 
         Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
 
+        /*
+        myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                restart();
 
+            }
 
-        //IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-        // registerReceiver(mReceiver, filter);
+        }, 0, 60000);
+        */
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mReceiver, filter);
     }
 
     public void setParams()
@@ -167,6 +188,11 @@ public class FallService extends IntentService implements SensorEventListener
         Toast.makeText(getApplicationContext(), "Fall protocol stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
         super.onDestroy();
+        try{
+            myTimer.purge();
+            myTimer.cancel();
+        }
+        catch (Exception e){}
 
     }
 
