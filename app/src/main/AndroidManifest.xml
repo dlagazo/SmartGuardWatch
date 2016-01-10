@@ -152,6 +152,10 @@
             android:name=".FitminutesActivity"
             android:label="@string/title_activity_fitminutes" >
         </activity>
+        <activity
+            android:name=".CoachingActivity"
+            android:label="@string/title_activity_coaching" >
+        </activity>
     </application>
 
 </manifest>

@@ -40,9 +40,9 @@
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="1"
-            android:text="7:00"
+            android:text="0:00"
             android:gravity="center_horizontal"
-            android:textSize="20dp"
+            android:textSize="30dp"
             android:id="@+id/memRemindTime"/>
         <TextView
             android:layout_width="fill_parent"
@@ -50,14 +50,14 @@
             android:layout_weight="1"
             android:text="Reminder in"
             android:gravity="center_horizontal"
-            android:textSize="20dp"/>
+            android:textSize="30dp"/>
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="1"
             android:text="0 hours"
             android:gravity="center_horizontal"
-            android:textSize="20dp"
+            android:textSize="30dp"
             android:id="@+id/tvMemRemindHours"/>
     </LinearLayout>
     <LinearLayout
@@ -70,7 +70,7 @@
             android:layout_width="0px"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:background="@drawable/memtimeyes"
+            android:background="@drawable/green_circle_check"
             android:id="@+id/btnMemTimeYes"/>
         <Space
             android:layout_width="0px"
@@ -80,7 +80,7 @@
             android:layout_width="0px"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:background="@drawable/memtimeno"
+            android:background="@drawable/cancel_button"
             android:id="@+id/btnMemTimeNo"/>
 
     </LinearLayout>

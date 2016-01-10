@@ -79,6 +79,9 @@ public class FallService extends IntentService implements SensorEventListener
     private long fwd, rwd;
     private int plt, put;
 
+    PowerManager pm;
+    PowerManager.WakeLock wl;
+
     private SharedPreferences editor;
 
     public FallService() {
@@ -124,13 +127,19 @@ public class FallService extends IntentService implements SensorEventListener
 
         setParams();
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SensorRead");
-        lock.acquire();
 
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
+        PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ON_AFTER_RELEASE
+                , "SensorRead");
+        lock.acquire(1000*60*60*5);
+
+
+        PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ON_AFTER_RELEASE,
                 "MyWakelockTag");
-        wakeLock.acquire();
+
+        wakeLock.acquire(1000*60*60*5);
+
+
+
         sp = new SpeechBot(this, "");
         Log.d(DEBUG_TAG, "onCreate");
         accelerometerData = new ArrayList<>();
@@ -143,7 +152,7 @@ public class FallService extends IntentService implements SensorEventListener
 
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Fall and Activity protocol started.", Toast.LENGTH_SHORT).show();
 
 
         /*
@@ -184,7 +193,7 @@ public class FallService extends IntentService implements SensorEventListener
     @Override
     public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
-        Toast.makeText(getApplicationContext(), "Fall protocol stopped", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "Fall protocol stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
         super.onDestroy();
 
@@ -272,6 +281,7 @@ public class FallService extends IntentService implements SensorEventListener
             if(hasUserFallen(rawAcceleration, processedAcceleration) && callStatus == 0) {
                 //TODO: Prompt user if they are ok.
                 Log.d(DEBUG_TAG, "Actual Fall! Ave movement:" + Utils.getAverageNormalizedAcceleration(accelerometerData));
+
                 //sensorManager.unregisterListener(this);
                 alarm = true;
                 accelerometerData.clear();

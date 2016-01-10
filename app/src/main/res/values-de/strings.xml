@@ -4,11 +4,6 @@
     <string name="hello_square">Hello Square World!</string>
     <string name="title_activity_sos">SOSActivity</string>
 
-    <!--LABELS-->
-    <string name="label_charging_correctly">Charging correctly</string>
-    <string name="label_inactivity_warning">You have been inactive for 2 hours</string>
-    <string name="label_memory_listening">Listening to memory (tap to replay)</string>
-
     <!--ACTIONS -->
     <string name="action_login">LOG IN</string>
     <string name="action_logout">LOG OUT</string>
@@ -23,16 +18,14 @@
     <string name="toast_no_memory_reminders">You have no reminders.</string>
     <string name="toast_who_to_call">Who do you want to call?</string>
     <string name="toast_are_you_ok">Are you ok?</string>
-    <string name="toast_need_help_navigate">Do you need help with navigation?</string>
-    <string name="toast_where_to_go">Where do you want to go?</string>
 
     <!--SPEECH-->
     <string name="speech_login">Logging in. Please wait.</string>
     <string name="speech_no_memory_reminders">You have no reminders.</string>
     <string name="speech_who_to_call">Who do you want to call?</string>
     <string name="speech_are_you_ok">Are you ok?</string>
-    <string name="speech_need_help_navigate">Do you need help with navigation?</string>
-    <string name="speech_where_to_go">Where do you want to go?</string>
+
+
 
     <string name="title_activity_com">ComActivity</string>
     <string name="title_activity_alarm_notification">AlarmNotificationActivity</string>
@@ -46,7 +39,4 @@
     <string name="title_activity_memory_remind">MemoryRemindActivity</string>
     <string name="title_activity_inactivity">InactivityActivity</string>
     <string name="title_activity_fitminutes">FitminutesActivity</string>
-    <string name="title_activity_coaching">CoachingActivity</string>
-
-    <string name="hello_world">Hello world!</string>
 </resources>

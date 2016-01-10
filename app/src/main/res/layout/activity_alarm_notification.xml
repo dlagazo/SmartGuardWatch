@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
+        android:text=""
         android:gravity="center_horizontal"
         android:id="@+id/alarmTitle" />
     <Space
@@ -28,4 +28,5 @@
         android:text="OK"
         android:gravity="center_horizontal"
         android:id="@+id/stopAlarm" />
+
 </LinearLayout>

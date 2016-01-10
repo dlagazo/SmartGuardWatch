@@ -29,8 +29,8 @@
         android:layout_weight="1"
         android:layout_height="0px"
         android:id="@+id/btnMemExit"
-        android:background="#fff"
-        android:text="EXIT"
-        android:textColor="#000"/>
+        android:background="#000"
+        android:text="@string/action_exit"
+        android:textColor="#fff"/>
 
 </LinearLayout>

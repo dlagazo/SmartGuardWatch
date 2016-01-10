@@ -19,6 +19,7 @@ import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 
 import com.android.sparksoft.smartguardwatch.MenuActivity;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
+import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Models.Place;
@@ -260,18 +261,24 @@ public class HelperLogin {
         SharedPreferences prefs = context.getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
         String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
+
         ArrayList<Alarm> alarms = null;
         try {
-            alarms = Alarm.parseAlarmString(alarmString);
-            Alarm.cancelAllAlarms(context, alarms);
+            alarms = AlarmUtils.parseAlarmString(alarmString);
+            AlarmUtils.cancelAllAlarms(context, alarms);
+            //AlarmUtils.startAllAlarms(getApplicationContext(), alarms);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+
+
+
+
         try {
-            alarms = Alarm.parseAlarmString("{\n" +
+            alarms = AlarmUtils.parseAlarmString("{\n" +
                     "\"memories\":" + memories + "}");
-            Alarm.startAllAlarms(context, alarms);
+            AlarmUtils.startAllAlarms(context, alarms);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -337,7 +344,7 @@ public class HelperLogin {
                             }
                             memories = response.getJSONArray("memories");
 
-                            //processAlarm(memories.toString());
+                            processAlarm(memories.toString());
 
                             vitals = response.getJSONArray("vitals");
                             String vitalString = "";

@@ -103,6 +103,7 @@ public class Constants {
     public static final String ALARM_ACTIVITY_DETECT = "Detect_Activity";
     public static final int ALARM_ACTIVITY_DETECT_ID = 1001;
     public static final String ALARM = "ALARM";
+    public static final String USER_IS_AWAKE = "USER_IS_AWAKE";
 
     //MEMORIES JSON
     public static final String MEMORIES = "memories";
@@ -112,6 +113,7 @@ public class Constants {
     public static final String MEMORIES_MEMORYFREQ = "MemoryFreq";
     public static final String MEMORIES_MEMORYINSTRUCTIONS = "MemoryInstructions";
     public static final String MEMORIES_MEMORYDATES = "MemoryDates";
+    public static final String MEMORIES_MEMORYTYPE = "MemoryType";
 
     //TIME DATE CONSTANTS
     public static final int DAYS_IN_A_WEEK = 7;

@@ -10,7 +10,7 @@
     android:id="@+id/llChargeScreen"
     >
 
-    <TextView android:text="Charging correctly"
+    <TextView android:text="@string/label_charging_correctly"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="20px"

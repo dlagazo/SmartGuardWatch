@@ -13,7 +13,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/memPlayFile"
-            android:text="Listening to Memory"
+            android:text="@string/label_memory_listening"
             android:gravity="center_horizontal"
             android:textSize="30dp"/>
 

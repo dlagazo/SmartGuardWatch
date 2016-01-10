@@ -65,7 +65,7 @@ public class ChargingService extends Service{
 
         sp = new SpeechBot(getApplicationContext(), "");
 
-        Toast.makeText(getApplicationContext(), "Charging protocol started. Please observe silence.", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "Charging protocol started. Please observe silence.", Toast.LENGTH_LONG).show();
         //sp.talk("Charging service started", false);
 
         //MediaPlayer mp = new MediaPlayer();
@@ -108,6 +108,7 @@ public class ChargingService extends Service{
             {
                 HelperLogin hr = new HelperLogin(getApplicationContext(), auth, sp);
                 hr.Sync(Constants.URL_LOGIN);
+
             }
 
 
@@ -203,7 +204,7 @@ public class ChargingService extends Service{
         hr.Sync(Constants.URL_LOGIN);
 
 
-        Toast.makeText(this, "Charging protocol stopped", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Charging protocol stopped", Toast.LENGTH_LONG).show();
         //sp.talk("Charging service stopped", false);
 
         sp.destroy();

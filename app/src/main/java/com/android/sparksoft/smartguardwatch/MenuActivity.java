@@ -36,6 +36,7 @@ import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
+import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
@@ -234,6 +235,13 @@ public class MenuActivity extends Activity {
             public void onClick(View v)
             {
 
+                sp.talk("If you want to record a new message, or set a reminder, say record. If you want to listen to an existing message, say listen", false);
+                Toast.makeText(getApplicationContext(), "If you want to record a new message or set a reminder say  record. If you want to listen to an existing message say listen", Toast.LENGTH_LONG).show();
+                try {
+                    Thread.sleep(8000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 Intent memIntent = new Intent(getApplicationContext(), MemoryActivity.class);
                 memIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -274,7 +282,7 @@ public class MenuActivity extends Activity {
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "FitMinutes", "Update"};
+                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "Update"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
                 builder.setTitle("Options");
@@ -299,6 +307,17 @@ public class MenuActivity extends Activity {
 
                             stopService(chargingIntent);
 
+
+                            String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
+
+                            ArrayList<Alarm> alarms = null;
+                            try {
+                                alarms = AlarmUtils.parseAlarmString(alarmString);
+                                AlarmUtils.cancelAllAlarms(getApplicationContext(), alarms);
+                                //AlarmUtils.startAllAlarms(getApplicationContext(), alarms);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             /*
                             String alarmString = prefs.getString(Constants.PREFS_ALARM_STING, "");
                             ArrayList<Alarm> alarms = null;
@@ -330,13 +349,13 @@ public class MenuActivity extends Activity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             startActivity(intent);
-                        } else if (which == 3) {
+                        } else if (which == 1000000) {
                             //ACTIVITY CHECK
                             Intent intent = new Intent(getApplicationContext(), FitminutesActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             startActivity(intent);
-                        } else if (which == 4) {
+                        } else if (which == 3) {
                             HelperLogin hr = new HelperLogin(getApplicationContext(), "" , sp);
                             hr.Update("");
                         }
@@ -430,7 +449,7 @@ public class MenuActivity extends Activity {
         PhoneStateListener listener = new PhoneStateListener() {
             @Override
             public void onCallStateChanged(int state, String incomingNumber) {
-                Toast.makeText(getApplicationContext(), "Phone listener started", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Phone listener started", Toast.LENGTH_LONG).show();
                 String stateString = "N/A";
 
                 SharedPreferences prefs = getSharedPreferences(
@@ -441,7 +460,7 @@ public class MenuActivity extends Activity {
                 switch (state) {
                     case TelephonyManager.CALL_STATE_IDLE:
                         //IDLE - 0
-                        Log.d("CALL_LIST", "Idle");
+                        Log.d("CALL_LOG", "Idle");
                         prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 0).apply();
                         boolean chargeStatus = prefs.getBoolean(Constants.PREFS_CHARGE_STATUS, false);
 
@@ -460,7 +479,7 @@ public class MenuActivity extends Activity {
 
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:
-                        Log.d("CALL_LIST", "Ofhook");
+                        Log.d("CALL_LOG", "Ofhook");
                         stopService(navService);
                         stopService(fallService);
                         stopService(chargingService);
@@ -468,7 +487,7 @@ public class MenuActivity extends Activity {
 
                         break;
                     case TelephonyManager.CALL_STATE_RINGING:
-                        Log.d("CALL_LIST", "Ringing");
+                        Log.d("CALL_LOG", "Ringing");
                         prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 2).apply();
 
                         stopService(navService);
@@ -476,7 +495,7 @@ public class MenuActivity extends Activity {
                         stopService(chargingService);
                         break;
                     default:
-                        Log.d("CALL LIST", "DEFAULT");
+                        Log.d("CALL LOG", "DEFAULT");
                         break;
                 }
 

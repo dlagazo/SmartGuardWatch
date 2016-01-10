@@ -70,7 +70,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     public void onCreate() {
         super.onCreate();
         Log.d("Navigation", "onCreate:Service started");
-        Toast.makeText(getApplicationContext(), "Location service started", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "Location service started", Toast.LENGTH_LONG).show();
         editor = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         buildGoogleApiClient();
         if(Utils.isNetworkAvailable(getApplicationContext()) && Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
@@ -137,7 +137,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
     @Override
     public void onDestroy()
     {
-        Toast.makeText(this, "Navigation service stopped", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Navigation service stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -233,7 +233,8 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         //Constants.FENCE_RADIUS_IN_METERS, once the distance from home, exceeds this, there will be a flag.
         if( mLastLocation.getLatitude() != 0.0 && mLastLocation.distanceTo(userHome) > Constants.FENCE_RADIUS_IN_METERS) {
             //TODO: Prompt notification for user exiting home
-            Toast.makeText(getApplicationContext(), "User has left home!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "User has left home!", Toast.LENGTH_SHORT).show();
+
             editor.edit().putBoolean(Constants.IS_USER_AT_HOME, false).apply();
             Log.d(TAG, "User has left home.");
             Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
@@ -251,7 +252,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         } */else { //if(mLastLocation.distanceTo(previousLocation) < Constants.NEGLIGIBLE_LOCATION_CHANGE) { //User has stayed in same vicinity for X seconds
             Log.d(TAG, "delaying requests");
             Log.d(TAG, "User is still at home.");
-            Toast.makeText(getApplicationContext(), "User has arrived home!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "User has arrived home!", Toast.LENGTH_SHORT).show();
             editor.edit().putBoolean(Constants.IS_USER_AT_HOME, true).apply();
             if(mLocationRequest.getFastestInterval() != 25000) {
                 if(Utils.isNetworkAvailable(getApplicationContext()) && !Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
