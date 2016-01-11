@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Camera;
 import android.graphics.Color;
@@ -285,7 +287,17 @@ public class MenuActivity extends Activity {
                 CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "Update"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
-                builder.setTitle("Options");
+
+                PackageInfo pInfo = null;
+                String version = "";
+                try {
+                    pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                    version = pInfo.versionName;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                builder.setTitle("Smartguard " + "v" + version);
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

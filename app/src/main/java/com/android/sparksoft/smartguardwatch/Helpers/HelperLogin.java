@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Environment;
@@ -169,6 +171,86 @@ public class HelperLogin {
         queue.add(req);
     }
 
+    public void sendTrack(String url, String lat, String lon)
+    {
+        /*
+        Calendar cal = Calendar.getInstance();
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
+
+        String timeStamp = Integer.toString(cal.get(Calendar.YEAR)) + "-" +
+                Integer.toString(cal.get(Calendar.MONTH)+1) + "-" +
+                Integer.toString(cal.get(Calendar.DAY_OF_MONTH)) + "T" +
+                Integer.toString(hour) + ":" + Integer.toString(min) + ":" +
+                Integer.toString(sec);
+                */
+        Log.d("LOG_HELPER", Float.toString(getBatteryLevel()));
+        //Log.d("LOG_HELPER", timeStamp);
+
+
+        //Double toBeTruncated = new Double("3.5789055");
+
+        //Double truncatedDouble=new BigDecimal(toBeTruncated ).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        JSONObject params = new JSONObject();
+        try {
+            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+                    .format(new Date());
+
+            params.put("timestamp", timeStamp);
+
+            params.put("TrackLat", lat);
+            params.put("TrackLong", lon);
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //params.put("token", "AbCdEfGh123456");
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, params,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response)
+                    {
+                        Log.d("LOG_HELPER", response.toString());
+                        //Toast.makeText(context, "Watch data sent successfully", Toast.LENGTH_LONG).show();
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Log.d("LOG_HELPER", error.toString());
+                    }
+                })
+        {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError
+            {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", basicAuth);
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+
+        };
+
+        req.setRetryPolicy(new DefaultRetryPolicy(60000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(req);
+
+    }
+
+
     public void sendChargeData(String url)
     {
         /*
@@ -301,8 +383,26 @@ public class HelperLogin {
                     public void onResponse(JSONObject response) {
                         JSONArray contacts = null, memories = null, places = null, responses = null, vitals = null;
                         JSONObject fall = null;
-                        String fullname = " ";
+                        String fullname = " ", version = "";
+
                         try {
+
+                            PackageInfo pInfo = null;
+                            String appVersion = "";
+                            try {
+                                pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                                appVersion = pInfo.versionName;
+                            } catch (PackageManager.NameNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            version = response.getString("version");
+
+                            if(!version.equals(appVersion) && getBatteryLevel() > 70.0)
+                            {
+                                Toast.makeText(context, "Downloading updates. Please do not turn off the watch.",
+                                        Toast.LENGTH_LONG).show();
+                                Update("");
+                            }
                             responses = response.getJSONArray("responses");
                             for(int i= 0; i < responses.length(); i++)
                             {

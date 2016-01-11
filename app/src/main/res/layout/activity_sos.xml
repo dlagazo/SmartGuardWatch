@@ -19,7 +19,7 @@
         android:id="@+id/btnSOSOk"
         android:background="#00ff00"
         android:text="OK / YES"
-        android:textColor="#ffffff"/>
+        android:textColor="#000"/>
     <FrameLayout
         android:id="@+id/sos_camera_preview"
         android:layout_width="1px"

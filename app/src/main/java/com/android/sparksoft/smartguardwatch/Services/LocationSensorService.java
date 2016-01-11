@@ -12,6 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Utils;
 import com.google.android.gms.common.ConnectionResult;
@@ -243,6 +244,15 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                     switchToHighAccuracy();
                 }
             }
+
+
+            String auth = prefs.getString(Constants.PREFS_AUTH, "");
+
+            HelperLogin hr = new HelperLogin(getApplicationContext(), auth, null);
+            hr.sendTrack("http://smartguardwatch.azurewebsites.net/api/MobileTrack",
+                    Double.toString(mLastLocation.getLatitude()),
+                    Double.toString(mLastLocation.getLongitude()));
+
         }
         /*
         else if(mLastLocation.getAccuracy() > Constants.FENCE_RADIUS_IN_METERS && mLastLocation.getLatitude() != 0.0) {
