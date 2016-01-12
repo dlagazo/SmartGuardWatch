@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="100"
+    tools:context="com.android.sparksoft.smartguardwatch.SOSActivity">
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_weight="49"
+        android:layout_height="0px"
+        android:id="@+id/btnSOSCall"
+        android:background="#f00"
+        android:text="SOS / NO"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_weight="49"
+        android:layout_height="0px"
+        android:id="@+id/btnSOSOk"
+        android:background="#00ff00"
+        android:text="OK / YES"
+        android:textColor="#000"/>
+    <FrameLayout
+        android:id="@+id/sos_camera_preview"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        android:layout_weight="2"
+        />
+
+</LinearLayout>

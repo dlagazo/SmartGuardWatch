@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="com.android.sparksoft.smartguardwatch.FitnessActivity">
+
+    <TextView android:text="Fall count: 0" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fallCount"/>
+
+    <TextView android:text="Active 0%" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/activeCount"/>
+
+    <TextView android:text="Inactivity alarm 0%:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/inactiveCount"/>
+
+    <TextView android:text="Fall Upper Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fut"/>
+
+
+    <TextView android:text="Peak Upper Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/put"/>
+    <TextView android:text="Peak Lower Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/plt"/>
+    <TextView android:text="Residual Movement Threshold:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/rmt"/>
+
+    <TextView android:text="Fall Window Duration:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/fwd"/>
+    <TextView android:text="Residual Window Duration:" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:id="@+id/rwd"/>
+
+
+
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:id="@+id/btnResetCounters" />
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:id="@+id/btnBack" />
+    </LinearLayout>
+
+
+</LinearLayout>

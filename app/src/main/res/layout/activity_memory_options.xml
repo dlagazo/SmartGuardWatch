@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.android.sparksoft.smartguardwatch.MemoryOptionsActivity"
+    android:orientation="vertical"
+    android:weightSum="3">
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@drawable/msg"
+        android:id="@+id/memMsg"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@drawable/reminder"
+        android:id="@+id/memRemind"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:background="@drawable/listenagain"
+        android:id="@+id/memListenAgain"/>
+
+</LinearLayout>

@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">SmartGuardWatch</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
+    <string name="title_activity_sos">SOSActivity</string>
+
+    <!--ACTIONS -->
+    <string name="action_login">LOG IN</string>
+    <string name="action_logout">LOG OUT</string>
+    <string name="action_sync">SYNC</string>
+    <string name="action_settings">SETTINGS</string>
+    <string name="action_activity_check">ACTIVITY CHECK</string>
+    <string name="action_update">UPDATE</string>
+    <string name="action_exit">EXIT</string>
+
+    <!--TOASTS-->
+    <string name="toast_login">Logging in. Please wait.</string>
+    <string name="toast_no_memory_reminders">You have no reminders.</string>
+    <string name="toast_who_to_call">Who do you want to call?</string>
+    <string name="toast_are_you_ok">Are you ok?</string>
+
+    <!--SPEECH-->
+    <string name="speech_login">Logging in. Please wait.</string>
+    <string name="speech_no_memory_reminders">You have no reminders.</string>
+    <string name="speech_who_to_call">Who do you want to call?</string>
+    <string name="speech_are_you_ok">Are you ok?</string>
+
+
+
+    <string name="title_activity_com">ComActivity</string>
+    <string name="title_activity_alarm_notification">AlarmNotificationActivity</string>
+    <string name="title_activity_fitness">FitnessActivity</string>
+    <string name="title_activity_charge">ChargeActivity</string>
+    <string name="title_activity_memory">MemoryActivity</string>
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="title_activity_medical_data">MedicalDataActivity</string>
+    <string name="title_activity_memory_options">MemoryOptionsActivity</string>
+    <string name="title_activity_memory_play">MemoryPlayActivity</string>
+    <string name="title_activity_memory_remind">MemoryRemindActivity</string>
+    <string name="title_activity_inactivity">InactivityActivity</string>
+    <string name="title_activity_fitminutes">FitminutesActivity</string>
+</resources>

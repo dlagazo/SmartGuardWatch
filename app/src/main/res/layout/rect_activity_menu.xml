@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:orientation="vertical"
+    android:weightSum="9"
+    tools:context=".MainActivity" tools:deviceIds="wear_square"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    android:gravity="center_vertical|center_horizontal|center">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="4"
+        android:weightSum="10"
+        android:orientation="horizontal"
+        android:id="@+id/menu_top">
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="7"
+            android:layout_height="fill_parent"
+            android:id="@+id/btnSOS"
+            android:background="#f00"
+            android:textSize="50px"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:text="SOS"/>
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="3"
+            android:enabled="false"
+
+            android:layout_height="fill_parent"
+            android:background="#f00"
+            android:id="@+id/btnNAV"
+
+            />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="4"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="fill_parent"
+            android:id="@+id/btnCOM"
+            android:background="@drawable/comm"
+            />
+        <Button
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:layout_height="fill_parent"
+            android:id="@+id/btnMEM"
+            android:background="@drawable/mem"
+
+
+            android:textColor="#000000"/>
+    </LinearLayout>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
+        android:layout_height="0px"
+        android:id="@+id/btnSet"
+        android:background="#000"
+        android:text="SETTINGS"
+        android:textColor="#fff"/>
+</LinearLayout>

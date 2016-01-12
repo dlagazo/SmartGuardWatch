@@ -1,0 +1,65 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:background="@color/green"
+    android:weightSum="10"
+    tools:context="com.android.sparksoft.smartguardwatch.FitminutesActivity">
+
+    <TextView android:text="FitMinutes"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="30dp"
+        android:gravity="center_horizontal"/>
+    <TextView android:text="accomplished this week:"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+
+        android:textSize="20dp"
+        android:gravity="center_horizontal"/>
+    <TextView
+        android:text="0/150mins 0%"
+        android:textColor="@color/black"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:gravity="center_horizontal"
+        android:id="@+id/tvFitminsStatus"/>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="2"
+        android:id="@+id/sbFitminsPct"
+        android:layout_gravity="center_horizontal"
+
+        />
+
+
+    <TextView android:text="Think about a walk!"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:gravity="center_horizontal"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="3"
+        android:text="Remind me later!"
+        android:background="@color/red"
+        android:id="@+id/btnFitminsRemind"/>
+
+
+
+</LinearLayout>
