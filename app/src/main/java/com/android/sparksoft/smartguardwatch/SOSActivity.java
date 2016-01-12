@@ -5,17 +5,20 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.provider.CallLog;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +63,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     private ArrayList<Contact> arrayContacts;
     private DataSourceContacts dsContacts;
     private boolean isAlarmOver = false;
+    private boolean isEmergencyCallOver = false;
+    private boolean isEmergencyCalling = false;
+    private boolean isFirstCall = true;
     private ArrayList<Contact> peopleToCall;
     TelephonyManager telephonyManager;
 
@@ -85,16 +91,17 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
-        mCamera = getCameraInstance();
-        mCameraPreview = new CameraPreview(this, mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.sos_camera_preview);
-        preview.addView(mCameraPreview);
+
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 
         arrayContacts = dsContacts.getAllContacts();
 
+        mCamera = getCameraInstance();
+        mCameraPreview = new CameraPreview(getApplicationContext(), mCamera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.sos_camera_preview);
+        preview.addView(mCameraPreview);
 
 
         new Thread() {
@@ -143,6 +150,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.cancel();
                 isOk = true;
 
+                isEmergencyCalling = true;
+
+
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
@@ -152,6 +162,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+
 
                 mCamera.takePicture(null, null, mPicture);
 
@@ -357,12 +369,40 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
             }
 
-        }, 0, 60000);
+        }, 0, 30000);
 
     }
 
     // Simulating something timeconsuming
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        return (keyCode == KeyEvent.KEYCODE_BACK ? true : super.onKeyDown(keyCode, event));
+    }
+
+    @Override
+    protected void onStop()
+    {
+
+        if(!isEmergencyCallOver && !isEmergencyCalling)
+        {
+            try{
+                callTimer.purge();
+                callTimer.cancel();
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            isOk = true;
+            finish();
+
+        }
+        super.onStop();
+
+    }
 
     @Override
     protected void onDestroy()
@@ -485,24 +525,79 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
     private void call()//(final ArrayList<Contact> list)
     {
-        try{
-            sp.talk("Calling " + peopleToCall.get(0).getFullName(), true);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + peopleToCall.get(0).getMobile()));
-            startActivity(intent);
-            peopleToCall.remove(0);
-        }
-        catch (Exception ex)
+        SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+        int callStatus = prefs.getInt(Constants.PREFS_CALL_STATUS, 0);
+        if(!isFirstCall)
         {
-            callTimer.purge();
-            callTimer.cancel();
-            isOk = true;
+            Log.i("CALL_LOG", "Call retrive method worked");
+            StringBuffer sb = new StringBuffer();
+            Uri contacts = CallLog.Calls.CONTENT_URI;
+            Cursor managedCursor = getContentResolver().query(
+                    contacts, null, null, null, null);
+            int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int duration1 = managedCursor.getColumnIndex( CallLog.Calls.DURATION);
+            int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
+            if( managedCursor.moveToLast()   == true ) {
+                String phNumber = managedCursor.getString( number );
+                String callDuration = managedCursor.getString( duration1 );
+                String dateOfCall = managedCursor.getString(date);
+                String dir = null;
+                sb.append( "\nPhone Number:--- "+phNumber +" \nCall duration in sec :--- "+ callDuration  + " \n Date:---" + dateOfCall);
+                sb.append("\n----------------------------------");
+                Log.d("CALL_LOG","Call Duration is:-------"+sb);
+
+                if(callStatus == 0)
+                {
+                    if(Integer.parseInt(callDuration) > 0)
+                    {
+                        callTimer.purge();
+                        callTimer.cancel();
+                        Log.d("CALL_LOG", "Emergency call is answered. Turning alarm off");
+                        isAlarmOver = true;
+
+                    }
+                    else
+                    {
+                        peopleToCall.remove(0);
+                        Log.d("CALL_LOG", "Emergency call is unanswered. Calling next contact.");
+                    }
+                }
+            }
+            managedCursor.close();
+
 
         }
+
+
+
+
+
+
+        if(callStatus == 0 && !isAlarmOver)
+        {
+            try{
+                sp.talk("Calling " + peopleToCall.get(0).getFullName(), true);
+                Log.d("CALL_LOG", "Calling " + peopleToCall.get(0).getFullName() + " " + peopleToCall.get(0).getMobile());
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + peopleToCall.get(0).getMobile()));
+                startActivity(intent);
+                isFirstCall = false;
+                //peopleToCall.remove(0);
+            }
+            catch (Exception ex)
+            {
+                callTimer.purge();
+                callTimer.cancel();
+                isOk = true;
+
+            }
+        }
+
+
 
 
 
@@ -708,7 +803,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                        "Say something");
+                        "Are you ok?");
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);

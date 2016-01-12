@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 public class MemoryRemindActivity extends Activity {
     int hr = 0;
     @Override
@@ -17,6 +19,20 @@ public class MemoryRemindActivity extends Activity {
         setContentView(R.layout.activity_memory_remind);
         Intent i = getIntent();
         final String filename =  i.getStringExtra("filename");
+
+        Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        TextView tvTime = (TextView)findViewById(R.id.memRemindTime);
+        tvTime.setText(hour + ":" + min);
+
+
+
+
+
+
+
+
 
         Button btnTimeMinus = (Button)findViewById(R.id.btnMemRemindTimeMinus);
         btnTimeMinus.setOnClickListener(new View.OnClickListener() {

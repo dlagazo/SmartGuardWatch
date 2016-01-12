@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 
+import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -50,9 +51,10 @@ public class ChargeActivity extends Activity {
 
                             @Override
                             public void run() {
+                                DecimalFormat df = new DecimalFormat("00.00");
                                 TextView tvBattery = (TextView)findViewById(R.id.tvBatteryLevel);
 
-                                tvBattery.setText(Float.toString(getBatteryLevel()) + "%");
+                                tvBattery.setText(df.format(getBatteryLevel()) + "%");
                                 if(getBatteryLevel() == 100.0f)
                                 {
                                     LinearLayout ll = (LinearLayout)findViewById(R.id.llChargeScreen);

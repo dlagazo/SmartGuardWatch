@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
 
                     finish();
                 } else if (status == 0) {
-                    Toast.makeText(getApplicationContext(), "Logging in. Please wait.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.toast_login), Toast.LENGTH_LONG).show();
 
                     final String basicAuth = "Basic " + Base64.encodeToString((etUserName.getText() + ":" +
                             etPassword.getText()).getBytes(), Base64.NO_WRAP);

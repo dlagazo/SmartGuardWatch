@@ -10,20 +10,14 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.android.sparksoft.smartguardwatch.AlarmNotificationActivity;
+import com.android.sparksoft.smartguardwatch.FitminutesActivity;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 
 import org.xml.sax.Parser;
 
-
-/**
- * Created by talusan on 11/9/2015.
- * http://stackoverflow.com/questions/24724859/alarmmanager-setexact-with-wakefulbroadcastreceiver-sometimes-not-exact
- * http://developer.android.com/training/scheduling/alarms.html
- * This class handles the behaviors of all alarms in the memoryModule
- */
 public class AlarmService extends IntentService {
-    private static final String TAG = "Wearable.AlarmService";
+    private static final String TAG = "AlarmService";
     private String appname;
     private SharedPreferences editor;
     public AlarmService() {
@@ -33,8 +27,8 @@ public class AlarmService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        //appname = getResources().getString(R.string.app_name);
-        editor = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+
+        editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
         Log.d(TAG, "onCreate:AlarmService");
     }
 
@@ -53,10 +47,37 @@ public class AlarmService extends IntentService {
 //            }
 //            Log.d(TAG, alarm.getMemoryInstructions());
             //TODO: Add checking if alarm notification activity is currently open.
-            Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
-            alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            alarmIntent.putExtras(intent);
-            getApplication().startActivity(alarmIntent);
+            if(alarm.getMemoryType().equals("0"))
+            {
+                Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
+                alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                alarmIntent.putExtras(intent);
+                getApplication().startActivity(alarmIntent);
+            }
+            else if(alarm.getMemoryType().equals("1"))
+            {
+                /*
+                Intent alarmIntent = new Intent(getBaseContext(), CoachingActivity.class);
+                alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                alarmIntent.putExtras(intent);
+                getApplication().startActivity(alarmIntent);
+                */
+            }
+            else if(alarm.getMemoryType().equals("2"))
+            {
+                Intent alarmIntent = new Intent(getBaseContext(), FitminutesActivity.class);
+                alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                alarmIntent.putExtras(intent);
+                getApplication().startActivity(alarmIntent);
+            }
+            else if(alarm.getMemoryType().equals("3"))
+            {
+                Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
+                alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                alarmIntent.putExtras(intent);
+                getApplication().startActivity(alarmIntent);
+            }
+
 
         }
 
@@ -66,7 +87,9 @@ public class AlarmService extends IntentService {
             Log.d(TAG, "Alarm Activity Detect");
             Log.d(TAG, "Activity Count: " + editor.getInt(Constants.ACTIVE_COUNTER, 0));
             if(editor.getInt(Constants.ACTIVE_COUNTER, 0) == 0) {
-                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER/Constants.MILLIS_IN_A_MINUTE + " minutes.");
+                Log.d(TAG, "User inactive for " + Constants.AFTER_WAKE_TIMER / Constants.MILLIS_IN_A_MINUTE + " minutes.");
+            } else if(!editor.getBoolean(Constants.USER_IS_AWAKE, false)) { //Emergency protocol if alarm has not been pressed in 30 minutes
+                Log.d(TAG, "User has not pressed alarm for " + Constants.AFTER_WAKE_TIMER / Constants.MILLIS_IN_A_MINUTE + " minutes.");
             } else {
                 editor.edit().putInt(Constants.ACTIVE_COUNTER, 0).apply();
                 editor.edit().putInt(Constants.INACTIVE_COUNTER, 0).apply();

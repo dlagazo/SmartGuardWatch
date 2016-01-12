@@ -12,6 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Utils;
 import com.google.android.gms.common.ConnectionResult;
@@ -234,6 +235,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         if( mLastLocation.getLatitude() != 0.0 && mLastLocation.distanceTo(userHome) > Constants.FENCE_RADIUS_IN_METERS) {
             //TODO: Prompt notification for user exiting home
             //Toast.makeText(getApplicationContext(), "User has left home!", Toast.LENGTH_SHORT).show();
+
             editor.edit().putBoolean(Constants.IS_USER_AT_HOME, false).apply();
             Log.d(TAG, "User has left home.");
             Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));
@@ -242,6 +244,15 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                     switchToHighAccuracy();
                 }
             }
+
+
+            String auth = prefs.getString(Constants.PREFS_AUTH, "");
+
+            HelperLogin hr = new HelperLogin(getApplicationContext(), auth, null);
+            hr.sendTrack("http://smartguardwatch.azurewebsites.net/api/MobileTrack",
+                    Double.toString(mLastLocation.getLatitude()),
+                    Double.toString(mLastLocation.getLongitude()));
+
         }
         /*
         else if(mLastLocation.getAccuracy() > Constants.FENCE_RADIUS_IN_METERS && mLastLocation.getLatitude() != 0.0) {

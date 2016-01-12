@@ -1,21 +1,57 @@
 package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.android.sparksoft.smartguardwatch.Models.Alarm;
+import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
+import com.android.sparksoft.smartguardwatch.Services.AlarmService;
 
 import java.text.DecimalFormat;
 
 public class FitminutesActivity extends Activity {
+    private static final String TAG = "AlarmNotifAct";
+    AlarmManager alarmManager;
+    private Button stopAlarm;
+    private static FitminutesActivity inst;
+    private TextView alarmMessage;
+    private TextView TvMemoryType;
+    private String memoryId = "";
+    private String memoryType = "";
+    private Alarm alarm;
+    private PowerManager.WakeLock mWakeLock;
+    private Ringtone r;
+    private static final int WAKELOCK_TIMEOUT = 60 * 1000;
+    private String memoryName = "";
+    private SharedPreferences editor;
+    private String appname;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        inst = this;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +71,77 @@ public class FitminutesActivity extends Activity {
         TextView tvFitmins = (TextView)findViewById(R.id.tvFitminsStatus);
         tvFitmins.setText(fitminutes + "/" +
                         fitminutesDuration + "mins  " + df.format(fitminutesPct*100) + "% completed");
-
+        Bundle data = getIntent().getExtras();
+        alarm = data.getParcelable(Constants.ALARM);
         Button btnRemind = (Button)findViewById(R.id.btnFitminsRemind);
         btnRemind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlarmUtils.stopAlarm(getApplicationContext(), alarm);
+                //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
+                stopActivityDetectionAlarm();
+                r.stop();
                 finish();
             }
         });
+
+        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (alarmUri == null) {
+            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        }
+        r = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
+        r.play();
+
+        //Ensure wakelock release
+        Runnable releaseWakelock = new Runnable() {
+
+            @Override
+            public void run() {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+                if (mWakeLock != null && mWakeLock.isHeld()) {
+                    mWakeLock.release();
+                }
+            }
+        };
+
+        new Handler().postDelayed(releaseWakelock, WAKELOCK_TIMEOUT);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (mWakeLock != null && mWakeLock.isHeld()) {
+            mWakeLock.release();
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        // Set the window to keep screen on
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+        // Acquire wakelock
+        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        if (mWakeLock == null) {
+            mWakeLock = pm.newWakeLock((PowerManager.FULL_WAKE_LOCK | PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), TAG);
+        }
+
+        if (!mWakeLock.isHeld()) {
+            mWakeLock.acquire();
+            Log.i(TAG, "Wakelock aquired!!");
+        }
     }
 
     @Override
@@ -65,5 +164,28 @@ public class FitminutesActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startActivityDetectionAlarm() {
+        Log.d(TAG, "startActivityDetectionAlarm");
+        PendingIntent pendingIntent;
+        AlarmManager manager;
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);
+        alarmIntent.putExtra(Constants.ALARM_ACTIVITY_DETECT, Constants.ALARM_ACTIVITY_DETECT);
+        pendingIntent = PendingIntent.getService(getApplicationContext(), Constants.ALARM_ACTIVITY_DETECT_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        manager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + Constants.AFTER_WAKE_TIMER, pendingIntent);
+    }
+
+    public void stopActivityDetectionAlarm() {
+        Log.d(TAG, "stopActivityDetectionAlarm");
+        PendingIntent pendingIntent;
+        AlarmManager manager;
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmService.class);
+        alarmIntent.putExtra(Constants.ALARM_ACTIVITY_DETECT, Constants.ALARM_ACTIVITY_DETECT);
+        pendingIntent = PendingIntent.getService(getApplicationContext(), Constants.ALARM_ACTIVITY_DETECT_ID, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        manager.cancel(pendingIntent);
+        pendingIntent.cancel();
     }
 }

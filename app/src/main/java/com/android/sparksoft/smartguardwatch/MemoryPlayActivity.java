@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -17,7 +19,13 @@ public class MemoryPlayActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
+               "MyWakelockTag");
+        wakeLock.acquire();
         setContentView(R.layout.activity_memory_play);
         Intent i = getIntent();
         final String filename =  i.getStringExtra("filename");
@@ -52,6 +60,23 @@ public class MemoryPlayActivity extends Activity {
                     finish();
                 }
 
+            }
+        });
+
+        TextView tvLabel = (TextView)findViewById(R.id.memPlayFile);
+        tvLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    MediaPlayer mediaPlayer = new  MediaPlayer();
+                    mediaPlayer.setDataSource(filename);
+                    mediaPlayer.prepare();
+                    Toast.makeText(getApplicationContext(), "Playing memory record", Toast.LENGTH_LONG).show();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
