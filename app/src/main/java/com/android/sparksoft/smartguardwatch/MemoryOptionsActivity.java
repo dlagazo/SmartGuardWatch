@@ -51,7 +51,7 @@ public class MemoryOptionsActivity extends Activity {
                 try {
                     mediaPlayer.setDataSource(filename);
                     mediaPlayer.prepare();
-                    Toast.makeText(getApplicationContext(), "Playing memory record", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "Playing memory record", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

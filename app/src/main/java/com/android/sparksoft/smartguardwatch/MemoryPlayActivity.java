@@ -34,7 +34,7 @@ public class MemoryPlayActivity extends Activity {
         try {
             mediaPlayer.setDataSource(filename);
             mediaPlayer.prepare();
-            Toast.makeText(getApplicationContext(), "Playing memory record", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "Playing memory record", Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class MemoryPlayActivity extends Activity {
                 File file = new File(filename);
                 boolean deleted = file.delete();
                 if(deleted) {
-                    Toast.makeText(getApplicationContext(), "Memory successfully deleted", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "Memory successfully deleted", Toast.LENGTH_LONG).show();
                     finish();
                 }
 
