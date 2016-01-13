@@ -55,6 +55,8 @@ public class MainActivity extends Activity {
         prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
 
         if (status == 1) {
+
+
             Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
             myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(myIntent);
@@ -68,6 +70,16 @@ public class MainActivity extends Activity {
             stopService(locationIntent);
             startService(locationIntent);
 
+            int deviceStatus = prefs.getInt("deviceStatus", 0);
+
+            if(deviceStatus == 1)
+            {
+                Intent lostIntent = new Intent(getApplicationContext(), DeviceLostActivity.class);
+                lostIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(lostIntent);
+                prefs.edit().putInt("deviceStatus", 1).apply();
+
+            }
 
             finish();
         }

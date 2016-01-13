@@ -223,7 +223,7 @@ public class HelperLogin {
                             if(status.equals("1")) {
                                 Log.d("LOG_HELPER", "device is missing");
                                 SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
-
+                                prefs.edit().putString("MissingSpiel", response.getString("response")).apply();
 
                                 int deviceStatus = prefs.getInt("deviceStatus", 0);
 
