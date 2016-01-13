@@ -61,7 +61,7 @@ public class NavigateActivity extends Activity {
             Button btn = new Button(this);
             //btn.setHeight(0);
             btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                    0, 1f));
+                    80));
             //btn.setWidth(ll.getWidth());
             btn.setText(place.getPlaceName());
 
@@ -79,7 +79,7 @@ public class NavigateActivity extends Activity {
         Button btn = new Button(this);
         //btn.setHeight(0);
         btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                0, 1f));
+                80));
         //btn.setWidth(ll.getWidth());
         btn.setText("Back");
 

@@ -292,7 +292,8 @@ public class MenuActivity extends Activity {
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
-                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "Check for updates", versionName};
+                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check",
+                        "Check for updates", versionName, "Weight"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
 
@@ -376,12 +377,17 @@ public class MenuActivity extends Activity {
 
                             startActivity(intent);
                         } else if (which == 3) {
-                            HelperLogin hr = new HelperLogin(getApplicationContext(), "" , sp);
+                            HelperLogin hr = new HelperLogin(getApplicationContext(), "", sp);
                             hr.Update("");
-                        }
-                        else if (which == 4) {
+                        } else if (which == 4) {
 
+                        } else if (which == 5) {
+                            Intent intent = new Intent(getApplicationContext(), WeightActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            startActivity(intent);
                         }
+
                     }
                 });
                 builder.show();

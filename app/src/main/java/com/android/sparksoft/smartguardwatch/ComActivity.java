@@ -72,8 +72,7 @@ public class ComActivity extends Activity {
             {
                 Button btn = new Button(this);
                 //btn.setHeight(0);
-                btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                        0, 1f));
+                btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, 80));
                 //btn.setWidth(ll.getWidth());
                 btn.setText(con.getFullName());
 
@@ -95,7 +94,7 @@ public class ComActivity extends Activity {
         }
         Button btnSecondary = new Button(this);
         btnSecondary.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                0, 1f));
+                80));
         btnSecondary.setText("Secondary Contacts");
         ll.addView(btnSecondary);
         btnSecondary.setOnClickListener(new View.OnClickListener() {
@@ -110,7 +109,7 @@ public class ComActivity extends Activity {
                         Button btn = new Button(getApplicationContext());
                         //btn.setHeight(0);
                         btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                                0, 1f));
+                                80));
                         //btn.setWidth(ll.getWidth());
                         btn.setText(con.getFullName());
 
@@ -133,7 +132,7 @@ public class ComActivity extends Activity {
                 Button btn = new Button(getApplicationContext());
                 //btn.setHeight(0);
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                        0, 1f));
+                        80));
                 //btn.setWidth(ll.getWidth());
                 btn.setText("Back");
                 ll.addView(btn);
@@ -149,7 +148,7 @@ public class ComActivity extends Activity {
         Button btn = new Button(this);
         //btn.setHeight(0);
         btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                0, 1f));
+                80));
         //btn.setWidth(ll.getWidth());
         btn.setText("Back");
 

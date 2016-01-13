@@ -4,6 +4,7 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -39,21 +40,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuActivity"></activity>
-        <activity android:name=".NavigateActivity"></activity>
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".NavigateActivity" />
 
         <service
             android:name=".Services.FallService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
         <service
             android:name=".Services.SmartGuardService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
         <service
             android:name=".Services.ChargingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
         <!--
         <receiver android:name=".Listeners.PhoneStateReceiver" >
             <intent-filter android:priority="0" >
@@ -80,60 +81,63 @@
 
         <activity
             android:name=".SOSActivity"
-            android:label="@string/title_activity_sos"></activity>
+            android:label="@string/title_activity_sos" />
         <activity
             android:name=".SOSMessageActivity"
-            android:label="@string/title_activity_sos"></activity>
+            android:label="@string/title_activity_sos" />
         <activity
             android:name=".ComActivity"
-            android:label="@string/title_activity_com"></activity>
+            android:label="@string/title_activity_com" />
 
         <service
             android:name=".Services.AlarmService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".AlarmNotificationActivity"
-            android:label="@string/title_activity_alarm_notification"></activity>
+            android:label="@string/title_activity_alarm_notification" />
         <activity
             android:name=".FitnessActivity"
-            android:label="@string/title_activity_fitness"></activity>
+            android:label="@string/title_activity_fitness" />
         <activity
             android:name=".ChargeActivity"
-            android:label="@string/title_activity_charge"></activity>
+            android:label="@string/title_activity_charge" />
         <activity
             android:name=".MemoryActivity"
-            android:label="@string/title_activity_memory"></activity>
+            android:label="@string/title_activity_memory" />
 
         <service
             android:name=".Services.LocationSensorService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".CameraActivity"
-            android:label="@string/title_activity_camera"></activity>
+            android:label="@string/title_activity_camera" />
         <activity
             android:name=".MedicalDataActivity"
-            android:label="@string/title_activity_medical_data"></activity>
+            android:label="@string/title_activity_medical_data" />
         <activity
             android:name=".MemoryOptionsActivity"
-            android:label="@string/title_activity_memory_options"></activity>
+            android:label="@string/title_activity_memory_options" />
         <activity
             android:name=".MemoryPlayActivity"
-            android:label="@string/title_activity_memory_play"></activity>
+            android:label="@string/title_activity_memory_play" />
         <activity
             android:name=".MemoryRemindActivity"
-            android:label="@string/title_activity_memory_remind"></activity>
+            android:label="@string/title_activity_memory_remind" />
         <activity
             android:name=".InactivityActivity"
-            android:label="@string/title_activity_inactivity"></activity>
+            android:label="@string/title_activity_inactivity" />
         <activity
             android:name=".FitminutesActivity"
-            android:label="@string/title_activity_fitminutes"></activity>
+            android:label="@string/title_activity_fitminutes" />
         <activity
             android:name=".DeviceLostActivity"
-            android:label="@string/title_activity_device_lost"></activity>
+            android:label="@string/title_activity_device_lost" />
+        <activity
+            android:name=".WeightActivity"
+            android:label="@string/title_activity_weight"></activity>
     </application>
 
 </manifest>

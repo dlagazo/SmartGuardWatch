@@ -50,4 +50,5 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_device_lost">DeviceLostActivity</string>
+    <string name="title_activity_weight">WeightActivity</string>
 </resources>

@@ -77,6 +77,14 @@ public class AlarmService extends IntentService {
                 alarmIntent.putExtras(intent);
                 getApplication().startActivity(alarmIntent);
             }
+            //Measure weight
+            else if(alarm.getMemoryType().equals("4"))
+            {
+                Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
+                alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                alarmIntent.putExtras(intent);
+                getApplication().startActivity(alarmIntent);
+            }
 
 
         }

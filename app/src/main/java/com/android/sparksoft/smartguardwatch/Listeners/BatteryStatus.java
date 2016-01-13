@@ -12,6 +12,7 @@ import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Services.ChargingService;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
+import com.android.sparksoft.smartguardwatch.Services.LocationSensorService;
 
 /**
  * Created by Daniel on 10/31/2015.
@@ -29,7 +30,7 @@ public class BatteryStatus extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Intent chargingService = new Intent(context, ChargingService.class);
-
+        Intent locationIntent = new Intent(context, LocationSensorService.class);
         Intent fallIntent = new Intent(context, FallService.class);
         //startService(new Intent(getApplicationContext(), FallService.class));
 
@@ -48,10 +49,14 @@ public class BatteryStatus extends BroadcastReceiver{
             prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 1).apply();
             prefs.edit().putBoolean(Constants.PREFS_CHARGE_STATUS, true).apply();
 
+
+            context.stopService(locationIntent);
+
         }
         else if(action.equals(Intent.ACTION_POWER_DISCONNECTED) && logStatus == 1) {
             context.stopService(chargingService);
             context.startService(fallIntent);
+            context.startService(locationIntent);
             prefs.edit().putInt("sparksoft.smartguard.chargeStatus", 0).apply();
             prefs.edit().putBoolean(Constants.PREFS_CHARGE_STATUS, false).apply();
             String auth = prefs.getString("sparksoft.smartguard.auth", "");
