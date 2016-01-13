@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.android.sparksoft.smartguardwatch" >
+    package="com.android.sparksoft.smartguardwatch">
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -25,40 +25,35 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuActivity" >
-        </activity>
-        <activity android:name=".NavigateActivity" >
-        </activity>
+        <activity android:name=".MenuActivity"></activity>
+        <activity android:name=".NavigateActivity"></activity>
 
         <service
             android:name=".Services.FallService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
         <service
             android:name=".Services.SmartGuardService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
         <service
             android:name=".Services.ChargingService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
         <!--
         <receiver android:name=".Listeners.PhoneStateReceiver" >
             <intent-filter android:priority="0" >
@@ -67,7 +62,7 @@
             </intent-filter>
         </receiver>
         -->
-        <receiver android:name=".Listeners.BatteryStatus" >
+        <receiver android:name=".Listeners.BatteryStatus">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
@@ -77,7 +72,7 @@
             android:name=".Listeners.BootReceiver"
             android:enabled="true"
             android:exported="true"
-            android:label="StartMyServiceAtBootReceiver" >
+            android:label="StartMyServiceAtBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -85,73 +80,60 @@
 
         <activity
             android:name=".SOSActivity"
-            android:label="@string/title_activity_sos" >
-        </activity>
+            android:label="@string/title_activity_sos"></activity>
         <activity
             android:name=".SOSMessageActivity"
-            android:label="@string/title_activity_sos" >
-        </activity>
+            android:label="@string/title_activity_sos"></activity>
         <activity
             android:name=".ComActivity"
-            android:label="@string/title_activity_com" >
-        </activity>
+            android:label="@string/title_activity_com"></activity>
 
         <service
             android:name=".Services.AlarmService"
-            android:exported="false" >
-        </service>
+            android:exported="false"></service>
 
         <activity
             android:name=".AlarmNotificationActivity"
-            android:label="@string/title_activity_alarm_notification" >
-        </activity>
+            android:label="@string/title_activity_alarm_notification"></activity>
         <activity
             android:name=".FitnessActivity"
-            android:label="@string/title_activity_fitness" >
-        </activity>
+            android:label="@string/title_activity_fitness"></activity>
         <activity
             android:name=".ChargeActivity"
-            android:label="@string/title_activity_charge" >
-        </activity>
+            android:label="@string/title_activity_charge"></activity>
         <activity
             android:name=".MemoryActivity"
-            android:label="@string/title_activity_memory" >
-        </activity>
+            android:label="@string/title_activity_memory"></activity>
 
         <service
             android:name=".Services.LocationSensorService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
+            android:exported="true"></service>
 
         <activity
             android:name=".CameraActivity"
-            android:label="@string/title_activity_camera" >
-        </activity>
+            android:label="@string/title_activity_camera"></activity>
         <activity
             android:name=".MedicalDataActivity"
-            android:label="@string/title_activity_medical_data" >
-        </activity>
+            android:label="@string/title_activity_medical_data"></activity>
         <activity
             android:name=".MemoryOptionsActivity"
-            android:label="@string/title_activity_memory_options" >
-        </activity>
+            android:label="@string/title_activity_memory_options"></activity>
         <activity
             android:name=".MemoryPlayActivity"
-            android:label="@string/title_activity_memory_play" >
-        </activity>
+            android:label="@string/title_activity_memory_play"></activity>
         <activity
             android:name=".MemoryRemindActivity"
-            android:label="@string/title_activity_memory_remind" >
-        </activity>
+            android:label="@string/title_activity_memory_remind"></activity>
         <activity
             android:name=".InactivityActivity"
-            android:label="@string/title_activity_inactivity" >
-        </activity>
+            android:label="@string/title_activity_inactivity"></activity>
         <activity
             android:name=".FitminutesActivity"
-            android:label="@string/title_activity_fitminutes" >
-        </activity>
+            android:label="@string/title_activity_fitminutes"></activity>
+        <activity
+            android:name=".DeviceLostActivity"
+            android:label="@string/title_activity_device_lost"></activity>
     </application>
 
 </manifest>

@@ -271,6 +271,13 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
                     }
                 }
             }
+            String auth = prefs.getString(Constants.PREFS_AUTH, "");
+
+            HelperLogin hr = new HelperLogin(getApplicationContext(), auth, null);
+            hr.sendTrack("http://smartguardwatch.azurewebsites.net/api/MobileTrack",
+                    Double.toString(mLastLocation.getLatitude()),
+                    Double.toString(mLastLocation.getLongitude()));
+
         }
 //        else {
 //            Log.d(TAG, "distance: " + mLastLocation.distanceTo(userHome));

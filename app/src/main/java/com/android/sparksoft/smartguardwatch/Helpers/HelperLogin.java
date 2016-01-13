@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Database.DataSourcePlaces;
+import com.android.sparksoft.smartguardwatch.DeviceLostActivity;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 
 import com.android.sparksoft.smartguardwatch.MenuActivity;
@@ -216,7 +217,37 @@ public class HelperLogin {
                     @Override
                     public void onResponse(JSONObject response)
                     {
-                        Log.d("LOG_HELPER", response.toString());
+                        try {
+                            //Log.d("LOG_HELPER", response.getString("value"));
+                            String status = response.getString("value");
+                            if(status.equals("1")) {
+                                Log.d("LOG_HELPER", "device is missing");
+                                SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+
+
+                                int deviceStatus = prefs.getInt("deviceStatus", 0);
+
+                                if(deviceStatus != 1)
+                                {
+                                    Intent lostIntent = new Intent(context, DeviceLostActivity.class);
+                                    lostIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    context.startActivity(lostIntent);
+                                    prefs.edit().putInt("deviceStatus", 1).apply();
+
+                                }
+
+                            }
+                            else {
+                                Log.d("LOG_HELPER", "device is not missing");
+                                SharedPreferences prefs = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                                prefs.edit().putInt("deviceStatus", 0).apply();
+
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                         //Toast.makeText(context, "Watch data sent successfully", Toast.LENGTH_LONG).show();
                     }
                 },
