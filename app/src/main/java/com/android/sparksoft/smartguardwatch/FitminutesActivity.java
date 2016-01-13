@@ -28,6 +28,7 @@ import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Services.AlarmService;
 
 import java.text.DecimalFormat;
+import java.util.Calendar;
 
 public class FitminutesActivity extends Activity {
     private static final String TAG = "AlarmNotifAct";
@@ -59,6 +60,14 @@ public class FitminutesActivity extends Activity {
         setContentView(R.layout.activity_fitminutes);
         final SharedPreferences prefs = getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
+
+        Calendar cal = Calendar.getInstance();
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        if(dayOfWeek == Calendar.SUNDAY)
+        {
+            prefs.edit().putInt(Constants.FITMINUTES_COUNTER, 0).apply();
+        }
+
         int fitminutes = prefs.getInt(Constants.FITMINUTES_COUNTER, 0);
         int fitminutesDuration = prefs.getInt(Constants.PREFS_FITMINUTE_DURATION, 150);
         double fitminutesPct = (double)fitminutes/fitminutesDuration;

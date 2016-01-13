@@ -378,13 +378,17 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+
+        }
         return (keyCode == KeyEvent.KEYCODE_BACK ? true : super.onKeyDown(keyCode, event));
     }
 
     @Override
     protected void onStop()
     {
-
+        /*
         if(!isEmergencyCallOver && !isEmergencyCalling)
         {
             try{
@@ -400,6 +404,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
             finish();
 
         }
+        */
         super.onStop();
 
     }

@@ -284,7 +284,15 @@ public class MenuActivity extends Activity {
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "Update"};
+
+                String versionName = "";
+
+                try {
+                    versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check", "Check for updates", versionName};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
 
@@ -370,6 +378,9 @@ public class MenuActivity extends Activity {
                         } else if (which == 3) {
                             HelperLogin hr = new HelperLogin(getApplicationContext(), "" , sp);
                             hr.Update("");
+                        }
+                        else if (which == 4) {
+
                         }
                     }
                 });
