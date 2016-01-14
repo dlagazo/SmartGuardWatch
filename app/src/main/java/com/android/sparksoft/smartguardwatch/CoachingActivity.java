@@ -1,44 +1,46 @@
 package com.android.sparksoft.smartguardwatch;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.Activity;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
+import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
+import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Services.AlarmService;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
-public class AlarmNotificationActivity extends Activity {
+public class CoachingActivity extends Activity {
+
     private static final String TAG = "AlarmNotifAct";
     AlarmManager alarmManager;
-    private Button stopAlarm;
-    private static AlarmNotificationActivity inst;
+    private Button btnNo, btnYes;
+    private static CoachingActivity inst;
     private TextView alarmMessage, alarmTitle;
     private TextView TvMemoryType;
     private String memoryId = "";
@@ -50,8 +52,9 @@ public class AlarmNotificationActivity extends Activity {
     private String memoryName = "";
     private SharedPreferences editor;
     private String appname;
+    boolean isOver = false;
 
-    public static AlarmNotificationActivity instance() {
+    public static CoachingActivity instance() {
         return inst;
     }
 
@@ -64,15 +67,16 @@ public class AlarmNotificationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alarm_notification);
+        setContentView(R.layout.activity_coaching);
 
         Log.d(TAG, "Start Alarm Activity");
         appname = getResources().getString(R.string.app_name);
         editor = getSharedPreferences(appname, Context.MODE_PRIVATE);
 
-        stopAlarm = (Button) findViewById(R.id.stopAlarm);
-        alarmMessage = (TextView) findViewById(R.id.alarmMessage);
-        alarmTitle = (TextView)findViewById(R.id.alarmTitle);
+        btnNo = (Button) findViewById(R.id.btnCoachNo);
+        btnYes = (Button) findViewById(R.id.btnCoachYes);
+        alarmMessage = (TextView) findViewById(R.id.coachMessage);
+        alarmTitle = (TextView)findViewById(R.id.coachTitle);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
 
@@ -103,12 +107,8 @@ public class AlarmNotificationActivity extends Activity {
             Log.d(TAG, "Other types of alarm: " + memoryName);
         }
 
-        Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (alarmUri == null) {
-            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        }
-        r = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
-        r.play();
+
+
 
         //Ensure wakelock release
         Runnable releaseWakelock = new Runnable() {
@@ -128,21 +128,88 @@ public class AlarmNotificationActivity extends Activity {
 
         new Handler().postDelayed(releaseWakelock, WAKELOCK_TIMEOUT);
 
-        stopAlarm.setOnClickListener(new View.OnClickListener() {
+        btnYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.edit().putBoolean(Constants.USER_IS_AWAKE, true).apply();
                 AlarmUtils.stopAlarm(getApplicationContext(), alarm);
                 //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
                 stopActivityDetectionAlarm();
-                r.stop();
+                isOver = true;
                 finish();
             }
         });
 
-        SpeechBot sp = new SpeechBot(this, alarm.getMemoryInstructions());
+
+        final SpeechBot sp = new SpeechBot(this, alarm.getMemoryInstructions());
         Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(1000);
+
+
+        btnNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isOver = true;
+                editor.edit().putBoolean(Constants.USER_IS_AWAKE, true).apply();
+                AlarmUtils.stopAlarm(getApplicationContext(), alarm);
+                //Cancels the activityDetectionAlarm since user is awake (and cancelled the alarm)
+                stopActivityDetectionAlarm();
+                sendSms();
+                finish();
+
+            }
+        });
+
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000 * 60);
+                    if(!isOver)
+                    {
+                        sp.talk(alarm.getMemoryInstructions(), false);
+                        Thread.sleep(1000 * 60);
+                        sendSms();
+                        finish();
+                    }
+
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+
+        new Thread(r).start();
+
+
+    }
+
+    private void sendSms()
+    {
+        ArrayList<Contact> arrayContacts;
+        DataSourceContacts dsContacts;
+
+        dsContacts = new DataSourceContacts(this);
+        dsContacts.open();
+
+        arrayContacts = dsContacts.getAllContacts();
+
+        SmsManager sm;
+        sm = SmsManager.getDefault();
+        sm.sendTextMessage(arrayContacts.get(0).getMobile(), null, "I did not confirm my medication protocol: " + alarm.getMemoryName(), null, null);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+
+        }
+        return (keyCode == KeyEvent.KEYCODE_BACK ? true : super.onKeyDown(keyCode, event));
     }
 
     @SuppressWarnings("deprecation")
@@ -199,4 +266,5 @@ public class AlarmNotificationActivity extends Activity {
         manager.cancel(pendingIntent);
         pendingIntent.cancel();
     }
+
 }

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.android.sparksoft.smartguardwatch.AlarmNotificationActivity;
+import com.android.sparksoft.smartguardwatch.CoachingActivity;
 import com.android.sparksoft.smartguardwatch.FitminutesActivity;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
@@ -56,12 +57,12 @@ public class AlarmService extends IntentService {
             }
             else if(alarm.getMemoryType().equals("1"))
             {
-                /*
+
                 Intent alarmIntent = new Intent(getBaseContext(), CoachingActivity.class);
                 alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 alarmIntent.putExtras(intent);
                 getApplication().startActivity(alarmIntent);
-                */
+
             }
             else if(alarm.getMemoryType().equals("2"))
             {

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="#00f"
+    android:weightSum="10">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="2"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Title"
+        android:gravity="center_horizontal"
+        android:id="@+id/coachTitle" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_height="0px"
+        android:layout_weight="5"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Instruction"
+        android:id="@+id/coachMessage" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="3"
+        android:orientation="horizontal"
+        android:weightSum="8">
+        <Space
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="30dp"
+            android:id="@+id/btnCoachYes"
+            android:background="@drawable/coach_yes"/>
+        <Space
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"/>
+        <Button
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="30dp"
+            android:id="@+id/btnCoachNo"
+            android:background="@drawable/coach_no"/>
+        <Space
+            android:layout_width="0px"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

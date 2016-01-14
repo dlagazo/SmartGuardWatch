@@ -40,6 +40,7 @@ public class BatteryStatus extends BroadcastReceiver{
         int logStatus = prefs.getInt(Constants.PREFS_LOGGED_IN, 0);
 
         if(action.equals(Intent.ACTION_POWER_CONNECTED) && logStatus == 1) {
+            prefs.edit().putInt("chargeStatus", 1).apply();
             prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
             context.startService(chargingService);
             context.stopService(fallIntent);
@@ -54,6 +55,7 @@ public class BatteryStatus extends BroadcastReceiver{
 
         }
         else if(action.equals(Intent.ACTION_POWER_DISCONNECTED) && logStatus == 1) {
+            prefs.edit().putInt("chargeStatus", 0).apply();
             context.stopService(chargingService);
             context.startService(fallIntent);
             context.startService(locationIntent);

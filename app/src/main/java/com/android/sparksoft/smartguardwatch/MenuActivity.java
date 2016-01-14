@@ -64,8 +64,15 @@ public class MenuActivity extends Activity {
     private Uri fileUri;
     ArrayList<Contact> arrayContacts;
     private boolean navigationAlarm;
-
+    private boolean isOptionActive = false;
     private DataSourceContacts dsContacts;
+
+    @Override
+    protected void onResume()
+    {
+        isOptionActive = false;
+        super.onResume();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,19 +177,29 @@ public class MenuActivity extends Activity {
         btnSOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
-                sp.talk("Are you ok?", false);
 
 
-                Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
 
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                startActivity(navIntent);
+                    Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
+                    sp.talk("Are you ok?", false);
+
+                    if(!isOptionActive)
+                    {
+                        isOptionActive = true;
+
+                        Intent navIntent = new Intent(getApplicationContext(), SOSActivity.class);
+
+                        navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        startActivity(navIntent);
+
+                    }
+
             }
         });
 
@@ -193,17 +210,19 @@ public class MenuActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
                 sp.talk("Who do you want to call?", false);
 
+                if(!isOptionActive) {
+                    isOptionActive = true;
 
 
-
-                Intent navIntent = new Intent(getApplicationContext(), ComActivity.class);
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Intent navIntent = new Intent(getApplicationContext(), ComActivity.class);
+                    navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    startActivity(navIntent);
                 }
-                startActivity(navIntent);
             }
         });
 
@@ -217,17 +236,19 @@ public class MenuActivity extends Activity {
 
 
 
+                if(!isOptionActive) {
+                    isOptionActive = true;
+                    Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
+                    navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
-                navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    startActivity(navIntent);
                 }
-
-                startActivity(navIntent);
             }
         });
 
@@ -240,39 +261,18 @@ public class MenuActivity extends Activity {
                 sp.talk("If you want to record a new message, or set a reminder, say record. If you want to listen to an existing message, say listen", false);
                 Toast.makeText(getApplicationContext(), "If you want to record a new message or set a reminder say  record. If you want to listen to an existing message say listen", Toast.LENGTH_LONG).show();
                 try {
-                    Thread.sleep(8000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                Intent memIntent = new Intent(getApplicationContext(), MemoryActivity.class);
-                memIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(memIntent);
+                if(!isOptionActive) {
+                    isOptionActive = true;
+                    Intent memIntent = new Intent(getApplicationContext(), MemoryActivity.class);
+                    memIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(memIntent);
 
-
-                /*
-                Log.i("CALL_LOG", "Call retrive method worked");
-                StringBuffer sb = new StringBuffer();
-                Uri contacts = CallLog.Calls.CONTENT_URI;
-                Cursor managedCursor = getContentResolver().query(
-                        contacts, null, null, null, null);
-                int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
-                int duration1 = managedCursor.getColumnIndex( CallLog.Calls.DURATION);
-                if( managedCursor.moveToLast()   == true ) {
-                    String phNumber = managedCursor.getString( number );
-                    String callDuration = managedCursor.getString( duration1 );
-                    String dir = null;
-                    sb.append( "\nPhone Number:--- "+phNumber +" \nCall duration in sec :--- "+callDuration );
-                    sb.append("\n----------------------------------");
-                    Log.d("CALL_LOG","Call Duration is:-------"+sb);
                 }
-                managedCursor.close();
-
-                Intent camIntent = new Intent(getApplicationContext(), CameraActivity.class);
-                camIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(camIntent);
-
-            */
             }
 
 

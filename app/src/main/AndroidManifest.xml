@@ -3,7 +3,7 @@
     package="com.android.sparksoft.smartguardwatch">
 
     <uses-feature android:name="android.hardware.type.watch" />
-
+    <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -137,7 +137,10 @@
             android:label="@string/title_activity_device_lost" />
         <activity
             android:name=".WeightActivity"
-            android:label="@string/title_activity_weight"></activity>
+            android:label="@string/title_activity_weight" />
+        <activity
+            android:name=".CoachingActivity"
+            android:label="@string/title_activity_coaching"></activity>
     </application>
 
 </manifest>

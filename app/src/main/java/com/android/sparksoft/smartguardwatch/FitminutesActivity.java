@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,7 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
@@ -118,6 +120,10 @@ public class FitminutesActivity extends Activity {
         };
 
         new Handler().postDelayed(releaseWakelock, WAKELOCK_TIMEOUT);
+
+        SpeechBot sp = new SpeechBot(this, alarm.getMemoryInstructions());
+        Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(1000);
     }
 
     @Override
