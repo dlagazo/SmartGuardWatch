@@ -188,6 +188,8 @@ public class FallService extends IntentService implements SensorEventListener
     @Override
     public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
+        sp.destroy();
+        sp = null;
         //Toast.makeText(getApplicationContext(), "Fall protocol stopped", Toast.LENGTH_LONG).show();
         sensorManager.unregisterListener(this);
         super.onDestroy();

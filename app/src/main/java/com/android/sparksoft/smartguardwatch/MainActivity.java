@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
                 prefs.edit().putInt("sparksoft.smartguard.sosDidAnswer", 0).apply();
                 prefs.edit().putBoolean(Constants.IS_USER_AT_HOME, true).apply();
                 prefs.edit().putBoolean(Constants.INACTIVITY_ALARM, false).apply();
-
+                prefs.edit().putString("realPassword", etPassword.getText().toString()).apply();
 
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
@@ -160,20 +160,6 @@ public class MainActivity extends Activity {
                         }
 
                     }, 0, 5000);
-                } else {
-                    //Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-                    //startService(new Intent(getApplicationContext(), FallService.class));
-                    //stopService(fallIntent);
-                    //startService(fallIntent);
-                    Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
-                    myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(myIntent);
-                    Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-                    //startService(new Intent(getApplicationContext(), FallService.class));
-                    prefs.edit().putInt(Constants.PREFS_SOS_PROTOCOL_ACTIVITY, 1).apply();
-                    stopService(fallIntent);
-                    startService(fallIntent);
-                    finish();
                 }
             }
         });
@@ -186,6 +172,16 @@ public class MainActivity extends Activity {
             }
         });
         */
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        sp.destroy();
+        sp = null;
+
+        myTimer = null;
+        super.onDestroy();
     }
 
     public void checkLoginStatus()

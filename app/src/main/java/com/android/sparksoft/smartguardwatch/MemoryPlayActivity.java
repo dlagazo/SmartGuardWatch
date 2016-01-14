@@ -76,6 +76,7 @@ public class MemoryPlayActivity extends Activity {
                     mediaPlayer.start();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    finish();
                 }
             }
         });
