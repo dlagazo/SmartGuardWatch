@@ -1,13 +1,19 @@
 package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.android.sparksoft.smartguardwatch.Services.MemoryAlarmService;
 
 import java.util.Calendar;
 
@@ -76,6 +82,20 @@ public class MemoryRemindActivity extends Activity {
             @Override
             public void onClick(View v)
             {
+                /*
+                AlarmManager alarmMgr;
+                PendingIntent alarmIntent;
+
+                alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), MemoryAlarmService.class);
+                intent.putExtra("filename", filename);
+                alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+
+                alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() +
+                                60 * 1000, alarmIntent);
+
+                */
                 new Thread()
                 {
                     public void run() {
@@ -84,6 +104,7 @@ public class MemoryRemindActivity extends Activity {
 
                             try{
                                 Thread.sleep(1000*60*60*hr);
+                                //Thread.sleep(1000*60);
                                 Intent memIntent = new Intent(getApplicationContext(), MemoryPlayActivity.class);
                                 memIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 memIntent.putExtra("filename", filename);
@@ -99,6 +120,7 @@ public class MemoryRemindActivity extends Activity {
                     }
 
                 }.start();
+
                 finish();
 
             }
