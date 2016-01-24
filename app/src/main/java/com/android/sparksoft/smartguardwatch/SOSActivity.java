@@ -497,7 +497,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
         for (Contact cont:tempList) {
             //Log.d("CALL_LIST", cont.getContactDetails() + " type " + cont.getType()  + " schedule: " + cont.getSchedule());
-            Log.d("CALL_LIST", cont.getContactDetails() + " " + cont.getMobile());
+            Log.d("CALL_LIST", cont.getContactDetails() + "/n" + cont.getMobile() + "/n" + cont.getSchedule() + "/n" +
+            cont.canCall() + "/n" + cont.getCallOutside());
         }
 
         return tempList;

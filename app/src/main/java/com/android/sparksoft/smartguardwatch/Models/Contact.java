@@ -94,10 +94,10 @@ public class Contact {
         return getFullName() + " canContactOutside:" + getCallOutside();
     }
 
-    public Boolean isInSchedule(String sched, int hour)
+    public Boolean isInSchedule(String sched, int hour, int min)
     {
         String[] getTimes = sched.split(" ");
-        int startHr = 0, endHr = 0;
+        int startHr = 0, endHr = 0, startMin = 0, endMin = 0;
 
         for (String str:getTimes)
         {
@@ -105,17 +105,35 @@ public class Contact {
             {
                 String[] times = str.split("-");
                 String strStartHr = times[0].split(":")[0];
+                String strStartMin = times[0].split(":")[1];
                 String strEndHr = times[1].split(":")[0];
+                String strEndMin = times[1].split(":")[1];
                 startHr = Integer.parseInt(strStartHr);
                 endHr = Integer.parseInt(strEndHr);
+                startMin = Integer.parseInt(strStartMin);
+                endMin = Integer.parseInt(strEndMin);
                 //Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
                 Log.d("LOG_CONTACT","Start hr: " + strStartHr);
                 Log.d("LOG_CONTACT", "End hr: " + strEndHr);
 
-                if((hour >= startHr && hour < endHr) || (hour > startHr && hour <= endHr) )
+                if((hour > startHr && hour < endHr) || (hour > startHr && hour < endHr) )
                 {
                     return true;
 
+                }
+                else if(hour == startHr && hour < endHr)
+                {
+                    if(min >= startMin)
+                        return true;
+                    else
+                        return false;
+                }
+                else if(hour > startHr && hour == endHr)
+                {
+                    if(min <= endMin)
+                        return true;
+                    else
+                        return false;
                 }
                 else
                     return false;
@@ -149,7 +167,7 @@ public class Contact {
                         {
                             if(sched.contains("SUN"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -161,7 +179,7 @@ public class Contact {
                         {
                             if(sched.contains("MON"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -172,7 +190,7 @@ public class Contact {
                         {
                             if(sched.contains("TUE"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -185,7 +203,7 @@ public class Contact {
                         {
                             if(sched.contains("WED"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -197,7 +215,7 @@ public class Contact {
                         {
                             if(sched.contains("THU"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -208,7 +226,7 @@ public class Contact {
                         {
                             if(sched.contains("FRI"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
@@ -221,7 +239,7 @@ public class Contact {
                         {
                             if(sched.contains("SAT"))
                             {
-                                if(isInSchedule(sched, hour))
+                                if(isInSchedule(sched, hour, min))
                                 {
                                     Log.d("LOG_CONTACT", "Call " + getFullName());
                                     return true;
