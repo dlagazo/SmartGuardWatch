@@ -87,6 +87,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         setContentView(R.layout.activity_sos);
 
+        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+        stopService(fallIntent);
+
         sp = new SpeechBot(this, "");
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
@@ -205,9 +208,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 myTimer.cancel();
                 isOk = true;
                 //mCamera.takePicture(null, null, mPicture);
-                Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-                stopService(fallIntent);
-                startService(fallIntent);
+
                 finish();
             }
         });
@@ -341,9 +342,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                                             isAlarmOver = true;
                                         }
                                         else {
-                                            Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-                                            stopService(fallIntent);
-                                            startService(fallIntent);
+
                                             finish();
 
                                         }
@@ -412,7 +411,9 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
+        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+        stopService(fallIntent);
+        startService(fallIntent);
         sp.destroy();
         try{
             mCamera.release();
@@ -424,6 +425,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
             //telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
         }catch (Exception ex) {
         }
+        super.onDestroy();
+
 
     }
 
@@ -876,9 +879,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         myTimer.purge();
                         myTimer.cancel();
                         isOk = true;
-                        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
-                        stopService(fallIntent);
-                        startService(fallIntent);
+
                         finish();
                     }
 

@@ -85,37 +85,6 @@ public class FallService extends IntentService implements SensorEventListener
         super("FallService");
     }
 
-    public BroadcastReceiver onReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Check action just to be on the safe side.
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                Log.d(DEBUG_TAG, "Re-registering");
-                // Unregisters the listener and registers it again.
-
-                sensorManager.unregisterListener(FallService.this);
-                sensorManager.registerListener(FallService.this, sensor,
-                        SensorManager.SENSOR_DELAY_NORMAL);
-            }
-        }
-    };
-
-    public BroadcastReceiver offReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Check action just to be on the safe side.
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                Log.d(DEBUG_TAG, "Re-registering");
-                // Unregisters the listener and registers it again.
-
-                sensorManager.unregisterListener(FallService.this);
-                sensorManager.registerListener(FallService.this, sensor,
-                        SensorManager.SENSOR_DELAY_NORMAL);
-            }
-        }
-    };
 
     @Override
     public void onCreate() {
@@ -176,6 +145,7 @@ public class FallService extends IntentService implements SensorEventListener
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Log.d(DEBUG_TAG, "Start gathering v3");
+        //Toast.makeText(getApplicationContext(), "Fall service started", Toast.LENGTH_LONG).show();
 
         if(editor.getInt(Constants.PREFS_LOGGED_IN, 0) == 1)
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
@@ -188,6 +158,8 @@ public class FallService extends IntentService implements SensorEventListener
     @Override
     public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
+        //Toast.makeText(getApplicationContext(), "Fall service stopped", Toast.LENGTH_LONG).show();
+
         try{
             sp.destroy();
             sp = null;
@@ -300,8 +272,10 @@ public class FallService extends IntentService implements SensorEventListener
                 editor.edit().putInt(Constants.FALL_COUNTER, (editor.getInt(Constants.FALL_COUNTER, 0) + 1)).apply();
                 Intent fallIntent = new Intent(getApplicationContext(), SOSActivity.class);
                 fallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                sensorManager.unregisterListener(FallService.this);
+
                 startActivity(fallIntent);
+
+                //this.onDestroy();
                 //SQLiteDataLogger logger = new SQLiteDataLogger(this);
                 //logger.execute(accelerometerData);
                 //logger.delegate = this;

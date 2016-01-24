@@ -198,8 +198,8 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         prefs.edit().putString(Constants.PREFS_GPS_LONG, Double.toString(location.getLongitude())).apply();
 
         //Home Coordinates
-        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.HOME_LATITUDE, "14.659799")));
-        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.HOME_LONGITUDE, "121.039999")));
+        userHome.setLatitude(Double.parseDouble(editor.getString(Constants.HOME_LATITUDE, "0.0")));//"14.659799")));
+        userHome.setLongitude(Double.parseDouble(editor.getString(Constants.HOME_LONGITUDE, "0.0")));//"121.039999")));
 
         Log.d(TAG, "LAST LOCATION: " + mLastLocation.toString());
         Log.d(TAG, "HOME LOCATION: " + userHome.toString());

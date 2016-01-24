@@ -66,13 +66,25 @@ public class MenuActivity extends Activity {
     private boolean navigationAlarm;
     private boolean isOptionActive = false;
     private DataSourceContacts dsContacts;
+    private boolean isActive = true;
 
     @Override
     protected void onResume()
     {
         isOptionActive = false;
+        isActive = true;
         super.onResume();
     }
+
+
+    @Override
+    protected void onDestroy()
+    {
+
+        isActive = false;
+        super.onDestroy();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +138,7 @@ public class MenuActivity extends Activity {
                                     btnNav.setEnabled(true);
                                     btnNav.setBackgroundResource(R.drawable.nav);
 
-                                    if(!navigationAlarm) {
+                                    if(!navigationAlarm && isActive) {
                                         sp.talk("Do you need help with navigation?", true);
                                         Toast.makeText(getApplicationContext(), "Do you need help with navigation", Toast.LENGTH_LONG).show();
                                         navigationAlarm = true;
@@ -179,7 +191,8 @@ public class MenuActivity extends Activity {
             public void onClick(View v) {
 
 
-
+                Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+                stopService(fallIntent);
                     Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
                     sp.talk("Are you ok?", false);
 
@@ -540,9 +553,7 @@ public class MenuActivity extends Activity {
     protected void onStop()
     {
         super.onStop();
-        Intent fallService = new Intent(getApplicationContext(), FallService.class);
-        stopService(fallService);
-        startService(fallService);
+
 
     }
 
