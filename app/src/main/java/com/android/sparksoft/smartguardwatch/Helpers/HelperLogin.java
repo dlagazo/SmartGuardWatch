@@ -284,22 +284,23 @@ public class HelperLogin {
 
     public void sendChargeData(String url)
     {
-        /*
+
         Calendar cal = Calendar.getInstance();
         int day = cal.get(Calendar.DAY_OF_WEEK);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int min = cal.get(Calendar.MINUTE);
         int sec = cal.get(Calendar.SECOND);
 
-        String timeStamp = Integer.toString(cal.get(Calendar.YEAR)) + "-" +
-                Integer.toString(cal.get(Calendar.MONTH)+1) + "-" +
-                Integer.toString(cal.get(Calendar.DAY_OF_MONTH)) + "T" +
+        String timeStamp = Integer.toString(cal.get(Calendar.MONTH)+1) + "/" +
+                Integer.toString(cal.get(Calendar.DAY_OF_MONTH)) + "/" +
+                Integer.toString(cal.get(Calendar.YEAR)) + " " +
                 Integer.toString(hour) + ":" + Integer.toString(min) + ":" +
                 Integer.toString(sec);
-                */
+
         Log.d("LOG_HELPER", Float.toString(getBatteryLevel()));
         //Log.d("LOG_HELPER", timeStamp);
 
+        //String timeStamp = "1/24/2016 8:1:49 PM";
 
 
         SharedPreferences prefs = context.getSharedPreferences(
@@ -326,6 +327,7 @@ public class HelperLogin {
             params.put("ActivePct", String.format("%.2f", activePct));
             params.put("InactivePct", String.format("%.2f",inactivePct));
             params.put("FallCount", Integer.toString(fall));
+            params.put("ChargeTimeStamp", timeStamp);
         } catch (JSONException e) {
             e.printStackTrace();
         }

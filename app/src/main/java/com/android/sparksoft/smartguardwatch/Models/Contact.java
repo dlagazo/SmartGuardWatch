@@ -121,14 +121,14 @@ public class Contact {
                     return true;
 
                 }
-                else if(hour == startHr && hour < endHr)
+                else if(hour == startHr && hour <= endHr)
                 {
                     if(min >= startMin)
                         return true;
                     else
                         return false;
                 }
-                else if(hour > startHr && hour == endHr)
+                else if(hour >= startHr && hour == endHr)
                 {
                     if(min <= endMin)
                         return true;

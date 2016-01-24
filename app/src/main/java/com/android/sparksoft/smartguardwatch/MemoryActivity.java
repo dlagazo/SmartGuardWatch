@@ -3,8 +3,10 @@ package com.android.sparksoft.smartguardwatch;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Place;
 
 import java.io.File;
@@ -32,6 +35,8 @@ public class MemoryActivity extends Activity {
 
     private static final int VOICE_RECOGNITION = 1;
     SpeechBot sp;
+    SharedPreferences prefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +69,11 @@ public class MemoryActivity extends Activity {
             }
         });
 
+        prefs = getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
 
-        speak();
+        if(prefs.getBoolean(Constants.PREFS_VR_COMM, true))
+            speak();
 
     }
 

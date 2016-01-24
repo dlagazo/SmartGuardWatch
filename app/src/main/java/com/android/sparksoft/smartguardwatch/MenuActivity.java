@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -67,12 +69,26 @@ public class MenuActivity extends Activity {
     private boolean isOptionActive = false;
     private DataSourceContacts dsContacts;
     private boolean isActive = true;
+    SharedPreferences prefs;
 
     @Override
     protected void onResume()
     {
         isOptionActive = false;
         isActive = true;
+
+        if(getBatteryLevel() < 50.0f && getBatteryLevel() > 20.0f) {
+            sp.talk("Battery is below 50%, please avoid making phone calls.", true);
+            Toast.makeText(getApplicationContext(), "Battery is below 50%, please avoid making phone calls.", Toast.LENGTH_LONG).show();
+        }
+        else if(getBatteryLevel() < 20.0f) {
+            sp.talk("Battery is below 20%, please charge your watch.", true);
+            Toast.makeText(getApplicationContext(), "Battery is below 50%, please charge your watch.", Toast.LENGTH_LONG).show();
+        }
+        else
+            Toast.makeText(getApplicationContext(), "Battery is ok", Toast.LENGTH_LONG).show();
+
+
         super.onResume();
     }
 
@@ -83,6 +99,19 @@ public class MenuActivity extends Activity {
 
         isActive = false;
         super.onDestroy();
+    }
+
+    public float getBatteryLevel() {
+        Intent batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        // Error checking that probably isn't needed but I added just in case.
+        if(level == -1 || scale == -1) {
+            return 50.0f;
+        }
+
+        return ((float)level / (float)scale) * 100.0f;
     }
 
 
@@ -103,7 +132,7 @@ public class MenuActivity extends Activity {
 
         setContentView(R.layout.rect_activity_menu);
         startListeningtoCalls();
-        SharedPreferences prefs = getSharedPreferences(
+        prefs = getSharedPreferences(
                 Constants.PREFS_NAME, Context.MODE_PRIVATE);
         //SOS status, 0-inactive, 1-active
         prefs.edit().putInt("sparksoft.smartguard.sos", 0).apply();
@@ -147,7 +176,9 @@ public class MenuActivity extends Activity {
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
-                                        promptSpeechInput();
+
+                                        if(prefs.getBoolean(Constants.PREFS_VR_COMM, true))
+                                            promptSpeechInput();
                                     }
                                 }
                                 else
@@ -181,8 +212,8 @@ public class MenuActivity extends Activity {
 
 
         arrayContacts = dsContacts.getAllContacts();
-
         sp = new SpeechBot(this, null);
+
         //arrayContacts = dsContacts.getAllContacts();
 
         Button btnSOS = (Button)findViewById(R.id.btnSOS);
@@ -220,10 +251,24 @@ public class MenuActivity extends Activity {
         btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean vrComm = prefs.getBoolean(Constants.PREFS_VR_COMM, true);
+                if (vrComm) {
+                    Toast.makeText(getApplicationContext(), "Voice recognition is now disabled", Toast.LENGTH_SHORT).show();
+                    prefs.edit().putBoolean(Constants.PREFS_VR_COMM, false).apply();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Voice recognition is enabled", Toast.LENGTH_SHORT).show();
+                    prefs.edit().putBoolean(Constants.PREFS_VR_COMM, true).apply();
+                }
+
+            }
+        });
+        btnCall.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
                 Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
                 sp.talk("Who do you want to call?", false);
 
-                if(!isOptionActive) {
+                if (!isOptionActive) {
                     isOptionActive = true;
 
 
@@ -236,6 +281,8 @@ public class MenuActivity extends Activity {
                     }
                     startActivity(navIntent);
                 }
+
+                return false;
             }
         });
 
@@ -470,7 +517,7 @@ public class MenuActivity extends Activity {
                         RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                        "Say something");
+                        "Do you need help with navigation?");
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);

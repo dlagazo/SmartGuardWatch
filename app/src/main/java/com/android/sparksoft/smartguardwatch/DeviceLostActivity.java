@@ -34,6 +34,9 @@ public class DeviceLostActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_lost);
 
+        Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
+        stopService(fallIntent);
+
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
@@ -113,6 +116,8 @@ public class DeviceLostActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+
 
 
     }

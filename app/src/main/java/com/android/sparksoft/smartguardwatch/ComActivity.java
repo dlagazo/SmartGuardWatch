@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Database.DataSourceContacts;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class ComActivity extends Activity {
     VoiceRecognition vr;
     //SpeechBot sp;
     ArrayList<Contact> arrayContacts;
-    SharedPreferences sharedPrefs;
+    SharedPreferences prefs;
     private DataSourceContacts dsContacts;
     private static final int VOICE_RECOGNITION = 1;
     int status;
@@ -44,7 +45,8 @@ public class ComActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         setContentView(R.layout.rect_activity_nav);
 
-
+        prefs = prefs = getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
@@ -55,10 +57,8 @@ public class ComActivity extends Activity {
         setPrimary();
 
 
-
-
-
-        speak();
+        if(prefs.getBoolean(Constants.PREFS_VR_COMM, true))
+            speak();
     }
 
     private void setPrimary()

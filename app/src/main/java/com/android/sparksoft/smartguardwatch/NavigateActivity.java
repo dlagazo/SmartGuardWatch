@@ -1,6 +1,7 @@
 package com.android.sparksoft.smartguardwatch;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.android.sparksoft.smartguardwatch.Database.DataSourcePlaces;
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Features.VoiceRecognition;
+import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Place;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class NavigateActivity extends Activity {
     VoiceRecognition vr;
     SpeechBot sp;
     ArrayList<Place> arrayPlaces;
-    SharedPreferences sharedPrefs;
+    SharedPreferences prefs;
     private DataSourcePlaces dsPlaces;
     private static final int VOICE_RECOGNITION = 1;
     private LocationManager mLocationManager;
@@ -48,7 +50,8 @@ public class NavigateActivity extends Activity {
         dsPlaces.open();
 
 
-
+        prefs = getSharedPreferences(
+                Constants.PREFS_NAME, Context.MODE_PRIVATE);
 
 
         arrayPlaces = dsPlaces.getAllPlaces();
@@ -93,7 +96,8 @@ public class NavigateActivity extends Activity {
 
 
 
-        speak();
+        if(prefs.getBoolean(Constants.PREFS_VR_COMM, true))
+            speak();
 
     }
 

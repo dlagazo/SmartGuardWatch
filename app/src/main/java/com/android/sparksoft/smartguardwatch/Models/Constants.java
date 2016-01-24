@@ -43,6 +43,8 @@ public class Constants {
     public static final int ACT_PROTOCOL_INACTIVE_VERTICAL = 4;
     public static final int AFTER_WAKE_TIMER = 60 * 30 * 1000;
 
+    //VOICE RECOGNITION STATUS
+    public static final String PREFS_VR_COMM = "sparksoft.smartguard.status.vr.comm";
 
 
     //NETWORK
@@ -55,6 +57,7 @@ public class Constants {
     public static final String PREFS_SOS_PROTOCOL_ACTIVITY = "sparksoft.smartguard.SOSstatus";
     public static final String PREFS_AUTH = "sparksoft.smartguard.auth";
     public static final String PREFS_CHARGE_STATUS = "sparksoft.smartguard.status.charge";
+
 
 
     public static final String PREFS_CALL_STATUS = "sparksoft.smartguard.CallStatus";

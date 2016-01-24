@@ -350,7 +350,8 @@ public class FallService extends IntentService implements SensorEventListener
             activityProtocolRawData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), rawAcceleration[0], rawAcceleration[1], rawAcceleration[2]));
             activityProtocolData.add(new AccelerometerData(Utils.getCurrentTimeStampInSeconds(), processedAcceleration[0], processedAcceleration[1], processedAcceleration[2]));
             currentActivity = Constants.ACT_PROTOCOL_GATHERING_DATA;
-        } else { //End of activity protocol sensor window (CHARACTERIZE_ACTIVITY_WINDOW_SECS)
+        } else {
+        //End of activity protocol sensor window (CHARACTERIZE_ACTIVITY_WINDOW_SECS)
             Log.d(DEBUG_TAG, "End of characterizing activity window");
             double[] rawActivityProtocolAccelerationPerAxis = Utils.getAverageAccelerationPerAxis(activityProtocolRawData);
             Log.d(DEBUG_TAG, "Ave for activity: " + Utils.getAverageNormalizedAcceleration(activityProtocolData));

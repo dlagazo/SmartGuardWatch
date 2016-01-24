@@ -72,7 +72,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
     private Camera mCamera;
     private CameraPreview mCameraPreview;
 
-
+    SharedPreferences prefs;
 
     private boolean isBlink = false;
 
@@ -94,7 +94,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         dsContacts = new DataSourceContacts(this);
         dsContacts.open();
 
-
+        prefs = getSharedPreferences(
+                "sparksoft.smartguard", Context.MODE_PRIVATE);
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -156,8 +157,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 isEmergencyCalling = true;
 
 
-                SharedPreferences prefs = getSharedPreferences(
-                        "sparksoft.smartguard", Context.MODE_PRIVATE);
+
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
                 sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
                 try {
@@ -200,12 +200,15 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
         btnSOSOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences prefs = getSharedPreferences(
-                        "sparksoft.smartguard", Context.MODE_PRIVATE);
-                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
 
-                myTimer.purge();
-                myTimer.cancel();
+                prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                try {
+                    myTimer.purge();
+                    myTimer.cancel();
+                }
+                catch (Exception e) {
+
+                }
                 isOk = true;
                 //mCamera.takePicture(null, null, mPicture);
 
@@ -213,16 +216,17 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
             }
         });
 
-        myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                promptSpeechInput();
+        if(prefs.getBoolean(Constants.PREFS_VR_COMM, true)) {
+            myTimer = new Timer();
+            myTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    promptSpeechInput();
 
-            }
+                }
 
-        }, 0, 10000);
-
+            }, 0, 10000);
+        }
 
 
 
