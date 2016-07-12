@@ -120,8 +120,8 @@ public class Constants {
 
     //TIME DATE CONSTANTS
     public static final int DAYS_IN_A_WEEK = 7;
-    public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
-    public static final int MILLIS_IN_A_MINUTE = 60 * 1000;
+    public static final long MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
+    public static final long MILLIS_IN_A_MINUTE = 60 * 1000;
 
     //API URLS
     public static final String URL_LOGIN = "http://smartguardwatch.azurewebsites.net/api/MobileContact";
@@ -136,6 +136,8 @@ public class Constants {
     public static final long DEFAULT_FASTEST_INTERVAL_IN_SEC = 15000;
     public static final int DEFAULT_DISPLACEMENT_IN_M = 2;
 
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "pass";
 
 
 }

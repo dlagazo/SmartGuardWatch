@@ -159,7 +159,7 @@ public class NavigateActivity extends Activity {
         // Specify free form input
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Where do you want to go?");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,getResources().getString(R.string.toast_where_to_go));
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
         startActivityForResult(intent, VOICE_RECOGNITION);

@@ -8,5 +8,9 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.android.sparksoft.smartguardwatch.WeightActivity">
-
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnWeightScan"
+        android:text="Scan"/>
 </RelativeLayout>

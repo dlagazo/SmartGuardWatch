@@ -26,6 +26,7 @@ import com.android.sparksoft.smartguardwatch.Models.AlarmUtils;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
 import com.android.sparksoft.smartguardwatch.Models.Contact;
 import com.android.sparksoft.smartguardwatch.Models.Place;
+import com.android.sparksoft.smartguardwatch.R;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.SmartGuardService;
 import com.android.volley.AuthFailureError;
@@ -140,7 +141,7 @@ public class HelperLogin {
                     public void onResponse(JSONObject response)
                     {
                         Log.d("LOG_HELPER", response.toString());
-                        Toast.makeText(context, "Fall data sent successfully", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Fall data sent successfully", Toast.LENGTH_LONG).show();
                     }
                 },
                 new Response.ErrorListener()
@@ -338,7 +339,7 @@ public class HelperLogin {
                     public void onResponse(JSONObject response)
                     {
                         Log.d("LOG_HELPER", response.toString());
-                        Toast.makeText(context, "Watch data sent successfully", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Watch data sent successfully", Toast.LENGTH_LONG).show();
                     }
                 },
                 new Response.ErrorListener()
@@ -432,7 +433,7 @@ public class HelperLogin {
 
                             if(!version.equals(appVersion) && getBatteryLevel() > 70.0)
                             {
-                                Toast.makeText(context, "Downloading updates. Please do not turn off the watch.",
+                                Toast.makeText(context, context.getResources().getString(R.string.toast_updating),
                                         Toast.LENGTH_LONG).show();
                                 Update("");
                             }
@@ -603,8 +604,8 @@ public class HelperLogin {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
-                        Toast.makeText(context, "Error logging in. Please try again.", Toast.LENGTH_SHORT).show();
-                        sp.talk("Error logging in. Please try again.", false);
+                        Toast.makeText(context, context.getResources().getString(R.string.toast_error_login), Toast.LENGTH_SHORT).show();
+                        sp.talk(context.getResources().getString(R.string.toast_error_login), false);
                     }
                 })
                 {
@@ -675,7 +676,7 @@ public class HelperLogin {
                         context.startActivity(intent);
 
                     } catch (IOException e) {
-                        Toast.makeText(context, "Update error!", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Update error!", Toast.LENGTH_LONG).show();
                     }
                 }
             }.start();

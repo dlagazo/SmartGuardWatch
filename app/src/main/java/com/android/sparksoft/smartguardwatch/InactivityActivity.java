@@ -85,8 +85,8 @@ public class InactivityActivity extends Activity {
         btnInactivitySOS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Are you ok?", true);
-                Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
+                sp.talk(getResources().getString(R.string.speech_are_you_ok), true);
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.speech_are_you_ok), Toast.LENGTH_LONG).show();
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
@@ -115,7 +115,7 @@ public class InactivityActivity extends Activity {
                     if(!isOver)
                     {
                         r.stop();
-                        sp.talk("Are you ok?", true);
+                        sp.talk(getResources().getString(R.string.speech_are_you_ok), true);
 
 
                         Thread.sleep(2000);

@@ -25,6 +25,19 @@
     <string name="toast_are_you_ok">Are you ok?</string>
     <string name="toast_need_help_navigate">Do you need help with navigation?</string>
     <string name="toast_where_to_go">Where do you want to go?</string>
+    <string name="toast_updating">Downloading updates. Please do not turn off the watch.</string>
+    <string name="toast_error_login">Error logging in. Please try again.</string>
+    <string name="toast_battery_low">Battery is below 50%, please avoid making phone calls.</string>
+    <string name="toast_battery_low1">Battery is below 20%, please avoid making phone calls.</string>
+    <string name="toast_vr_disabled">Voice recognition is disabled</string>
+    <string name="toast_vr_enabled">Voice recognition is enabled</string>
+    <string name="toast_reminder">If you want to record a new message, or set a reminder, say record. If you want to listen to an existing message, say listen</string>
+    <string name="toast_emergency_enabled">Emergency protocol is initiated. Smart guard will now call your contacts</string>
+
+
+
+
+
 
     <!--SPEECH-->
     <string name="speech_login">Logging in. Please wait.</string>

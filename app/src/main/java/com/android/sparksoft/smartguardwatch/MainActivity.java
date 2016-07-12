@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.rect_activity_login);
 
+
+
         sp = new SpeechBot(this, null);
 
         SharedPreferences prefs = getSharedPreferences(
@@ -104,6 +106,9 @@ public class MainActivity extends Activity {
             }
         });
 
+        etUserName.setText(prefs.getString(Constants.USERNAME, "username"));
+        etPassword.setText(prefs.getString(Constants.PASSWORD, "pass"));
+
 
 
 
@@ -111,7 +116,7 @@ public class MainActivity extends Activity {
         btnLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp.talk("Logging in. Please wait", true);
+                sp.talk(getResources().getString(R.string.speech_login), true);
 
                 SharedPreferences prefs = getSharedPreferences(
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
@@ -134,11 +139,13 @@ public class MainActivity extends Activity {
                     //startService(new Intent(getApplicationContext(), FallService.class));
                     stopService(fallIntent);
                     startService(fallIntent);
+                    prefs.edit().putString(Constants.USERNAME, etUserName.getText().toString()).apply();
+                    prefs.edit().putString(Constants.PASSWORD, etPassword.getText().toString()).apply();
 
 
                     finish();
                 } else if (status == 0) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.toast_login), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.speech_login), Toast.LENGTH_LONG).show();
 
                     final String basicAuth = "Basic " + Base64.encodeToString((etUserName.getText() + ":" +
                             etPassword.getText()).getBytes(), Base64.NO_WRAP);
@@ -160,6 +167,9 @@ public class MainActivity extends Activity {
                         }
 
                     }, 0, 5000);
+                    prefs.edit().putString(Constants.USERNAME, etUserName.getText().toString()).apply();
+                    prefs.edit().putString(Constants.PASSWORD, etPassword.getText().toString()).apply();
+
                 }
             }
         });

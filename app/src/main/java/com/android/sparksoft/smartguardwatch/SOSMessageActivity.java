@@ -49,7 +49,7 @@ public class SOSMessageActivity extends Activity implements TextToSpeech.OnInitL
         sp = new SpeechBot(this, null);
         for(int i=0; i < 10; i++)
         {
-            sp.talk("This is an emergency call from smart guard.", true);
+            //sp.talk("This is an emergency call from smart guard.", true);
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -102,7 +102,7 @@ public class SOSMessageActivity extends Activity implements TextToSpeech.OnInitL
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "Say something");
+                getResources().getString(R.string.speech_are_you_ok));
 
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
@@ -133,7 +133,7 @@ public class SOSMessageActivity extends Activity implements TextToSpeech.OnInitL
                     else if(result.get(0).toLowerCase().equals("yes"))
                     {
                         if (!tts.isSpeaking()) {
-                            tts.speak("Calling Anna Mueller", TextToSpeech.QUEUE_FLUSH, null);
+                            //tts.speak("Calling Anna Mueller", TextToSpeech.QUEUE_FLUSH, null);
                         }
                         try {
                             Thread.sleep(1000);
@@ -148,7 +148,7 @@ public class SOSMessageActivity extends Activity implements TextToSpeech.OnInitL
                     {
                         for(int i=0; i < 3; i++ )
                         {
-                            sp.talk("This is an emergency call from Daniel Lagazo.", true);
+                            //sp.talk("This is an emergency call from Daniel Lagazo.", true);
                             try {
                                 Thread.sleep(3000);
                             } catch (InterruptedException e) {

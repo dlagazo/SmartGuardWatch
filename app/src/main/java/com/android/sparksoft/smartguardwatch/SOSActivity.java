@@ -159,7 +159,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
 
                 prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
-                sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                sp.talk(getResources().getString(R.string.toast_emergency_enabled), true);
                 try {
                     Thread.sleep(8000);
                 } catch (InterruptedException e) {
@@ -328,6 +328,42 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                                     }
                                 });
 
+                                final Button btnRecon = (Button)findViewById(R.id.btnRecon);
+                                btnRecon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        peopleToCall = prepareContactList();
+                                        isAlarmOver = false;
+                                        isEmergencyCalling = true;
+                                        isOk = true;
+                                        try{
+                                            callTimer.cancel();
+                                            callTimer.purge();
+
+
+
+
+
+
+                                            prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
+                                        }
+                                        catch(Exception ex)
+                                        {
+
+                                        }
+
+                                        callTimer = new Timer();
+                                        callTimer.schedule(new TimerTask() {
+                                            @Override
+                                            public void run() {
+                                                call();
+
+                                            }
+
+                                        }, 0, 30000);
+                                    }
+                                });
+
                                 final Button btnEnd = (Button)findViewById(R.id.btnEnd);
                                 btnEnd.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -341,7 +377,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                                             myTimer.cancel();
                                             callTimer.purge();
                                             callTimer.cancel();
-                                            sp.talk("Emergency alarm is turned off.", false);
+                                            //sp.talk("Emergency alarm is turned off.", false);
                                             btnEnd.setText("Exit");
                                             isAlarmOver = true;
                                         }
@@ -476,7 +512,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
             for (Contact cont : arrayContacts)
             {
-                if ((cont.canCall() && cont.getType() == 0) || (cont.getSchedule().length() == 0 && cont.getType() == 0))
+                if ((cont.canCall() && cont.getType() == 0 && cont.getCallOutside() == 0) || (cont.getSchedule().length() == 0 && cont.getType() == 0))
                 {
                     tempList.add(cont);
                 }
@@ -501,8 +537,8 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
 
         for (Contact cont:tempList) {
             //Log.d("CALL_LIST", cont.getContactDetails() + " type " + cont.getType()  + " schedule: " + cont.getSchedule());
-            Log.d("CALL_LIST", cont.getContactDetails() + "/n" + cont.getMobile() + "/n" + cont.getSchedule() + "/n" +
-            cont.canCall() + "/n" + cont.getCallOutside());
+            Log.d("CALL_LIST",   cont.getMobile() + " " + cont.getSchedule() + " " +
+            cont.canCall() + " " + cont.getCallOutside());
         }
 
         return tempList;
@@ -804,7 +840,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
             if(!isOk)
             {
                 //Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_LONG).show();
-                sp.talk("Are you ok?", true);
+                sp.talk(getResources().getString(R.string.speech_are_you_ok), true);
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
@@ -816,7 +852,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                        "Are you ok?");
+                        getResources().getString(R.string.speech_are_you_ok));
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
@@ -841,7 +877,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                     SharedPreferences prefs = getSharedPreferences(
                             "sparksoft.smartguard", Context.MODE_PRIVATE);
                     prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
-                    sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                    sp.talk(getResources().getString(R.string.toast_emergency_enabled), true);
                     try {
                         Thread.sleep(8000);
                     } catch (InterruptedException e) {
@@ -896,7 +932,7 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                         SharedPreferences prefs = getSharedPreferences(
                                 "sparksoft.smartguard", Context.MODE_PRIVATE);
                         prefs.edit().putInt("sparksoft.smartguard.SOSstatus", 0).apply();
-                        sp.talk("Emergency protocol is initiated. Smart guard will now call your contacts", true);
+                        sp.talk(getResources().getString(R.string.toast_emergency_enabled), true);
                         try {
                             Thread.sleep(8000);
                         } catch (InterruptedException e) {

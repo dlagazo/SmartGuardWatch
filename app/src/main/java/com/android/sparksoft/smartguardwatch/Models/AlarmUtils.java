@@ -149,7 +149,7 @@ public class AlarmUtils {
                             manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                             manager.cancel(pendingIntent);
                             pendingIntent.cancel();
-//                            manager.setExact(AlarmManager.RTC_WAKEUP, Utils.convertDateAndTimeToSeconds(memoryDate) * 1000, pendingIntent);
+                            manager.setExact(AlarmManager.RTC_WAKEUP, (Utils.convertDateAndTimeToSeconds(memoryDate) * 1000) + ((daysSinceMemoryDate + 1) * Constants.MILLIS_IN_A_DAY), pendingIntent);
                             Log.d(TAG, "Stopping weekly alarm (b) " + alarm.MemoryId + ":" + index + " on: " + Utils.convertMillisToDateAndTimeString(Utils.convertDateAndTimeToSeconds(memoryDate) * 1000));
                         } else {
                             Log.d(TAG, "Weekly alarm: " + alarm.MemoryId + ":" + index + " was today and expired, so not set.");

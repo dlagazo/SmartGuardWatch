@@ -78,15 +78,14 @@ public class MenuActivity extends Activity {
         isActive = true;
 
         if(getBatteryLevel() < 50.0f && getBatteryLevel() > 20.0f) {
-            sp.talk("Battery is below 50%, please avoid making phone calls.", true);
-            Toast.makeText(getApplicationContext(), "Battery is below 50%, please avoid making phone calls.", Toast.LENGTH_LONG).show();
+            sp.talk(getResources().getString(R.string.toast_battery_low), true);
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_battery_low), Toast.LENGTH_LONG).show();
         }
         else if(getBatteryLevel() < 20.0f) {
-            sp.talk("Battery is below 20%, please charge your watch.", true);
-            Toast.makeText(getApplicationContext(), "Battery is below 50%, please charge your watch.", Toast.LENGTH_LONG).show();
+            sp.talk(getResources().getString(R.string.toast_battery_low1), true);
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_battery_low1), Toast.LENGTH_LONG).show();
         }
-        else
-            Toast.makeText(getApplicationContext(), "Battery is ok", Toast.LENGTH_LONG).show();
+
 
 
         super.onResume();
@@ -168,8 +167,8 @@ public class MenuActivity extends Activity {
                                     btnNav.setBackgroundResource(R.drawable.nav);
 
                                     if(!navigationAlarm && isActive) {
-                                        sp.talk("Do you need help with navigation?", true);
-                                        Toast.makeText(getApplicationContext(), "Do you need help with navigation", Toast.LENGTH_LONG).show();
+                                        sp.talk(getResources().getString(R.string.toast_need_help_navigate), true);
+                                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_need_help_navigate), Toast.LENGTH_LONG).show();
                                         navigationAlarm = true;
                                         try {
                                             Thread.sleep(2000);
@@ -224,8 +223,8 @@ public class MenuActivity extends Activity {
 
                 Intent fallIntent = new Intent(getApplicationContext(), FallService.class);
                 stopService(fallIntent);
-                    Toast.makeText(getApplicationContext(), "Are you ok?", Toast.LENGTH_SHORT).show();
-                    sp.talk("Are you ok?", false);
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_are_you_ok), Toast.LENGTH_SHORT).show();
+                    sp.talk(getResources().getString(R.string.toast_are_you_ok), false);
 
                     if(!isOptionActive)
                     {
@@ -253,10 +252,10 @@ public class MenuActivity extends Activity {
             public void onClick(View v) {
                 boolean vrComm = prefs.getBoolean(Constants.PREFS_VR_COMM, true);
                 if (vrComm) {
-                    Toast.makeText(getApplicationContext(), "Voice recognition is now disabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_vr_disabled), Toast.LENGTH_SHORT).show();
                     prefs.edit().putBoolean(Constants.PREFS_VR_COMM, false).apply();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Voice recognition is enabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_vr_enabled), Toast.LENGTH_SHORT).show();
                     prefs.edit().putBoolean(Constants.PREFS_VR_COMM, true).apply();
                 }
 
@@ -265,8 +264,8 @@ public class MenuActivity extends Activity {
         btnCall.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(getApplicationContext(), "Who do you want to call?", Toast.LENGTH_SHORT).show();
-                sp.talk("Who do you want to call?", false);
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_who_to_call), Toast.LENGTH_SHORT).show();
+                sp.talk(getResources().getString(R.string.toast_who_to_call), false);
 
                 if (!isOptionActive) {
                     isOptionActive = true;
@@ -291,8 +290,8 @@ public class MenuActivity extends Activity {
         btnNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Where do you want to go?", Toast.LENGTH_SHORT).show();
-                sp.talk("Where do you want to go?", false);
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_where_to_go), Toast.LENGTH_SHORT).show();
+                sp.talk(getResources().getString(R.string.toast_where_to_go), false);
 
 
 
@@ -318,8 +317,8 @@ public class MenuActivity extends Activity {
             public void onClick(View v)
             {
 
-                sp.talk("If you want to record a new message, or set a reminder, say record. If you want to listen to an existing message, say listen", false);
-                Toast.makeText(getApplicationContext(), "If you want to record a new message or set a reminder say  record. If you want to listen to an existing message say listen", Toast.LENGTH_LONG).show();
+                sp.talk(getResources().getString(R.string.toast_reminder), false);
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_reminder), Toast.LENGTH_LONG).show();
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
@@ -373,7 +372,7 @@ public class MenuActivity extends Activity {
                         // the user clicked on colors[which]
                         if (which == 0) {
                             //LOGGING OUT
-                            sp.talk("Logging out", false);
+                            //sp.talk("Logging out", false);
                             SharedPreferences prefs = getSharedPreferences(
                                     "sparksoft.smartguard", Context.MODE_PRIVATE);
                             prefs.edit().putInt("sparksoft.smartguard.status", 0).apply();
@@ -517,7 +516,7 @@ public class MenuActivity extends Activity {
                         RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                        "Do you need help with navigation?");
+                        getResources().getString(R.string.toast_need_help_navigate));
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
                 intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
@@ -624,7 +623,7 @@ public class MenuActivity extends Activity {
                         Intent navIntent = new Intent(getApplicationContext(), NavigateActivity.class);
                         navIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                        sp.talk("Where do you want to go?", true);
+                        sp.talk(getResources().getString(R.string.toast_where_to_go), true);
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
