@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Vibrator;
@@ -161,6 +162,7 @@ public class HelperLogin {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Authorization", basicAuth);
                 headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("serial", Build.SERIAL);
                 return headers;
             }
 
@@ -269,6 +271,8 @@ public class HelperLogin {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Authorization", basicAuth);
                 headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("serial", Build.SERIAL);
+
                 return headers;
             }
 
@@ -359,6 +363,8 @@ public class HelperLogin {
                     HashMap<String, String> headers = new HashMap<String, String>();
                     headers.put("Authorization", basicAuth);
                     headers.put("Content-Type", "application/json; charset=utf-8");
+                    headers.put("serial", Build.SERIAL);
+
                     return headers;
                 }
 
@@ -619,6 +625,8 @@ public class HelperLogin {
                         HashMap<String, String> headers = new HashMap<String, String>();
                         headers.put("Authorization", basicAuth);
                         headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("serial", Build.SERIAL);
+
                         return headers;
                     }
 

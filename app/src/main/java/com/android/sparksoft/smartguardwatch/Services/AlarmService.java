@@ -14,6 +14,7 @@ import com.android.sparksoft.smartguardwatch.CoachingActivity;
 import com.android.sparksoft.smartguardwatch.FitminutesActivity;
 import com.android.sparksoft.smartguardwatch.Models.Alarm;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
+import com.android.sparksoft.smartguardwatch.WeightActivity;
 
 import org.xml.sax.Parser;
 
@@ -81,7 +82,7 @@ public class AlarmService extends IntentService {
             //Measure weight
             else if(alarm.getMemoryType().equals("4"))
             {
-                Intent alarmIntent = new Intent(getBaseContext(), AlarmNotificationActivity.class);
+                Intent alarmIntent = new Intent(getBaseContext(), WeightActivity.class);
                 alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 alarmIntent.putExtras(intent);
                 getApplication().startActivity(alarmIntent);

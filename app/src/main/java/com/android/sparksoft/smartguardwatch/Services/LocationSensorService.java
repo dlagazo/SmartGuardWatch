@@ -73,7 +73,7 @@ public class LocationSensorService extends IntentService implements GoogleApiCli
         Log.d("Navigation", "onCreate:Service started");
         //Toast.makeText(getApplicationContext(), "Location service started", Toast.LENGTH_LONG).show();
         editor = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
-        buildGoogleApiClient();
+        //buildGoogleApiClient();
         if(Utils.isNetworkAvailable(getApplicationContext()) && Utils.isConnectedToHome(getApplicationContext(), Constants.HOME_SSID)) {
             DEFAULT_PRIORITY = LocationRequest.PRIORITY_NO_POWER;
             editor.edit().putInt(Constants.PREFS_CURRENT_PRIORITY, DEFAULT_PRIORITY).apply();

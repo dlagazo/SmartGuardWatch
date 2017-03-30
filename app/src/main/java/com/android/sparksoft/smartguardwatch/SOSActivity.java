@@ -859,9 +859,10 @@ public class SOSActivity extends Activity implements TextToSpeech.OnInitListener
                 try {
                     startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
                 } catch (ActivityNotFoundException a) {
-                    Toast.makeText(getApplicationContext(),
+                    /*Toast.makeText(getApplicationContext(),
                             "Sorry! Your device does not support speech to text.",
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();*/
+                    Log.d("TAG","Voice recognition not supported");
                 }
                 try {
                     Thread.sleep(20000);

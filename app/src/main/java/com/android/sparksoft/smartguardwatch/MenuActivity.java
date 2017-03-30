@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -352,7 +353,7 @@ public class MenuActivity extends Activity {
                     e.printStackTrace();
                 }
                 CharSequence options[] = new CharSequence[] {"Logout", "Sync", "Activity Check",
-                        "Check for updates", versionName, "Weight"};
+                        "Check for updates", versionName, "Weight", Build.SERIAL, "Skype"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
 
@@ -445,6 +446,11 @@ public class MenuActivity extends Activity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                             startActivity(intent);
+                        }
+                        else if (which == 7) {
+                            Intent skype = new Intent("android.intent.action.VIEW");
+                            skype.setData(Uri.parse("skype:dlagazo"));
+                            startActivity(skype);
                         }
 
                     }
@@ -544,7 +550,7 @@ public class MenuActivity extends Activity {
                         "sparksoft.smartguard", Context.MODE_PRIVATE);
                 Intent chargingService = new Intent(getApplicationContext(), ChargingService.class);
                 Intent fallService = new Intent(getApplicationContext(), FallService.class);
-                Intent navService = new Intent(getApplicationContext(), LocationSensorService.class);
+                //Intent navService = new Intent(getApplicationContext(), LocationSensorService.class);
                 switch (state) {
                     case TelephonyManager.CALL_STATE_IDLE:
                         //IDLE - 0
@@ -561,14 +567,14 @@ public class MenuActivity extends Activity {
                         {
                             stopService(fallService);
                             startService(fallService);
-                            stopService(navService);
-                            startService(navService);
+                            //stopService(navService);
+                            //startService(navService);
                         }
 
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:
                         Log.d("CALL_LOG", "Ofhook");
-                        stopService(navService);
+                        //stopService(navService);
                         stopService(fallService);
                         stopService(chargingService);
                         prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 1).apply();
@@ -578,7 +584,7 @@ public class MenuActivity extends Activity {
                         Log.d("CALL_LOG", "Ringing");
                         prefs.edit().putInt(Constants.PREFS_CALL_STATUS, 2).apply();
 
-                        stopService(navService);
+                        //stopService(navService);
                         stopService(fallService);
                         stopService(chargingService);
                         break;

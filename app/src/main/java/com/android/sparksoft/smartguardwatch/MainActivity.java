@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -21,11 +22,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.android.sparksoft.smartguardwatch.Features.SpeechBot;
 import com.android.sparksoft.smartguardwatch.Helpers.HelperLogin;
 import com.android.sparksoft.smartguardwatch.Models.Constants;
+import com.android.sparksoft.smartguardwatch.Models.MyHandler;
+import com.android.sparksoft.smartguardwatch.Models.NotificationSettings;
 import com.android.sparksoft.smartguardwatch.Services.FallService;
 import com.android.sparksoft.smartguardwatch.Services.LocationSensorService;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
+import com.microsoft.windowsazure.notifications.NotificationsManager;
+
+
+
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +52,13 @@ public class MainActivity extends Activity {
     private HelperLogin hr;
     private Timer myTimer;
 
+    //GCM Notification
+    public static MainActivity mainActivity;
+    public static Boolean isVisible = false;
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -47,7 +66,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.rect_activity_login);
 
-
+        TextView tvSerial = (TextView) findViewById(R.id.tvSerial);
+        tvSerial.setText(Build.SERIAL);
 
         sp = new SpeechBot(this, null);
 
@@ -67,10 +87,10 @@ public class MainActivity extends Activity {
             stopService(fallIntent);
             startService(fallIntent);
 
-            Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
+            //Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
 
-            stopService(locationIntent);
-            startService(locationIntent);
+            //stopService(locationIntent);
+            //startService(locationIntent);
 
             int deviceStatus = prefs.getInt("deviceStatus", 0);
 
@@ -132,6 +152,8 @@ public class MainActivity extends Activity {
                 int status = prefs.getInt("sparksoft.smartguard.status", 0);
 
                 if (status == 1) {
+                    NotificationsManager.handleNotifications(getApplicationContext(), NotificationSettings.SenderId, MyHandler.class);
+                    //registerWithNotificationHubs();
                     Intent myIntent = new Intent(getApplicationContext(), MenuActivity.class);
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(myIntent);
@@ -184,6 +206,21 @@ public class MainActivity extends Activity {
         */
     }
 
+
+
+    public void ToastNotify(final String notificationMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //Toast.makeText(MainActivity.this, notificationMessage, Toast.LENGTH_LONG).show();
+                //TextView helloText = (TextView) findViewById(R.id.text_hello);
+                //helloText.setText(notificationMessage);
+            }
+        });
+    }
+
+
+
     @Override
     protected void onDestroy()
     {
@@ -210,10 +247,10 @@ public class MainActivity extends Activity {
             //startService(new Intent(getApplicationContext(), FallService.class));
             stopService(fallIntent);
             startService(fallIntent);
-            Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
+            //Intent locationIntent = new Intent(getApplicationContext(), LocationSensorService.class);
 
-            stopService(locationIntent);
-            startService(locationIntent);
+            //stopService(locationIntent);
+            //startService(locationIntent);
 
 
 
